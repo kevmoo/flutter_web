@@ -65,7 +65,8 @@ class _AppWidgetState extends State<AppWidget> {
                   ),
                 ),
               ),
-            ]..addAll(_buttons()),
+              _buttons(),
+            ],
           ),
         ),
       );
@@ -119,18 +120,26 @@ class _AppWidgetState extends State<AppWidget> {
     });
   }
 
-  Iterable<MaterialButton> _buttons() sync* {
-    for (var value in Flavor.values) {
+  Table _buttons() {
+    Widget create(Flavor value, bool add) {
       final name = value.toString().split('.')[1];
-      for (var add in [true, false]) {
-        yield FlatButton(
-            onPressed:
-                (!add && _data.isEmpty) ? null : () => _change(add, value),
-            child: Text('${add ? "add" : "remove"} $name'),
-            color: Colors.black26,
-            disabledColor: Colors.black12);
-      }
+      return Padding(
+          padding: const EdgeInsets.all(5),
+          child: FlatButton(
+              onPressed:
+                  (!add && _data.isEmpty) ? null : () => _change(add, value),
+              child: Text('${add ? "add" : "remove"} $name'),
+              color: Colors.black26,
+              disabledColor: Colors.black12));
     }
+
+    return Table(
+      defaultColumnWidth: const FixedColumnWidth(150),
+      children: [
+        TableRow(children: Flavor.values.map((v) => create(v, true)).toList()),
+        TableRow(children: Flavor.values.map((v) => create(v, false)).toList()),
+      ],
+    );
   }
 
   final _rnd = math.Random();
