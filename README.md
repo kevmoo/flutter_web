@@ -82,6 +82,10 @@ not yet ready to accept GitHub pull requests at this time. However,
 
 [issue tracker]: https://goo.gle/flutter_web_issue
 
+## Samples
+
+Check out [flutter.github.io/samples](https://flutter.github.io/samples/).
+
 ## Getting started
 
 Flutter 1.5 and above enable support for targeting the web with Flutter,
@@ -281,3 +285,8 @@ targets:
 
 > Note: the `-O4` option enables a number of advanced optimizations that may
   cause runtime errors in code that has not been thoroughly tested.
+
+## Migrating existing code
+
+If you'd like to migrate existing Flutter code to run on the web preview, read
+[the migration guide](https://github.com/flutter/flutter_web/blob/master/docs/migration_guide.md).
