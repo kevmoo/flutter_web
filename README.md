@@ -115,6 +115,9 @@ Ensure that the `$HOME/.pub-cache/bin` directory
 [is in your path](https://www.dartlang.org/tools/pub/cmd/pub-global#running-a-script-from-your-path),
 and then you may use the `webdev` command directly from your terminal.
 
+> Note: if you have problems configuring `webdev` to run directly, try:<br>
+  `flutter packages pub global run webdev [command]`.
+
 ### Run the hello_world example
 
 1. The example exists at `examples/hello_world` in the repository.
