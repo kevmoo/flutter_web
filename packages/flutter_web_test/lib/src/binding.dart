@@ -1729,6 +1729,9 @@ class _MockHttpResponse extends Stream<List<int>>
   @override
   int get contentLength => -1;
 
+  // @override
+  bool get autoUncompress => true;
+
   @override
   List<Cookie> get cookies => null;
 
