@@ -244,6 +244,8 @@ application on save.
   will be lost on reload. We do hope to offer "stateful" hot-reload on the web
   – we're actively working on it!
 
+> Note: if you have trouble running the `webdev serve --auto restart` command,
+  try running `flutter pub global run webdev serve --auto restart` instead.
 
 ### Building with the production JavaScript compiler
 
