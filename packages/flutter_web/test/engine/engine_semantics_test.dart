@@ -48,6 +48,9 @@ void main() {
   group('checkboxes and radio buttons', () {
     _testCheckboxesAndRadioButtons();
   });
+  group('tappable', () {
+    _testTappable();
+  });
 }
 
 void _testEngineSemanticsOwner() {
@@ -828,6 +831,59 @@ void _testCheckboxesAndRadioButtons() {
     semantics().updateSemantics(builder.build());
     expectSemanticsTree('''
 <sem role="radio" aria-checked="false" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+}
+
+void _testTappable() {
+  testWidgets('renders an enabled tappable widget',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0 | SemanticsAction.tap.index,
+      flags: 0 |
+          SemanticsFlag.hasEnabledState.index |
+          SemanticsFlag.isEnabled.index |
+          SemanticsFlag.isButton.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem role="button" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+
+  testWidgets('renders a disabled tappable widget',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0 | SemanticsAction.tap.index,
+      flags: 0 |
+          SemanticsFlag.hasEnabledState.index |
+          SemanticsFlag.isButton.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem role="button" aria-disabled="true" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
 ''');
 
     semantics().semanticsEnabled = false;
