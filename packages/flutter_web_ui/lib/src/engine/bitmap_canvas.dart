@@ -61,8 +61,8 @@ class BitmapCanvas extends EngineCanvas with SaveStackTracking {
   // Cached current filter, fill and stroke style to reduce updates to
   // CanvasRenderingContext2D that are slow even when resetting to null.
   String _prevFilter = 'none';
-  Object _prevFillStyle = null;
-  Object _prevStrokeStyle = null;
+  Object _prevFillStyle;
+  Object _prevStrokeStyle;
 
   /// Allocates a canvas with enough memory to paint a picture within the given
   /// [bounds].
@@ -774,44 +774,8 @@ class BitmapCanvas extends EngineCanvas with SaveStackTracking {
       return;
     }
 
-    // This will cause a new canvas to be created for the next painting
-    // operation. This ensures that shapes that appear on top of text are
-    // rendered correctly.
-    // TODO(yjbanov): as our sample apps show it is a very common case for text
-    //                drawing operations to interleave non-text operations,
-    //                which generates a lot of HTML canvases for a single
-    //                Flutter Picture. This kills performance. We need a smarter
-    //                strategy, such as deducing painting bounds from paint ops
-    //                and/or sinking non-intersecting graphics down the canvas
-    //                chain.
-    // _canvas = null;
-
-    html.Element paragraphElement =
-        paragraph.webOnlyGetParagraphElement().clone(true);
-
-    final html.CssStyleDeclaration paragraphStyle = paragraphElement.style;
-    paragraphStyle
-      ..position = 'absolute'
-      ..whiteSpace = 'pre-wrap'
-      ..width = '${paragraph.width}px';
-
-    // TODO(flutter_web): Implement the ellipsis overflow for multi-line text
-    //  too. As a pre-requisite, we need to be able to programmatically find
-    //  line breaks.
-    if (style.ellipsis != null &&
-        (style.maxLines == null || style.maxLines == 1)) {
-      paragraphStyle
-        ..height = '${paragraph.webOnlyMaxLinesHeight}px'
-        ..whiteSpace = 'pre'
-        ..overflow = 'hidden'
-        ..textOverflow = 'ellipsis';
-    } else if (paragraph.didExceedMaxLines) {
-      paragraphStyle
-        ..height = '${paragraph.webOnlyMaxLinesHeight}px'
-        ..overflowY = 'hidden';
-    } else {
-      paragraphStyle.height = '${paragraph.height}px';
-    }
+    final html.Element paragraphElement =
+        drawParagraphElement(paragraph, offset);
 
     if (isClipped) {
       List<html.Element> clipElements =
@@ -823,7 +787,7 @@ class BitmapCanvas extends EngineCanvas with SaveStackTracking {
     } else {
       String cssTransform =
           matrix4ToCssTransform(transformWithOffset(currentTransform, offset));
-      paragraphStyle.transform = cssTransform;
+      paragraphElement.style.transform = cssTransform;
       rootElement.append(paragraphElement);
     }
     _children.add(paragraphElement);

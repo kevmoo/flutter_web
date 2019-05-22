@@ -201,7 +201,7 @@ class TextDimensions {
     }
   }
 
-  // Updated element style width.
+  /// Updated element style width.
   void updateWidth(String cssWidth) {
     _invalidateBoundsCache();
     _element.style.width = cssWidth;
@@ -430,10 +430,26 @@ class ParagraphRuler {
       ..padding = '0';
 
     constrainedDimensions.applyStyle(style);
-    constrainedDimensions._element.style
+    final html.CssStyleDeclaration elementStyle =
+        constrainedDimensions._element.style;
+    elementStyle
       ..display = 'block'
-      // Preserve whitespaces.
-      ..whiteSpace = 'pre-wrap';
+      ..overflowWrap = 'break-word';
+
+    // TODO(flutter_web): Implement the ellipsis overflow for multi-line text
+    // too. As a pre-requisite, we need to be able to programmatically find
+    // line breaks.
+    if (style.ellipsis == null) {
+      elementStyle.whiteSpace = 'pre-wrap';
+    } else {
+      // The height measurement is affected by whether the text has the ellipsis
+      // overflow property or not. This is because when ellipsis is set, we may
+      // not render all the lines, but stop at the first line that overflows.
+      elementStyle
+        ..whiteSpace = 'pre'
+        ..overflow = 'hidden'
+        ..textOverflow = 'ellipsis';
+    }
 
     constrainedDimensions.appendToHost(_constrainedHost);
     TextMeasurementService.instance.addHostElement(_constrainedHost);

@@ -178,7 +178,7 @@ void main() {
       expect(longText.maxIntrinsicWidth, 100);
       expect(longText.minIntrinsicWidth, 100);
       expect(longText.width, 50);
-      expect(longText.height, 10);
+      expect(longText.height, 20);
     });
 
     test('uses multi-line for text that contains new-line', () {
@@ -238,6 +238,50 @@ void main() {
 
       expect(
           normalText.maxIntrinsicWidth < spacedText.maxIntrinsicWidth, isTrue);
+    });
+
+    test('respects text overflow', () {
+      final overflowStyle = ui.ParagraphStyle(
+        fontFamily: 'ahem',
+        fontSize: 10,
+        ellipsis: '...',
+      );
+      final TextMeasurementService instance =
+          TextMeasurementService.initialize(rulerCacheCapacity: 2);
+
+      final constraints = ui.ParagraphConstraints(width: 50);
+
+      final longText = build(
+        overflowStyle,
+        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      );
+
+      final longTextShortPrefix = build(
+        overflowStyle,
+        'AAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      );
+
+      final longTextShortSuffix = build(
+        overflowStyle,
+        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nAAA',
+      );
+
+      instance.measure(longText, constraints);
+      instance.measure(longTextShortPrefix, constraints);
+      instance.measure(longTextShortSuffix, constraints);
+
+      // The text shouldn't be broken into multiple lines, so the height should
+      // be equal to a height of a single line.
+      expect(longText.height, 10);
+
+      // The short prefix should make the text break into two lines, but the
+      // second line should remain unbroken.
+      expect(longTextShortPrefix.height, 20);
+
+      // TODO(flutter_web): https://github.com/flutter/flutter/issues/33223
+      // The first line is overflowing so we should stop the measurement there
+      // and there should be no second line (the short suffix shouldn't be rendered).
+      // expect(longTextShortSuffix.height, 10);
     });
   });
 }
