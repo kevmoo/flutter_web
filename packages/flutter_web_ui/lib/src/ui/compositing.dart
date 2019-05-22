@@ -53,8 +53,9 @@ class Scene {
   /// Creates a raster image representation of the current state of the scene.
   /// This is a slow operation that is performed on a background thread.
   Future<Image> toImage(int width, int height) {
-    if (width <= 0 || height <= 0)
+    if (width <= 0 || height <= 0) {
       throw new Exception('Invalid image dimensions.');
+    }
     throw UnsupportedError('toImage is not supported on the Web');
     // TODO(flutter_web): Implement [_toImage].
     // return futurize(
@@ -138,8 +139,7 @@ class SceneBuilder {
   /// This is equivalent to [pushTransform] with a matrix with only translation.
   ///
   /// See [pop] for details about the operation stack.
-  EngineLayer pushOffset(double dx, double dy,
-      {@required Object webOnlyPaintedBy}) {
+  EngineLayer pushOffset(double dx, double dy, {Object webOnlyPaintedBy}) {
     return _pushSurface(PersistedOffset(webOnlyPaintedBy, dx, dy));
   }
 
@@ -148,8 +148,7 @@ class SceneBuilder {
   /// The objects are transformed by the given matrix before rasterization.
   ///
   /// See [pop] for details about the operation stack.
-  EngineLayer pushTransform(Float64List matrix4,
-      {@required Object webOnlyPaintedBy}) {
+  EngineLayer pushTransform(Float64List matrix4, {Object webOnlyPaintedBy}) {
     if (matrix4 == null)
       throw new ArgumentError('"matrix4" argument cannot be null');
     if (matrix4.length != 16)
@@ -164,7 +163,7 @@ class SceneBuilder {
   /// See [pop] for details about the operation stack, and [Clip] for different clip modes.
   /// By default, the clip will be anti-aliased (clip = [Clip.antiAlias]).
   EngineLayer pushClipRect(Rect rect,
-      {Clip clipBehavior = Clip.antiAlias, @required Object webOnlyPaintedBy}) {
+      {Clip clipBehavior = Clip.antiAlias, Object webOnlyPaintedBy}) {
     assert(clipBehavior != null);
     assert(clipBehavior != Clip.none);
     return _pushSurface(PersistedClipRect(webOnlyPaintedBy, rect));
@@ -176,7 +175,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushClipRRect(RRect rrect,
-      {Clip clipBehavior, @required Object webOnlyPaintedBy}) {
+      {Clip clipBehavior, Object webOnlyPaintedBy}) {
     return _pushSurface(
         PersistedClipRRect(webOnlyPaintedBy, rrect, clipBehavior));
   }
@@ -187,7 +186,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushClipPath(Path path,
-      {Clip clipBehavior = Clip.antiAlias, @required Object webOnlyPaintedBy}) {
+      {Clip clipBehavior = Clip.antiAlias, Object webOnlyPaintedBy}) {
     assert(clipBehavior != null);
     assert(clipBehavior != Clip.none);
     return _pushSurface(
@@ -203,7 +202,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushOpacity(int alpha,
-      {@required Object webOnlyPaintedBy, Offset offset = Offset.zero}) {
+      {Object webOnlyPaintedBy, Offset offset = Offset.zero}) {
     return _pushSurface(PersistedOpacity(webOnlyPaintedBy, alpha, offset));
   }
 
@@ -214,7 +213,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushColorFilter(Color color, BlendMode blendMode,
-      {@required Object webOnlyPaintedBy}) {
+      {Object webOnlyPaintedBy}) {
     throw new UnimplementedError();
   }
 
@@ -225,7 +224,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushBackdropFilter(ImageFilter filter,
-      {@required Object webOnlyPaintedBy}) {
+      {Object webOnlyPaintedBy}) {
     throw new UnimplementedError();
   }
 
@@ -236,7 +235,7 @@ class SceneBuilder {
   ///
   /// See [pop] for details about the operation stack.
   EngineLayer pushShaderMask(Shader shader, Rect maskRect, BlendMode blendMode,
-      {@required Object webOnlyPaintedBy}) {
+      {Object webOnlyPaintedBy}) {
     throw new UnimplementedError();
   }
 
@@ -258,7 +257,7 @@ class SceneBuilder {
     Color color,
     Color shadowColor,
     Clip clipBehavior = Clip.none,
-    @required Object webOnlyPaintedBy,
+    Object webOnlyPaintedBy,
   }) {
     return _pushSurface(PersistedPhysicalShape(
       webOnlyPaintedBy,
@@ -323,7 +322,7 @@ class SceneBuilder {
   /// See also the [PerformanceOverlayOption] enum in the rendering library.
   /// for more details.
   void addPerformanceOverlay(int enabledOptions, Rect bounds,
-      {@required Object webOnlyPaintedBy}) {
+      {Object webOnlyPaintedBy}) {
     _addPerformanceOverlay(enabledOptions, bounds.left, bounds.right,
         bounds.top, bounds.bottom, webOnlyPaintedBy);
   }
@@ -343,7 +342,7 @@ class SceneBuilder {
   void addPicture(Offset offset, Picture picture,
       {bool isComplexHint = false,
       bool willChangeHint = false,
-      @required Object webOnlyPaintedBy}) {
+      Object webOnlyPaintedBy}) {
     int hints = 0;
     if (isComplexHint) hints |= 1;
     if (willChangeHint) hints |= 2;
@@ -352,7 +351,7 @@ class SceneBuilder {
   }
 
   void _addPicture(double dx, double dy, Picture picture, int hints,
-      {@required Object webOnlyPaintedBy}) {
+      {Object webOnlyPaintedBy}) {
     _addSurface(
         persistedPictureFactory(webOnlyPaintedBy, dx, dy, picture, hints));
   }
@@ -366,7 +365,7 @@ class SceneBuilder {
       double width = 0.0,
       double height = 0.0,
       bool freeze = false,
-      @required Object webOnlyPaintedBy}) {
+      Object webOnlyPaintedBy}) {
     assert(offset != null, 'Offset argument was null');
     _addTexture(
         offset.dx, offset.dy, width, height, textureId, webOnlyPaintedBy);
@@ -914,7 +913,7 @@ abstract class PersistedSurface implements EngineLayer {
   /// Creates a persisted surface.
   ///
   /// [paintedBy] points to the object that painted this surface.
-  PersistedSurface(this.paintedBy) : assert(paintedBy != null);
+  PersistedSurface(this.paintedBy);
 
   /// The strategy that should be used when attempting to reuse the resources
   /// owned by this surface.
@@ -1068,6 +1067,7 @@ abstract class PersistedSurface implements EngineLayer {
       return false;
     }
     return other.runtimeType == runtimeType &&
+        (other.paintedBy != null && paintedBy != null) &&
         identical(other.paintedBy, paintedBy) &&
         _hasExactDescendants(other);
   }
@@ -1182,7 +1182,9 @@ abstract class PersistedSurface implements EngineLayer {
     if (rootElement != null) {
       buffer.write('@${rootElement.hashCode} ');
     }
-    buffer.write('painted-by="${paintedBy.runtimeType}"');
+    if (paintedBy != null) {
+      buffer.write('painted-by="${paintedBy.runtimeType}"');
+    }
   }
 
   @protected
@@ -1234,9 +1236,13 @@ abstract class PersistedContainerSurface extends PersistedSurface {
     // render object as having this child as a descendant. This allows us to
     // detect when children move within their list of siblings and reuse their
     // elements.
-    if (!identical(child.paintedBy, paintedBy)) {
+    if (paintedBy != null &&
+        child.paintedBy != null &&
+        !identical(child.paintedBy, paintedBy)) {
       PersistedSurface container = this;
-      while (container != null && identical(container.paintedBy, paintedBy)) {
+      while (container != null &&
+          container.paintedBy != null &&
+          identical(container.paintedBy, paintedBy)) {
         container._descendants ??= Set<Object>();
         container._descendants.add(child.paintedBy);
         container = container.parent;
