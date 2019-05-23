@@ -32,7 +32,7 @@ the browser API.
 Until Flutter for web is integrated into the Flutter SDK we do not automatically
 bundle fonts as part of the build process. In the meantime, you need to follow
 the instructions for including the fonts in the
-[migration guide](https://github.com/flutter/flutter_web/blob/master/oss/docs/faq.md).
+[migration guide](https://github.com/flutter/flutter_web/blob/master/docs/migration_guide.md).
 
 ## When will Flutter for web be ready for production?
 
