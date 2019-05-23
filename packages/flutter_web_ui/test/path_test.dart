@@ -21,6 +21,14 @@ void main() {
     expect(path.subpaths[0].currentY, 50.0);
   });
 
+  test('LineTo should add moveTo 0,0 when first call to Path API', () {
+    final Path path = Path();
+    path.lineTo(20.0, 40.0);
+    expect(path.subpaths.length, 1);
+    expect(path.subpaths[0].currentX, 20.0);
+    expect(path.subpaths[0].currentY, 40.0);
+  });
+
   test('relativeLineTo should increments currentX', () {
     final Path path = Path();
     path.moveTo(5.0, 10.0);

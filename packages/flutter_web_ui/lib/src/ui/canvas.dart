@@ -1120,6 +1120,9 @@ class Path {
   /// Adds a straight line segment from the current point to the given
   /// point.
   void lineTo(double x, double y) {
+    if (subpaths.isEmpty) {
+      moveTo(0.0, 0.0);
+    }
     _commands.add(new engine.LineTo(x, y));
     _setCurrentPoint(x, y);
   }
@@ -1129,7 +1132,9 @@ class Path {
   void relativeLineTo(double dx, double dy) {
     var newX = _currentX + dx;
     var newY = _currentY + dy;
-    _ensurePathStarted();
+    if (subpaths.isEmpty) {
+      moveTo(0.0, 0.0);
+    }
     _commands.add(new engine.LineTo(newX, newY));
     _setCurrentPoint(newX, newY);
   }
