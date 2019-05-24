@@ -156,6 +156,9 @@ String canonicalizeHtml(String html,
       case 'flt-semantics-value':
         replacementTag = 'sem-v';
         break;
+      case 'flt-semantics-img':
+        replacementTag = 'sem-img';
+        break;
       case 'flt-semantics-text-field':
         replacementTag = 'sem-tf';
         break;

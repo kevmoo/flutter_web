@@ -51,6 +51,9 @@ void main() {
   group('tappable', () {
     _testTappable();
   });
+  group('image', () {
+    _testImage();
+  });
 }
 
 void _testEngineSemanticsOwner() {
@@ -885,6 +888,115 @@ void _testTappable() {
     expectSemanticsTree('''
 <sem role="button" aria-disabled="true" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
 ''');
+
+    semantics().semanticsEnabled = false;
+  });
+}
+
+void _testImage() {
+  testWidgets('renders an image with no child nodes and with a label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      flags: 0 | SemanticsFlag.isImage.index,
+      label: 'Test Image Label',
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem role="img" aria-label="Test Image Label" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+
+  testWidgets('renders an image with a child node and with a label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      flags: 0 | SemanticsFlag.isImage.index,
+      label: 'Test Image Label',
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+      childrenInHitTestOrder: Int32List.fromList([1]),
+      childrenInTraversalOrder: Int32List.fromList([1]),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem style="filter: opacity(0%); color: rgba(0, 0, 0, 0)">
+  <sem-img role="img" aria-label="Test Image Label">
+  </sem-img>
+  <sem-c>
+    <sem></sem>
+  </sem-c>
+</sem>''');
+
+    semantics().semanticsEnabled = false;
+  });
+
+  testWidgets('renders an image with no child nodes without a label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      flags: 0 | SemanticsFlag.isImage.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree(
+        '''<sem role="img" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>''');
+
+    semantics().semanticsEnabled = false;
+  });
+
+  testWidgets('renders an image with a child node and without a label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      flags: 0 | SemanticsFlag.isImage.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+      childrenInHitTestOrder: Int32List.fromList([1]),
+      childrenInTraversalOrder: Int32List.fromList([1]),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem style="filter: opacity(0%); color: rgba(0, 0, 0, 0)">
+  <sem-img role="img">
+  </sem-img>
+  <sem-c>
+    <sem></sem>
+  </sem-c>
+</sem>''');
 
     semantics().semanticsEnabled = false;
   });

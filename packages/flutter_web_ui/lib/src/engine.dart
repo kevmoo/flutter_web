@@ -45,6 +45,7 @@ part 'engine/path_to_svg.dart';
 part 'engine/pointer_binding.dart';
 part 'engine/recording_canvas.dart';
 part 'engine/semantics/checkable.dart';
+part 'engine/semantics/image.dart';
 part 'engine/semantics/incrementable.dart';
 part 'engine/semantics/label_and_value.dart';
 part 'engine/semantics/scrollable.dart';
