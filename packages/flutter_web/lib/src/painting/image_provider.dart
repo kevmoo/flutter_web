@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_web_ui/ui.dart' as ui
-    show instantiateImageCodec, webOnlyInstantiateImageCodecFromUrl, Codec;
+    show webOnlyInstantiateImageCodecFromUrl, Codec;
 import 'package:flutter_web_ui/ui.dart'
     show Size, Locale, TextDirection, hashValues;
 
@@ -419,7 +419,8 @@ abstract class AssetBundleImageProvider
   Future<ui.Codec> _loadAsync(AssetBundleImageKey key) async {
     final ByteData data = await key.bundle.load(key.name);
     if (data == null) throw 'Unable to read data';
-    return await ui.instantiateImageCodec(data.buffer.asUint8List());
+    return await PaintingBinding.instance
+        .instantiateImageCodec(data.buffer.asUint8List());
   }
 }
 
@@ -527,7 +528,7 @@ class MemoryImage extends ImageProvider<MemoryImage> {
   Future<ui.Codec> _loadAsync(MemoryImage key) {
     assert(key == this);
 
-    return ui.instantiateImageCodec(bytes);
+    return PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
   @override
