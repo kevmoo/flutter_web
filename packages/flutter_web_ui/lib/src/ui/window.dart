@@ -1063,18 +1063,9 @@ class Window {
     }
   }
 
-  static engine.BitmapCanvas _previousCanvas;
-  static void _submitScene(engine.BitmapCanvas canvas) {
-    if (canvas == _previousCanvas) return;
-    if (_previousCanvas != null) {
-      _previousCanvas.rootElement.remove();
-    }
-    _previousCanvas = canvas;
-    engine.domRenderer
-        .append(engine.domRenderer.rootElement, canvas.rootElement);
-  }
-
-  final _rasterizer = engine.Rasterizer(engine.Surface(_submitScene));
+  final _rasterizer = engine.Rasterizer(engine.Surface(
+      (engine.BitmapCanvas canvas) =>
+          engine.domRenderer.renderScene(canvas.rootElement)));
 }
 
 /// Additional accessibility features that may be enabled by the platform.
