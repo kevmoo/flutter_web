@@ -64,6 +64,7 @@ part 'engine/surface/scene.dart';
 part 'engine/surface/surface.dart';
 part 'engine/surface/transform.dart';
 part 'engine/text/font_collection.dart';
+part 'engine/text/line_breaker.dart';
 part 'engine/text/measurement.dart';
 part 'engine/text/ruler.dart';
 part 'engine/text/unicode_range.dart';

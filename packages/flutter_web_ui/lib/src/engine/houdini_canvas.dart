@@ -223,7 +223,7 @@ class HoudiniCanvas extends EngineCanvas with SaveElementStackTracking {
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
     final html.Element paragraphElement =
-        drawParagraphElement(paragraph, offset, transform: currentTransform);
+        _drawParagraphElement(paragraph, offset, transform: currentTransform);
     currentElement.append(paragraphElement);
   }
 }

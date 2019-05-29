@@ -287,6 +287,11 @@ class RecordingCanvas {
   }
 
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
+    if (!paragraph.webOnlyIsLaidOut) {
+      // Ignore non-laid out paragraphs. This matches Flutter's behavior.
+      return;
+    }
+
     _didDraw = true;
     final double left = offset.dx;
     final double top = offset.dy;
@@ -930,11 +935,6 @@ class PaintDrawParagraph extends PaintCommand {
 
   @override
   void apply(EngineCanvas canvas) {
-    if (!paragraph.webOnlyIsLaidOut) {
-      // Ignore non-laid out paragraphs. This matches Flutter's behavior.
-      return;
-    }
-
     canvas.drawParagraph(paragraph, offset);
   }
 

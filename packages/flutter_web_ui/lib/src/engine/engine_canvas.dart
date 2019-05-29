@@ -227,7 +227,7 @@ mixin SaveStackTracking on EngineCanvas {
   }
 }
 
-html.Element drawParagraphElement(
+html.Element _drawParagraphElement(
   ui.Paragraph paragraph,
   ui.Offset offset, {
   Matrix4 transform,

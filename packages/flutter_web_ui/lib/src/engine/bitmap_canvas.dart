@@ -775,7 +775,7 @@ class BitmapCanvas extends EngineCanvas with SaveStackTracking {
     }
 
     final html.Element paragraphElement =
-        drawParagraphElement(paragraph, offset);
+        _drawParagraphElement(paragraph, offset);
 
     if (isClipped) {
       List<html.Element> clipElements =

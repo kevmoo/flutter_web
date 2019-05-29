@@ -76,11 +76,11 @@ void main() {
 
     expect(paragraph.webOnlyGetParagraphElement().parent, isNull);
     expect(paragraph.height, 0.0);
-    expect(paragraph.width, 0.0);
+    expect(paragraph.width, -1.0);
     expect(paragraph.minIntrinsicWidth, 0.0);
     expect(paragraph.maxIntrinsicWidth, 0.0);
-    expect(paragraph.alphabeticBaseline, 0.0);
-    expect(paragraph.ideographicBaseline, 0.0);
+    expect(paragraph.alphabeticBaseline, -1.0);
+    expect(paragraph.ideographicBaseline, -1.0);
 
     paragraph.layout(ParagraphConstraints(width: 60.0));
 

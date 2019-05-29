@@ -196,7 +196,9 @@ class TextDecoration {
   /// Creates a decoration that paints the union of all the given decorations.
   factory TextDecoration.combine(List<TextDecoration> decorations) {
     int mask = 0;
-    for (TextDecoration decoration in decorations) mask |= decoration._mask;
+    for (TextDecoration decoration in decorations) {
+      mask |= decoration._mask;
+    }
     return new TextDecoration._(mask);
   }
 
@@ -1153,46 +1155,57 @@ class Paragraph {
   /// of painting should be considered deprecated.
   html.HtmlElement webOnlyGetParagraphElement() => _paragraphElement;
 
+  /// The instance of [TextMeasurementService] to be used to measure this
+  /// paragraph.
+  engine.TextMeasurementService get _measurementService =>
+      engine.TextMeasurementService.forParagraph(this);
+
+  /// The measurement result of the last layout operation.
+  engine.MeasurementResult _measurementResult;
+
   /// The amount of horizontal space this paragraph occupies.
   ///
   /// Valid only after [layout] has been called.
-  double get width => _width;
-  double _width = 0.0;
+  double get width => _measurementResult?.width ?? -1;
 
   /// The amount of vertical space this paragraph occupies.
   ///
   /// Valid only after [layout] has been called.
-  double get height => _height;
-  double _height = 0.0;
+  double get height => _measurementResult?.height ?? 0;
 
   /// The amount of vertical space one line of this paragraph occupies.
   ///
   /// Valid only after [layout] has been called.
-  double _lineHeight = 0.0;
+  double get _lineHeight => _measurementResult?.lineHeight ?? 0;
 
+  /// {@template dart.ui.paragraph.minIntrinsicWidth}
   /// The minimum width that this paragraph could be without failing to paint
   /// its contents within itself.
+  /// {@endtemplate}
   ///
   /// Valid only after [layout] has been called.
-  double get minIntrinsicWidth => _minIntrinsicWidth;
-  double _minIntrinsicWidth = 0.0;
+  double get minIntrinsicWidth => _measurementResult?.minIntrinsicWidth ?? 0;
 
+  /// {@template dart.ui.paragraph.maxIntrinsicWidth}
   /// Returns the smallest width beyond which increasing the width never
   /// decreases the height.
+  /// {@endtemplate}
   ///
   /// Valid only after [layout] has been called.
-  double get maxIntrinsicWidth => _maxIntrinsicWidth;
-  double _maxIntrinsicWidth = 0.0;
+  double get maxIntrinsicWidth => _measurementResult?.maxIntrinsicWidth ?? 0;
 
+  /// {@template dart.ui.paragraph.alphabeticBaseline}
   /// The distance from the top of the paragraph to the alphabetic
   /// baseline of the first line, in logical pixels.
-  double get alphabeticBaseline => _alphabeticBaseline;
-  double _alphabeticBaseline = 0.0;
+  /// {@endtemplate}
+  double get alphabeticBaseline => _measurementResult?.alphabeticBaseline ?? -1;
 
+  /// {@template dart.ui.paragraph.ideographicBaseline}
   /// The distance from the top of the paragraph to the ideographic
   /// baseline of the first line, in logical pixels.
-  double get ideographicBaseline => _ideographicBaseline;
-  double _ideographicBaseline = 0.0;
+  /// {@endtemplate}
+  double get ideographicBaseline =>
+      _measurementResult?.ideographicBaseline ?? -1;
 
   /// True if there is more vertical content, but the text was truncated, either
   /// because we reached `maxLines` lines of text or because the `maxLines` was
@@ -1218,11 +1231,11 @@ class Paragraph {
       return;
     }
 
-    engine.TextMeasurementService.instance.measure(this, constraints);
+    _measurementResult = _measurementService.measure(this, constraints);
     _lastUsedConstraints = constraints;
 
     if (_paragraphGeometricStyle.maxLines != null) {
-      _didExceedMaxLines = webOnlyMaxLinesHeight < _height;
+      _didExceedMaxLines = webOnlyMaxLinesHeight < height;
     } else {
       _didExceedMaxLines = false;
     }
@@ -1230,19 +1243,19 @@ class Paragraph {
     if (_webOnlyIsSingleLine && constraints != null) {
       switch (_textAlign) {
         case TextAlign.center:
-          webOnlyAlignOffset = (constraints.width - _maxIntrinsicWidth) / 2.0;
+          webOnlyAlignOffset = (constraints.width - maxIntrinsicWidth) / 2.0;
           break;
         case TextAlign.right:
-          webOnlyAlignOffset = constraints.width - _maxIntrinsicWidth;
+          webOnlyAlignOffset = constraints.width - maxIntrinsicWidth;
           break;
         case TextAlign.start:
           webOnlyAlignOffset = _textDirection == TextDirection.rtl
-              ? constraints.width - _maxIntrinsicWidth
+              ? constraints.width - maxIntrinsicWidth
               : 0.0;
           break;
         case TextAlign.end:
           webOnlyAlignOffset = _textDirection == TextDirection.ltr
-              ? constraints.width - _maxIntrinsicWidth
+              ? constraints.width - maxIntrinsicWidth
               : 0.0;
           break;
         default:
@@ -1274,7 +1287,7 @@ class Paragraph {
   /// that there's no expected height for this paragraph in order to respect
   /// [maxLines].
   double get webOnlyMaxLinesHeight {
-    assert(_webOnlyIsLaidOut);
+    assert(webOnlyIsLaidOut);
     if (_paragraphGeometricStyle.maxLines == null) {
       return null;
     }
@@ -1286,40 +1299,8 @@ class Paragraph {
     return _paragraphGeometricStyle.maxLines * _lineHeight;
   }
 
-  /// Called by the text measurement system to report the layout attributes
-  /// computed for this paragraph.
-  ///
-  /// All of the arguments must be non-null.
-  void webOnlySetComputedLayout({
-    @required double width,
-    @required double height,
-    @required double lineHeight,
-    @required double minIntrinsicWidth,
-    @required double maxIntrinsicWidth,
-    @required double alphabeticBaseline,
-    @required double ideographicBaseline,
-    @required bool isSingleLine,
-  }) {
-    assert(width != null &&
-        height != null &&
-        minIntrinsicWidth != null &&
-        maxIntrinsicWidth != null &&
-        minIntrinsicWidth <= maxIntrinsicWidth &&
-        alphabeticBaseline != null &&
-        ideographicBaseline != null);
-    _width = width;
-    _height = height;
-    _lineHeight = lineHeight;
-    _minIntrinsicWidth = minIntrinsicWidth;
-    _maxIntrinsicWidth = maxIntrinsicWidth;
-    _alphabeticBaseline = alphabeticBaseline;
-    _ideographicBaseline = ideographicBaseline;
-    _webOnlyIsSingleLine = isSingleLine;
-    _webOnlyIsLaidOut = true;
-  }
-
   /// Whether or not this paragraph can be drawn on a single line.
-  bool _webOnlyIsSingleLine = false;
+  bool get _webOnlyIsSingleLine => _measurementResult.isSingleLine;
 
   /// Returns `true` if this paragraph can be directly painted to the canvas.
   ///
@@ -1338,8 +1319,7 @@ class Paragraph {
 
   /// Whether this paragraph has been laid out.
   // TODO(yjbanov): This is Engine-internal API. We should make it private.
-  bool get webOnlyIsLaidOut => _webOnlyIsLaidOut;
-  bool _webOnlyIsLaidOut = false;
+  bool get webOnlyIsLaidOut => _measurementResult != null;
 
   /// Asserts that the properties used to measure paragraph layout are the same
   /// as the properties of this paragraphs root style.
@@ -1388,7 +1368,7 @@ class Paragraph {
       return [];
     }
 
-    return engine.TextMeasurementService.instance.measureBoxesForRange(
+    return _measurementService.measureBoxesForRange(
       this,
       _lastUsedConstraints,
       start: start,
@@ -1398,7 +1378,7 @@ class Paragraph {
     );
   }
 
-  Paragraph _cloneWithText(String plainText) {
+  Paragraph webOnlyCloneWithText(String plainText) {
     return Paragraph._(
       plainText: plainText,
       paragraphElement: _paragraphElement.clone(true),
@@ -1420,27 +1400,13 @@ class Paragraph {
     }
 
     final double dx = offset.dx - webOnlyAlignOffset;
-    final engine.TextMeasurementService instance =
-        engine.TextMeasurementService.instance;
-
-    double _measureSingleLineWidth(String text) {
-      if (_paragraphGeometricStyle.letterSpacing != null ||
-          _paragraphGeometricStyle.wordSpacing != null ||
-          _paragraphGeometricStyle.decoration != null) {
-        // Note that measuring single-line text repeatedly with this API is
-        // very slow.
-        return instance.measureSingleLineText(_cloneWithText(text)).width;
-      } else {
-        return instance.measureSingleLineWidth(text, _paragraphGeometricStyle);
-      }
-    }
+    final engine.TextMeasurementService instance = _measurementService;
 
     int low = 0;
     int high = _plainText.length;
     do {
       final int current = (low + high) ~/ 2;
-      final double width =
-          _measureSingleLineWidth(_plainText.substring(0, current));
+      final double width = instance.measureSubstringWidth(this, 0, current);
       if (width < dx) {
         low = current;
       } else if (width > dx) {
@@ -1455,10 +1421,8 @@ class Paragraph {
       return TextPosition(offset: high, affinity: TextAffinity.upstream);
     }
 
-    final double lowWidth =
-        _measureSingleLineWidth(_plainText.substring(0, low));
-    final double highWidth =
-        _measureSingleLineWidth(_plainText.substring(0, high));
+    final double lowWidth = instance.measureSubstringWidth(this, 0, low);
+    final double highWidth = instance.measureSubstringWidth(this, 0, high);
 
     if (dx - lowWidth < highWidth - dx) {
       // The offset is closer to the low index.
@@ -1521,10 +1485,12 @@ class ParagraphBuilder {
     List<String> strutFontFamilies;
     if (style._strutStyle != null) {
       strutFontFamilies = <String>[];
-      if (style._strutStyle._fontFamily != null)
+      if (style._strutStyle._fontFamily != null) {
         strutFontFamilies.add(style._strutStyle._fontFamily);
-      if (style._strutStyle._fontFamilyFallback != null)
+      }
+      if (style._strutStyle._fontFamilyFallback != null) {
         strutFontFamilies.addAll(style._strutStyle._fontFamilyFallback);
+      }
     }
     applyParagraphStyleToElement(
         element: _paragraphElement, style: _paragraphStyle);
