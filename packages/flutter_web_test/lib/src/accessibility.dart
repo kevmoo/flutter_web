@@ -93,9 +93,10 @@ class MinimumTapTargetGuideline extends AccessibilityGuideline {
       Rect paintBounds = node.rect;
       SemanticsNode current = node;
       while (current != null) {
-        if (current.transform != null)
+        if (current.transform != null) {
           paintBounds =
               MatrixUtils.transformRect(current.transform, paintBounds);
+        }
         current = current.parent;
       }
       // skip node if it is touching the edge of the screen, since it might
@@ -104,15 +105,17 @@ class MinimumTapTargetGuideline extends AccessibilityGuideline {
       if (paintBounds.left <= delta ||
           paintBounds.top <= delta ||
           (paintBounds.bottom - ui.window.physicalSize.height).abs() <= delta ||
-          (paintBounds.right - ui.window.physicalSize.width).abs() <= delta)
+          (paintBounds.right - ui.window.physicalSize.width).abs() <= delta) {
         return result;
+      }
       // shrink by device pixel ratio.
       final Size candidateSize = paintBounds.size / ui.window.devicePixelRatio;
       if (candidateSize.width < size.width ||
-          candidateSize.height < size.height)
+          candidateSize.height < size.height) {
         result += Evaluation.fail(
             '$node: expected tap target size of at least $size, but found $candidateSize\n'
             'See also: $link');
+      }
       return result;
     }
 
@@ -216,8 +219,12 @@ class MinimumTextContrastGuideline extends AccessibilityGuideline {
         children.add(child);
         return true;
       });
-      for (SemanticsNode child in children) result += await evaluateNode(child);
-      if (_shouldSkipNode(data)) return result;
+      for (SemanticsNode child in children) {
+        result += await evaluateNode(child);
+      }
+      if (_shouldSkipNode(data)) {
+        return result;
+      }
 
       // We need to look up the inherited text properties to determine the
       // contrast ratio based on text size/weight.
@@ -233,8 +240,9 @@ class MinimumTextContrastGuideline extends AccessibilityGuideline {
         final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(element);
         if (widget is Text) {
           TextStyle effectiveTextStyle = widget.style;
-          if (widget.style == null || widget.style.inherit)
+          if (widget.style == null || widget.style.inherit) {
             effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
+          }
           fontSize = effectiveTextStyle.fontSize;
           isBold = effectiveTextStyle.fontWeight == FontWeight.bold;
         } else if (widget is EditableText) {
@@ -256,9 +264,10 @@ class MinimumTextContrastGuideline extends AccessibilityGuideline {
       Rect paintBounds = node.rect;
       SemanticsNode current = node;
       while (current != null && current.parent != null) {
-        if (current.transform != null)
+        if (current.transform != null) {
           paintBounds =
               MatrixUtils.transformRect(current.transform, paintBounds);
+        }
         paintBounds =
             paintBounds.shift(current.parent?.rect?.topLeft ?? Offset.zero);
         current = current.parent;
@@ -278,8 +287,9 @@ class MinimumTextContrastGuideline extends AccessibilityGuideline {
       } else {
         targetContrastRatio = kMinimumRatioNormalText;
       }
-      if (contrastRatio - targetContrastRatio >= delta)
+      if (contrastRatio - targetContrastRatio >= delta) {
         return result + const Evaluation.pass();
+      }
       return result +
           Evaluation.fail('$node:\nExpected contrast ratio of at least '
               '$targetContrastRatio but found ${contrastRatio.toStringAsFixed(2)} for a font size of $fontSize. '
@@ -348,8 +358,9 @@ class MinimumTextContrastGuideline extends AccessibilityGuideline {
 class _ContrastReport {
   factory _ContrastReport(List<int> colors) {
     final Map<int, int> colorHistogram = <int, int>{};
-    for (int color in colors)
+    for (int color in colors) {
       colorHistogram[color] = (colorHistogram[color] ?? 0) + 1;
+    }
     if (colorHistogram.length == 1) {
       final Color hslColor = Color(colorHistogram.keys.first);
       return _ContrastReport._(hslColor, hslColor);
@@ -402,18 +413,21 @@ class _ContrastReport {
     double r = color.red / 255.0;
     double g = color.green / 255.0;
     double b = color.blue / 255.0;
-    if (r <= 0.03928)
+    if (r <= 0.03928) {
       r /= 12.92;
-    else
+    } else {
       r = math.pow((r + 0.055) / 1.055, 2.4);
-    if (g <= 0.03928)
+    }
+    if (g <= 0.03928) {
       g /= 12.92;
-    else
+    } else {
       g = math.pow((g + 0.055) / 1.055, 2.4);
-    if (b <= 0.03928)
+    }
+    if (b <= 0.03928) {
       b /= 12.92;
-    else
+    } else {
       b = math.pow((b + 0.055) / 1.055, 2.4);
+    }
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 }

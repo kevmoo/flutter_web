@@ -131,9 +131,10 @@ class Canvas {
   /// To end the recording, call [PictureRecorder.endRecording] on the
   /// given recorder.
   Canvas(PictureRecorder recorder, [Rect cullRect]) : assert(recorder != null) {
-    if (recorder.isRecording)
+    if (recorder.isRecording) {
       throw new ArgumentError(
           '"recorder" must not already be associated with another Canvas.');
+    }
     cullRect ??= Rect.largest;
     _canvas = recorder.beginRecording(cullRect);
   }
@@ -331,8 +332,9 @@ class Canvas {
   /// specified as a list of values in column-major order.
   void transform(Float64List matrix4) {
     assert(matrix4 != null);
-    if (matrix4.length != 16)
+    if (matrix4.length != 16) {
       throw new ArgumentError('"matrix4" must have 16 entries.');
+    }
     _transform(matrix4);
   }
 
@@ -828,8 +830,9 @@ class Canvas {
     assert(pointMode != null);
     assert(points != null);
     assert(paint != null);
-    if (points.length % 2 != 0)
+    if (points.length % 2 != 0) {
       throw new ArgumentError('"points" must have an even number of values.');
+    }
     throw new UnimplementedError();
   }
 
@@ -855,11 +858,13 @@ class Canvas {
     assert(paint != null);
 
     final int rectCount = rects.length;
-    if (transforms.length != rectCount)
+    if (transforms.length != rectCount) {
       throw new ArgumentError('"transforms" and "rects" lengths must match.');
-    if (colors.isNotEmpty && colors.length != rectCount)
+    }
+    if (colors.isNotEmpty && colors.length != rectCount) {
       throw new ArgumentError(
           'If non-null, "colors" length must match that of "transforms" and "rects".');
+    }
 
     // TODO(het): Do we need to support this?
     throw new UnimplementedError();
@@ -890,15 +895,18 @@ class Canvas {
     assert(paint != null);
 
     final int rectCount = rects.length;
-    if (rstTransforms.length != rectCount)
+    if (rstTransforms.length != rectCount) {
       throw new ArgumentError(
           '"rstTransforms" and "rects" lengths must match.');
-    if (rectCount % 4 != 0)
+    }
+    if (rectCount % 4 != 0) {
       throw new ArgumentError(
           '"rstTransforms" and "rects" lengths must be a multiple of four.');
-    if (colors != null && colors.length * 4 != rectCount)
+    }
+    if (colors != null && colors.length * 4 != rectCount) {
       throw new ArgumentError(
           'If non-null, "colors" length must be one fourth the length of "rstTransforms" and "rects".');
+    }
 
     // TODO(het): Do we need to support this?
     throw new UnimplementedError();
@@ -2074,8 +2082,8 @@ class Path {
 
   /// Serializes this path to a value that's sent to a CSS custom painter for
   /// painting.
-  List webOnlySerializeToCssPaint() {
-    final List serializedSubpaths = [];
+  List<dynamic> webOnlySerializeToCssPaint() {
+    final List serializedSubpaths = <dynamic>[];
     for (int i = 0; i < subpaths.length; i++) {
       serializedSubpaths.add(subpaths[i].serializeToCssPaint());
     }

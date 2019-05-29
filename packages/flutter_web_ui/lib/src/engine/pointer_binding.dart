@@ -457,10 +457,12 @@ List<ui.PointerData> _convertWheelEventToPointerData(
 }
 
 void _addWheelEventListener(void listener(html.WheelEvent e)) {
-  var eventOptions = js_util.newObject();
+  final dynamic eventOptions = js_util.newObject();
   js_util.setProperty(eventOptions, 'passive', false);
-  js_util.callMethod(
-      PointerBinding.instance.domRenderer.glassPaneElement,
-      'addEventListener',
-      ['wheel', js.allowInterop((event) => listener(event)), eventOptions]);
+  js_util.callMethod(PointerBinding.instance.domRenderer.glassPaneElement,
+      'addEventListener', <dynamic>[
+    'wheel',
+    js.allowInterop((html.WheelEvent event) => listener(event)),
+    eventOptions
+  ]);
 }

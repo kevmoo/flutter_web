@@ -277,7 +277,7 @@ class BitmapCanvas extends EngineCanvas with SaveStackTracking {
     return _saveCount++;
   }
 
-  void saveLayer(ui.Rect bounds, _) {
+  void saveLayer(ui.Rect bounds, ui.Paint paint) {
     save();
   }
 
@@ -1000,9 +1000,9 @@ List<html.Element> _clipContent(List<_SaveClipEntry> clipStack,
       html.Element clipElement =
           html.Element.html(svgClipPath, treeSanitizer: _NullTreeSanitizer());
       domRenderer.setElementStyle(
-          curElement, 'clip-path', 'url(#svgClipText${_clipTextCounter})');
-      domRenderer.setElementStyle(curElement, '-webkit-clip-path',
-          'url(#svgClipText${_clipTextCounter})');
+          curElement, 'clip-path', 'url(#svgClip${_clipIdCounter})');
+      domRenderer.setElementStyle(
+          curElement, '-webkit-clip-path', 'url(#svgClip${_clipIdCounter})');
       clipDefs.add(clipElement);
     }
     // Reverse the transform of the clipping element so children can use
@@ -1029,29 +1029,4 @@ String _cssTransformAtOffset(
     Matrix4 transform, double offsetX, double offsetY) {
   return matrix4ToCssTransform(
       transformWithOffset(transform, ui.Offset(offsetX, offsetY)));
-}
-
-class _NullTreeSanitizer implements html.NodeTreeSanitizer {
-  void sanitizeTree(html.Node node) {}
-}
-
-int _clipTextCounter = 0;
-
-/// Converts Path to svg element that contains a clip-path definition.
-/// TODO(flutter_web): unify with version used in compositing.dart.
-String _pathToSvgClipPath(ui.Path path,
-    {double offsetX = 0, double offsetY = 0}) {
-  ui.Rect bounds = path.getBounds();
-  StringBuffer sb = new StringBuffer();
-  sb.write('<svg width="${bounds.right}" height="${bounds.bottom}" '
-      'style="position:absolute">');
-  sb.write('<defs>');
-
-  String clipId = 'svgClipText${++_clipTextCounter}';
-  sb.write('<clipPath id=${clipId}>');
-
-  sb.write('<path fill="#FFFFFF" d="');
-  pathToSvg(path, sb, offsetX: offsetX, offsetY: offsetY);
-  sb.write('"></path></clipPath></defs></svg');
-  return sb.toString();
 }

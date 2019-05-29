@@ -55,6 +55,14 @@ part 'engine/semantics/text_field.dart';
 part 'engine/services/message_codec.dart';
 part 'engine/services/message_codecs.dart';
 part 'engine/shadow.dart';
+part 'engine/surface/clip.dart';
+part 'engine/surface/debug_canvas_reuse_overlay.dart';
+part 'engine/surface/offset.dart';
+part 'engine/surface/opacity.dart';
+part 'engine/surface/picture.dart';
+part 'engine/surface/scene.dart';
+part 'engine/surface/surface.dart';
+part 'engine/surface/transform.dart';
 part 'engine/text/font_collection.dart';
 part 'engine/text/measurement.dart';
 part 'engine/text/ruler.dart';
@@ -141,4 +149,8 @@ void webOnlyInitializeEngine() {
   };
 
   Keyboard.initialize();
+}
+
+class _NullTreeSanitizer implements html.NodeTreeSanitizer {
+  void sanitizeTree(html.Node node) {}
 }

@@ -8,20 +8,19 @@
 library ui;
 
 import 'dart:async';
-import 'dart:convert' hide Codec;
 import 'dart:collection';
+import 'dart:convert' hide Codec;
+import 'dart:html' as html;
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:html' as html;
-import 'dart:js_util' as js_util;
-
-import 'src/engine.dart' as engine;
 
 import 'package:meta/meta.dart';
 
+import 'src/engine.dart' as engine;
+export 'src/engine.dart' show persistedPictureFactory, houdiniPictureFactory;
+
 part 'src/ui/canvas.dart';
 part 'src/ui/compositing.dart';
-part 'src/ui/debug_canvas_reuse_overlay.dart';
 part 'src/ui/geometry.dart';
 part 'src/ui/hash_codes.dart';
 part 'src/ui/initialization.dart';

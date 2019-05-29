@@ -938,7 +938,7 @@ class Window {
   /// In Flutter, platform messages are exchanged between threads so the
   /// messages and responses have to be exchanged asynchronously. We simulate
   /// that by adding a zero-length delay to the reply.
-  _replyToPlatformMessage(
+  void _replyToPlatformMessage(
     PlatformMessageResponseCallback callback,
     ByteData data,
   ) {
@@ -970,7 +970,7 @@ class Window {
         String url = utf8.decode(data.buffer.asUint8List());
         webOnlyAssetManager.load(url).then((assetData) {
           _replyToPlatformMessage(callback, assetData);
-        }, onError: (e) {
+        }, onError: (dynamic e) {
           html.window.console.warn('Error while trying to load an asset: $e');
           _replyToPlatformMessage(callback, null);
         });

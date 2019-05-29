@@ -34,18 +34,18 @@ Future<dynamic> _ensurePlatformInitializedThenRunTest(dynamic Function() body) {
     _platformInitializedFuture =
         ui.webOnlyInitializePlatform(assetManager: WebOnlyMockAssetManager());
   }
-  return _platformInitializedFuture.then((_) => body());
+  return _platformInitializedFuture.then<dynamic>((_) => body());
 }
 
 /// Wrapper around Dart's [test_package.test] to ensure that Ahem font is
 /// properly loaded before running tests.
 void test(
-  description,
-  body(), {
+  dynamic description,
+  Function body, {
   String testOn,
   test_package.Timeout timeout,
-  skip,
-  tags,
+  dynamic skip,
+  dynamic tags,
   Map<String, dynamic> onPlatform,
   int retry,
 }) {

@@ -120,7 +120,7 @@ class TestLocationStrategy extends ui.LocationStrategy {
   /// Simulates the scheduling of a new event loop by creating a delayed future.
   /// Details explained here: https://webdev.dartlang.org/articles/performance/event-loop
   Future<void> _nextEventLoop(ui.VoidCallback callback) {
-    return Future.delayed(Duration.zero).then((_) => callback());
+    return Future<void>.delayed(Duration.zero).then((_) => callback());
   }
 
   /// Invokes all the attached event listeners in order of
@@ -128,8 +128,11 @@ class TestLocationStrategy extends ui.LocationStrategy {
   /// like a real browser.
   void _firePopStateEvent() {
     assert(withinAppHistory);
-    var event = html.PopStateEvent('popstate', {'state': currentEntry.state});
-    listeners.forEach((fn) => fn(event));
+    final html.PopStateEvent event = html.PopStateEvent(
+        'popstate', <String, dynamic>{'state': currentEntry.state});
+    for (html.EventListener listener in listeners) {
+      listener(event);
+    }
 
     if (_debugLogHistoryActions) {
       print('$runtimeType: fired popstate event $event');
@@ -143,9 +146,9 @@ class TestLocationStrategy extends ui.LocationStrategy {
 
   @override
   String toString() {
-    var lines = List(history.length);
+    final List<String> lines = List<String>(history.length);
     for (int i = 0; i < history.length; i++) {
-      var entry = history[i];
+      final _HistoryEntry entry = history[i];
       lines[i] = _currentEntryIndex == i ? '* $entry' : '  $entry';
     }
     return '$runtimeType: [\n${lines.join('\n')}\n]';

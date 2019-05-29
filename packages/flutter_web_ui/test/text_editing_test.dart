@@ -16,8 +16,8 @@ EditingState lastEditingState;
 
 final InputConfiguration singlelineConfig =
     InputConfiguration(inputType: InputType.text);
-final Map<String, dynamic> flutterSinglelineConfig = {
-  'inputType': {
+final Map<String, dynamic> flutterSinglelineConfig = <String, dynamic>{
+  'inputType': <String, String>{
     'name': 'TextInputType.text',
   },
   'obscureText': false,
@@ -25,8 +25,8 @@ final Map<String, dynamic> flutterSinglelineConfig = {
 
 final InputConfiguration multilineConfig =
     InputConfiguration(inputType: InputType.multiline);
-final Map<String, dynamic> flutterMultilineConfig = {
-  'inputType': {
+final Map<String, dynamic> flutterMultilineConfig = <String, dynamic>{
+  'inputType': <String, String>{
     'name': 'TextInputType.multiline',
   },
   'obscureText': false,

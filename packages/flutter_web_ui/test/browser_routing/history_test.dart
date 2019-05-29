@@ -163,7 +163,7 @@ void main() {
         await _strategy.simulateUserTypingUrl('/page2');
         // This delay is necessary to wait for [BrowserHistory] because it
         // performs a `back` operation which results in a new event loop.
-        await Future.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
       });
       await tester.pumpAndSettle();
 
@@ -181,7 +181,7 @@ void main() {
         await _strategy.simulateUserTypingUrl('/unknown');
         // This delay is necessary to wait for [BrowserHistory] because it
         // performs a `back` operation which results in a new event loop.
-        await Future.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
       });
       await tester.pumpAndSettle();
 
