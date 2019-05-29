@@ -677,5 +677,5 @@ void main() {
     );
     expect(caretOffset.dx, closeTo(0.0, 0.0001));
     expect(caretOffset.dy, closeTo(0.0, 0.0001));
-  }, skip: 'multiline text editing is not yet supported');
+  });
 }
