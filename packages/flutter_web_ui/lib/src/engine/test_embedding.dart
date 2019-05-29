@@ -1,9 +1,10 @@
-import 'dart:async';
-import 'dart:html' as html;
+// Copyright 2019 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-import 'package:flutter_web_ui/ui.dart' as ui;
+part of engine;
 
-const _debugLogHistoryActions = false;
+const bool _debugLogHistoryActions = false;
 
 class _HistoryEntry {
   final dynamic state;
@@ -23,15 +24,15 @@ class _HistoryEntry {
 ///
 /// It keeps a list of history entries and event listeners in memory and
 /// manipulates them in order to achieve the desired functionality.
-class TestLocationStrategy extends ui.LocationStrategy {
+class TestLocationStrategy extends LocationStrategy {
   /// Passing a [defaultRouteName] will make the app start at that route. The
   /// way it does it is by using it as a path on the first history entry.
   TestLocationStrategy([String defaultRouteName = ''])
       : _currentEntryIndex = 0,
-        history = [_HistoryEntry(null, null, defaultRouteName)];
+        history = <_HistoryEntry>[_HistoryEntry(null, null, defaultRouteName)];
 
   @override
-  String get path => ui.ensureLeading(currentEntry.url, '/');
+  String get path => ensureLeading(currentEntry.url, '/');
 
   int _currentEntryIndex;
   final List<_HistoryEntry> history;
@@ -105,7 +106,7 @@ class TestLocationStrategy extends ui.LocationStrategy {
     });
   }
 
-  final List<html.EventListener> listeners = [];
+  final List<html.EventListener> listeners = <html.EventListener>[];
 
   @override
   ui.VoidCallback onPopState(html.EventListener fn) {
@@ -129,9 +130,11 @@ class TestLocationStrategy extends ui.LocationStrategy {
   void _firePopStateEvent() {
     assert(withinAppHistory);
     final html.PopStateEvent event = html.PopStateEvent(
-        'popstate', <String, dynamic>{'state': currentEntry.state});
-    for (html.EventListener listener in listeners) {
-      listener(event);
+      'popstate',
+      <String, dynamic>{'state': currentEntry.state},
+    );
+    for (int i = 0; i < listeners.length; i++) {
+      listeners[i](event);
     }
 
     if (_debugLogHistoryActions) {
@@ -140,9 +143,7 @@ class TestLocationStrategy extends ui.LocationStrategy {
   }
 
   @override
-  String prepareExternalUrl(String url) {
-    return url;
-  }
+  String prepareExternalUrl(String internalUrl) => internalUrl;
 
   @override
   String toString() {

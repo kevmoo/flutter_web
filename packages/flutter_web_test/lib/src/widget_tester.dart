@@ -5,7 +5,6 @@ import 'package:flutter_web/material.dart';
 import 'package:flutter_web/rendering.dart';
 import 'package:flutter_web/scheduler.dart';
 import 'package:flutter_web_ui/ui.dart';
-import 'package:flutter_web_ui/src/engine.dart' as engine;
 import 'package:flutter_web/widgets.dart';
 import 'package:flutter_web/src/util.dart';
 import 'package:meta/meta.dart';
@@ -30,10 +29,6 @@ export 'package:test/test.dart'
 
 /// Signature for callback to [testWidgets] and [benchmarkWidgets].
 typedef WidgetTesterCallback = Future<void> Function(WidgetTester widgetTester);
-
-/// Used to track when the platform is initialized. This ensures the test fonts
-/// are available.
-Future<void> _platformInitializedFuture;
 
 /// Runs the [callback] inside the Flutter test environment.
 ///
@@ -62,19 +57,16 @@ Future<void> _platformInitializedFuture;
 void testWidgets(String description, WidgetTesterCallback callback,
     {bool skip = false, test_package.Timeout timeout}) {
   debugIsInTest = true;
-  webOnlyInitializeTestDomRenderer();
+
+  final Future<void> webEngineInitialization =
+      webOnlyInitializeTestDomRenderer();
 
   final TestWidgetsFlutterBinding binding =
       TestWidgetsFlutterBinding.ensureInitialized();
   final WidgetTester tester = WidgetTester._(binding);
   timeout ??= binding.defaultTestTimeout;
   test_package.test(description, () async {
-    assert(_platformInitializedFuture != null);
-    await _platformInitializedFuture.timeout(const Duration(seconds: 2),
-        onTimeout: () async {
-      throw FlutterError('Timed out loading Ahem font.');
-    });
-
+    await webEngineInitialization;
     tester._recordNumberOfSemanticsHandles();
     test_package.addTearDown(binding.postTest);
     return binding.runTest(
@@ -83,25 +75,6 @@ void testWidgets(String description, WidgetTesterCallback callback,
       description: description ?? '',
     );
   }, skip: skip, timeout: timeout);
-}
-
-/// Initializes domRenderer with specific devicePixelRation and physicalSize.
-void webOnlyInitializeTestDomRenderer({double devicePixelRatio = 3.0}) {
-  if (WidgetsBinding.instance == null) {
-    // Force-initialize DomRenderer so it doesn't overwrite test pixel ratio.
-    engine.domRenderer;
-    // The following parameters are hard-coded in Flutter's test embedder. Since
-    // we don't have an embedder yet this is the lowest-most layer we can put
-    // this stuff in.
-    window.devicePixelRatio = devicePixelRatio;
-    window.webOnlyDebugPhysicalSizeOverride =
-        Size(800 * devicePixelRatio, 600 * devicePixelRatio);
-    window.webOnlyScheduleFrameCallback = () {};
-    engine.domRenderer.debugIsInWidgetTest = true;
-    // Only load the Ahem font once and await the same future in all tests.
-    _platformInitializedFuture =
-        webOnlyInitializePlatform(assetManager: WebOnlyMockAssetManager());
-  }
 }
 
 /// Runs the [callback] inside the Flutter benchmark environment.

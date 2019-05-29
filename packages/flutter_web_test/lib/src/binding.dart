@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_web/io.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
-import 'package:flutter_web_ui/src/engine.dart' as ui;
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/gestures.dart';
@@ -1798,36 +1797,4 @@ class _MockHttpHeaders extends HttpHeaders {
 
   @override
   String value(String name) => null;
-}
-
-/// An asset manager that gives fake empty responses for assets.
-class WebOnlyMockAssetManager implements ui.AssetManager {
-  String defaultAssetsDir = '';
-  String defaultAssetManifest = '{}';
-  String defaultFontManifest = '[]';
-
-  @override
-  String get assetsDir => defaultAssetsDir;
-
-  @override
-  String getAssetUrl(String asset) => '$asset';
-
-  @override
-  Future<ByteData> load(String asset) {
-    if (asset == getAssetUrl('AssetManifest.json')) {
-      return Future.value(_toByteData(utf8.encode(defaultAssetManifest)));
-    }
-    if (asset == getAssetUrl('FontManifest.json')) {
-      return Future.value(_toByteData(utf8.encode(defaultFontManifest)));
-    }
-    throw new ui.AssetManagerException(asset, 404);
-  }
-
-  ByteData _toByteData(List<int> bytes) {
-    final byteData = ByteData(bytes.length);
-    for (var i = 0; i < bytes.length; i++) {
-      byteData.setUint8(i, bytes[i]);
-    }
-    return byteData;
-  }
 }

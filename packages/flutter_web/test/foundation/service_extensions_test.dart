@@ -127,7 +127,7 @@ void main() {
   test('Service extensions - pretest', () async {
     // TODO(flutter_web): upstream initialization.
     if (ui.isWeb) {
-      webOnlyInitializeTestDomRenderer();
+      await ui.webOnlyInitializeTestDomRenderer();
     }
     binding = TestServiceExtensionsBinding();
     expect(binding.frameScheduled, isTrue);

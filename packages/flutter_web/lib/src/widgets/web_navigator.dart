@@ -46,7 +46,7 @@ class WebOnlyNavigatorObserver extends NavigatorObserver {
   void _webOnlyNotifyRouteName(Route<dynamic> route) {
     final String routeName = route?.settings?.name;
     if (routeName != null) {
-      ui.window.webOnlyRouteName = routeName;
+      ui.webOnlyRouteName = routeName;
     }
   }
 }

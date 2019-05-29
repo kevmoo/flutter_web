@@ -54,19 +54,6 @@ class TestWindow implements Window {
   final Window _window;
 
   @override
-  Future<void> webOnlyBack() => _window.webOnlyBack();
-
-  @override
-  set webOnlyLocationStrategy(LocationStrategy strategy) {
-    _window.webOnlyLocationStrategy = strategy;
-  }
-
-  @override
-  set webOnlyRouteName(String routeName) {
-    _window.webOnlyRouteName = routeName;
-  }
-
-  @override
   VoidCallback get webOnlyScheduleFrameCallback =>
       _window.webOnlyScheduleFrameCallback;
   set webOnlyScheduleFrameCallback(VoidCallback callback) {
@@ -75,10 +62,6 @@ class TestWindow implements Window {
 
   @override
   double get devicePixelRatio => _devicePixelRatio ?? _window.devicePixelRatio;
-  @override
-  set devicePixelRatio(double devicePixelRatio) {
-    _window.devicePixelRatio = devicePixelRatio;
-  }
 
   double _devicePixelRatio;
 
@@ -96,15 +79,6 @@ class TestWindow implements Window {
 
   @override
   Size get physicalSize => _physicalSizeTestValue ?? _window.physicalSize;
-
-  @override
-  Size get webOnlyDebugPhysicalSizeOverride =>
-      _window.webOnlyDebugPhysicalSizeOverride;
-
-  @override
-  set webOnlyDebugPhysicalSizeOverride(Size value) {
-    _window.webOnlyDebugPhysicalSizeOverride = value;
-  }
 
   Size _physicalSizeTestValue;
 

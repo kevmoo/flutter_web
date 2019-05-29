@@ -6,8 +6,6 @@ import 'package:html/parser.dart' as html_package;
 import 'package:html/dom.dart' as html_package;
 import 'package:test/test.dart' as test_package;
 
-import 'src/binding.dart' show WebOnlyMockAssetManager;
-
 export 'dart:async' show Future;
 
 export 'src/binding.dart';
@@ -19,23 +17,6 @@ export 'src/test_async_utils.dart';
 export 'src/test_pointer.dart';
 export 'src/widget_tester.dart';
 export 'src/window.dart';
-
-/// Used to track when the platform is initialized. This ensures the test fonts
-/// are available.
-Future<void> _platformInitializedFuture;
-
-/// If the platform is already initialized (by a previous test), then run the test
-/// body immediately. Otherwise, initialize the platform then run the test.
-Future<dynamic> _ensurePlatformInitializedThenRunTest(dynamic Function() body) {
-  if (_platformInitializedFuture == null) {
-    ui.domRenderer.debugIsInWidgetTest = true;
-
-    // Initializing the platform will ensure that the test font is loaded.
-    _platformInitializedFuture =
-        ui.webOnlyInitializePlatform(assetManager: WebOnlyMockAssetManager());
-  }
-  return _platformInitializedFuture.then<dynamic>((_) => body());
-}
 
 /// Wrapper around Dart's [test_package.test] to ensure that Ahem font is
 /// properly loaded before running tests.
@@ -51,7 +32,9 @@ void test(
 }) {
   test_package.test(
     description,
-    () => _ensurePlatformInitializedThenRunTest(body),
+    // TODO(flutter_web): remove this by wrapping tests in a test harness that
+    //                    performs this initialization automatically.
+    () => ui.ensureTestPlatformInitializedThenRunTest(body),
     testOn: testOn,
     timeout: timeout,
     skip: skip,

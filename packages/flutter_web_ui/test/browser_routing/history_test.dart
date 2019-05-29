@@ -7,9 +7,7 @@ import 'dart:async';
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web/src/widgets/web_navigator.dart';
 import 'package:flutter_web_ui/src/engine.dart' hide MethodCall;
-import 'package:flutter_web_ui/ui.dart' as ui;
 import 'package:flutter_web_test/flutter_web_test.dart';
-import 'package:flutter_web_test/browser.dart';
 
 const Key tap1 = Key('tap1');
 const Key tap2 = Key('tap2');
@@ -20,7 +18,7 @@ const Key page2 = Key('page2');
 
 /// Click the browser's back button.
 Future<void> browserBack(WidgetTester tester) {
-  return tester.runAsync(() => ui.window.webOnlyBack());
+  return tester.runAsync(() => window.webOnlyBack());
 }
 
 /// Tap a button given its key.
@@ -44,11 +42,11 @@ TestLocationStrategy _strategy;
 void main() {
   group('$BrowserHistory', () {
     setUp(() {
-      ui.window.webOnlyLocationStrategy = _strategy = TestLocationStrategy();
+      window.webOnlyLocationStrategy = _strategy = TestLocationStrategy();
     });
 
     tearDown(() {
-      ui.window.webOnlyLocationStrategy = _strategy = null;
+      window.webOnlyLocationStrategy = _strategy = null;
     });
 
     testWidgets('browser back button pops routes correctly',

@@ -9,7 +9,6 @@ library ui;
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert' hide Codec;
 import 'dart:html' as html;
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -29,7 +28,7 @@ part 'src/ui/natives.dart';
 part 'src/ui/painting.dart';
 part 'src/ui/pointer.dart';
 part 'src/ui/semantics.dart';
-part 'src/ui/browser_location.dart';
+part 'src/ui/test_embedding.dart';
 part 'src/ui/text.dart';
 part 'src/ui/tile_mode.dart';
 part 'src/ui/window.dart';
