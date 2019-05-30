@@ -197,4 +197,10 @@ class LayerSceneBuilder implements ui.SceneBuilder {
     currentLayer.add(layer);
     currentLayer = layer;
   }
+
+  @override
+  void setProperties(double width, double height, double insetTop,
+      double insetRight, double insetBottom, double insetLeft, bool focusable) {
+    throw UnimplementedError();
+  }
 }

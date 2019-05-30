@@ -121,6 +121,11 @@ class WindowPadding {
   /// A window padding that has zeros for each edge.
   static const WindowPadding zero =
       const WindowPadding._(left: 0.0, top: 0.0, right: 0.0, bottom: 0.0);
+
+  @override
+  String toString() {
+    return 'WindowPadding(left: $left, top: $top, right: $right, bottom: $bottom)';
+  }
 }
 
 /// An identifier used to select a user's language and formatting preferences.
@@ -475,6 +480,9 @@ class Locale {
     if (_countryCode != null) out.write('_$countryCode');
     return out.toString();
   }
+
+  // TODO(yjbanov): implement to match flutter native.
+  String toLanguageTag() => '_';
 }
 
 /// The most basic interface to the host operating system's user interface.
@@ -540,7 +548,7 @@ abstract class Window {
   ///  * [MediaQuery.of], a simpler mechanism for the same.
   ///  * [Scaffold], which automatically applies the view insets in material
   ///    design applications.
-  WindowPadding viewInsets = WindowPadding.zero;
+  WindowPadding get viewInsets => WindowPadding.zero;
 
   /// The number of physical pixels on each side of the display rectangle into
   /// which the application can render, but which may be partially obscured by
@@ -557,7 +565,7 @@ abstract class Window {
   ///  * [MediaQuery.of], a simpler mechanism for the same.
   ///  * [Scaffold], which automatically applies the padding in material design
   ///    applications.
-  WindowPadding padding = WindowPadding.zero;
+  WindowPadding get padding => WindowPadding.zero;
 
   /// The system-reported text scale.
   ///
@@ -929,6 +937,16 @@ abstract class Window {
   final _rasterizer = engine.Rasterizer(engine.Surface(
       (engine.BitmapCanvas canvas) =>
           engine.domRenderer.renderScene(canvas.rootElement)));
+
+  String get initialLifecycleState {
+    _initialLifecycleStateAccessed = true;
+    return _initialLifecycleState;
+  }
+
+  String _initialLifecycleState;
+  bool _initialLifecycleStateAccessed = false;
+
+  void setIsolateDebugName(String name) {}
 }
 
 /// Additional accessibility features that may be enabled by the platform.
@@ -1006,6 +1024,57 @@ enum Brightness {
   ///
   /// For example, the color might be bright white, requiring black text.
   light,
+}
+
+// Unimplemented classes.
+// TODO(flutter_web): see https://github.com/flutter/flutter/issues/33614.
+class CallbackHandle {
+  CallbackHandle.fromRawHandle(this._handle);
+
+  final int _handle;
+
+  int toRawHandle() => _handle;
+
+  @override
+  bool operator ==(Object other) => identical(this, other);
+
+  @override
+  int get hashCode => super.hashCode;
+}
+
+// TODO(flutter_web): see https://github.com/flutter/flutter/issues/33615.
+class PluginUtilities {
+  static CallbackHandle getCallbackHandle(Function callback) {
+    throw UnimplementedError();
+  }
+
+  static Function getCallbackFromHandle(CallbackHandle handle) {
+    throw UnimplementedError();
+  }
+}
+
+// TODO(flutter_web): see https://github.com/flutter/flutter/issues/33616.
+class ImageShader {
+  ImageShader(Image image, TileMode tmx, TileMode tmy, Float64List matrix4);
+}
+
+// TODO(flutter_web): probably dont implement this one.
+class IsolateNameServer {
+  static dynamic lookupPortByName(String name) {
+    assert(name != null, "'name' cannot be null.");
+    throw UnimplementedError();
+  }
+
+  static bool registerPortWithName(dynamic port, String name) {
+    assert(port != null, "'port' cannot be null.");
+    assert(name != null, "'name' cannot be null.");
+    throw UnimplementedError();
+  }
+
+  static bool removePortNameMapping(String name) {
+    assert(name != null, "'name' cannot be null.");
+    throw UnimplementedError();
+  }
 }
 
 /// The [Window] singleton. This object exposes the size of the display, the

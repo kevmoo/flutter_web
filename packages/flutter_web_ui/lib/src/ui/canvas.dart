@@ -46,8 +46,37 @@ enum ClipOp {
   intersect,
 }
 
+enum VertexMode {
+  /// Draw each sequence of three points as the vertices of a triangle.
+  triangles,
+
+  /// Draw each sliding window of three points as the vertices of a triangle.
+  triangleStrip,
+
+  /// Draw the first point and each sliding window of two points as the vertices of a triangle.
+  triangleFan,
+}
+
 /// A set of vertex data used by [Canvas.drawVertices].
-class Vertices {}
+class Vertices {
+  Vertices(
+    VertexMode mode,
+    List<Offset> positions, {
+    List<Offset> textureCoordinates,
+    List<Color> colors,
+    List<int> indices,
+  })  : assert(mode != null),
+        assert(positions != null);
+
+  Vertices.raw(
+    VertexMode mode,
+    Float32List positions, {
+    Float32List textureCoordinates,
+    Int32List colors,
+    Uint16List indices,
+  })  : assert(mode != null),
+        assert(positions != null);
+}
 
 /// Records a [Picture] containing a sequence of graphical operations.
 ///
@@ -2218,6 +2247,9 @@ class PathMetric {
   // calling `_moveNext` - `_moveNext` should be called after the first
   // iteration is done instead of before.
   bool _moveNext() => throw new UnimplementedError();
+
+  @override
+  String toString() => 'PathMetric';
 }
 
 /// The geometric description of a tangent: the angle at a point.

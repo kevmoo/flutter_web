@@ -1116,6 +1116,15 @@ class Paint {
     _paintData.colorFilter = value;
   }
 
+  // TODO(flutter_web): see https://github.com/flutter/flutter/issues/33605
+  double get strokeMiterLimit {
+    return null;
+  }
+
+  set strokeMiterLimit(double value) {
+    assert(value != null);
+  }
+
   // True if Paint instance has used in RecordingCanvas.
   bool _frozen = false;
 
@@ -1207,6 +1216,8 @@ abstract class Gradient extends Shader {
     List<Color> colors, [
     List<double> colorStops,
     TileMode tileMode = TileMode.clamp,
+    Float64List
+        matrix4, // TODO(flutter_web): see https://github.com/flutter/flutter/issues/32819
   ]) =>
       _GradientLinear(from, to, colors, colorStops, tileMode);
 

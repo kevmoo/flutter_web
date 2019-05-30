@@ -95,11 +95,10 @@ class TestWindow implements Window {
   }
 
   @override
-  WindowPadding get viewInsets => _viewInsetsTestValue ?? _window.viewInsets;
+  void setIsolateDebugName(String name) {}
+
   @override
-  set viewInsets(WindowPadding viewInsets) {
-    _window.viewInsets = viewInsets;
-  }
+  WindowPadding get viewInsets => _viewInsetsTestValue ?? _window.viewInsets;
 
   WindowPadding _viewInsetsTestValue;
 
@@ -117,10 +116,6 @@ class TestWindow implements Window {
 
   @override
   WindowPadding get padding => _paddingTestValue ?? _window.padding;
-  @override
-  set padding(WindowPadding padding) {
-    _window.padding = padding;
-  }
 
   WindowPadding _paddingTestValue;
 
@@ -367,6 +362,12 @@ class TestWindow implements Window {
   set onPlatformMessage(PlatformMessageCallback callback) {
     _window.onPlatformMessage = callback;
   }
+
+  String get initialLifecycleState {
+    return _initialLifecycleState;
+  }
+
+  String _initialLifecycleState;
 
   /// Delete any test value properties that have been set on this [TestWindow]
   /// and return to reporting the real [Window] values for all [Window] properties.
