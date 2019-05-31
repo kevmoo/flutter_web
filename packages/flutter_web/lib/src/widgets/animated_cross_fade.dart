@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-31T15:14:36.789762.
 
 import 'package:flutter_web/rendering.dart';
 
@@ -9,6 +10,9 @@ import 'basic.dart';
 import 'framework.dart';
 import 'ticker_provider.dart';
 import 'transitions.dart';
+
+// Examples can assume:
+// bool _first;
 
 /// Specifies which of two children to show. See [AnimatedCrossFade].
 ///
@@ -35,7 +39,7 @@ enum CrossFadeState {
 /// top child and the bottom child should be keyed using the provided
 /// `topChildKey` and `bottomChildKey` keys respectively.
 ///
-/// ## Sample code
+/// {@tool sample}
 ///
 /// ```dart
 /// Widget defaultLayoutBuilder(Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey) {
@@ -57,6 +61,7 @@ enum CrossFadeState {
 ///   );
 /// }
 /// ```
+/// {@end-tool}
 typedef AnimatedCrossFadeBuilder = Widget Function(
     Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey);
 
@@ -79,7 +84,7 @@ typedef AnimatedCrossFadeBuilder = Widget Function(
 /// [AnimatedCrossFade] is rebuilt with a different value for the
 /// [crossFadeState] property.
 ///
-/// ## Sample code
+/// {@tool sample}
 ///
 /// This code fades between two representations of the Flutter logo. It depends
 /// on a boolean field `_first`; when `_first` is true, the first logo is shown,
@@ -95,6 +100,7 @@ typedef AnimatedCrossFadeBuilder = Widget Function(
 ///   crossFadeState: _first ? CrossFadeState.showFirst : CrossFadeState.showSecond,
 /// )
 /// ```
+/// {@end-tool}
 ///
 /// See also:
 ///
@@ -120,6 +126,7 @@ class AnimatedCrossFade extends StatefulWidget {
     this.alignment = Alignment.topCenter,
     @required this.crossFadeState,
     @required this.duration,
+    this.reverseDuration,
     this.layoutBuilder = defaultLayoutBuilder,
   })  : assert(firstChild != null),
         assert(secondChild != null),
@@ -149,6 +156,11 @@ class AnimatedCrossFade extends StatefulWidget {
 
   /// The duration of the whole orchestrated animation.
   final Duration duration;
+
+  /// The duration of the whole orchestrated animation when running in reverse.
+  ///
+  /// If not supplied, this defaults to [duration].
+  final Duration reverseDuration;
 
   /// The fade curve of the first child.
   ///
@@ -216,7 +228,7 @@ class AnimatedCrossFade extends StatefulWidget {
         Positioned(
           key: topChildKey,
           child: topChild,
-        )
+        ),
       ],
     );
   }
@@ -232,6 +244,11 @@ class AnimatedCrossFade extends StatefulWidget {
     properties.add(DiagnosticsProperty<AlignmentGeometry>(
         'alignment', alignment,
         defaultValue: Alignment.topCenter));
+    properties
+        .add(IntProperty('duration', duration.inMilliseconds, unit: 'ms'));
+    properties.add(IntProperty(
+        'reverseDuration', reverseDuration?.inMilliseconds,
+        unit: 'ms', defaultValue: null));
   }
 }
 
@@ -244,7 +261,11 @@ class _AnimatedCrossFadeState extends State<AnimatedCrossFade>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: widget.duration, vsync: this);
+    _controller = AnimationController(
+      duration: widget.duration,
+      reverseDuration: widget.reverseDuration,
+      vsync: this,
+    );
     if (widget.crossFadeState == CrossFadeState.showSecond)
       _controller.value = 1.0;
     _firstAnimation = _initAnimation(widget.firstCurve, true);
@@ -274,6 +295,8 @@ class _AnimatedCrossFadeState extends State<AnimatedCrossFade>
     super.didUpdateWidget(oldWidget);
     if (widget.duration != oldWidget.duration)
       _controller.duration = widget.duration;
+    if (widget.reverseDuration != oldWidget.reverseDuration)
+      _controller.reverseDuration = widget.reverseDuration;
     if (widget.firstCurve != oldWidget.firstCurve)
       _firstAnimation = _initAnimation(widget.firstCurve, true);
     if (widget.secondCurve != oldWidget.secondCurve)
@@ -354,6 +377,7 @@ class _AnimatedCrossFadeState extends State<AnimatedCrossFade>
       child: AnimatedSize(
         alignment: widget.alignment,
         duration: widget.duration,
+        reverseDuration: widget.reverseDuration,
         curve: widget.sizeCurve,
         vsync: this,
         child: widget.layoutBuilder(topChild, topKey, bottomChild, bottomKey),

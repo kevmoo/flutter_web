@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-31T15:14:36.731896.
 
 import 'package:flutter_web/animation.dart';
 import 'package:flutter_web/foundation.dart';
@@ -76,6 +77,7 @@ class RenderAnimatedSize extends RenderAligningShiftedBox {
   RenderAnimatedSize({
     @required TickerProvider vsync,
     @required Duration duration,
+    Duration reverseDuration,
     Curve curve = Curves.linear,
     AlignmentGeometry alignment = Alignment.center,
     TextDirection textDirection,
@@ -89,10 +91,14 @@ class RenderAnimatedSize extends RenderAligningShiftedBox {
     _controller = AnimationController(
       vsync: vsync,
       duration: duration,
+      reverseDuration: reverseDuration,
     )..addListener(() {
         if (_controller.value != _lastValue) markNeedsLayout();
       });
-    _animation = CurvedAnimation(parent: _controller, curve: curve);
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: curve,
+    );
   }
 
   AnimationController _controller;
@@ -114,6 +120,13 @@ class RenderAnimatedSize extends RenderAligningShiftedBox {
     assert(value != null);
     if (value == _controller.duration) return;
     _controller.duration = value;
+  }
+
+  /// The duration of the animation when running in reverse.
+  Duration get reverseDuration => _controller.reverseDuration;
+  set reverseDuration(Duration value) {
+    if (value == _controller.reverseDuration) return;
+    _controller.reverseDuration = value;
   }
 
   /// The curve of the animation.

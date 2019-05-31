@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-31T15:14:36.452476.
 
 import 'dart:math' as math;
 
@@ -373,9 +374,11 @@ class CurvedAnimation extends Animation<double>
   /// Creates a curved animation.
   ///
   /// The parent and curve arguments must not be null.
-  CurvedAnimation(
-      {@required this.parent, @required this.curve, this.reverseCurve})
-      : assert(parent != null),
+  CurvedAnimation({
+    @required this.parent,
+    @required this.curve,
+    this.reverseCurve,
+  })  : assert(parent != null),
         assert(curve != null) {
     _updateCurveDirection(parent.status);
     parent.addStatusListener(_updateCurveDirection);
