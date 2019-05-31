@@ -4,7 +4,7 @@
 
 part of engine;
 
-const _experimentalEnableCanvasImplementation = false;
+const bool _experimentalEnableCanvasImplementation = false;
 
 // TODO(yjbanov): this is a hack we use to compute ideographic baseline; this
 //                number is the ratio ideographic/alphabetic for font Ahem,
@@ -92,13 +92,13 @@ class RulerManager {
   @visibleForTesting
   void cleanUpRulerCache() {
     if (_rulers.length > rulerCacheCapacity) {
-      List<ParagraphRuler> sortedByUsage = _rulers.values.toList();
+      final List<ParagraphRuler> sortedByUsage = _rulers.values.toList();
       sortedByUsage.sort((ParagraphRuler a, ParagraphRuler b) {
         return b.hitCount - a.hitCount;
       });
       _rulers = <ParagraphGeometricStyle, ParagraphRuler>{};
       for (int i = 0; i < sortedByUsage.length; i++) {
-        var ruler = sortedByUsage[i];
+        final ParagraphRuler ruler = sortedByUsage[i];
         ruler.resetHitCount();
         if (i < rulerCacheCapacity) {
           // Retain this ruler.
@@ -190,7 +190,8 @@ abstract class TextMeasurementService {
     // - decoration
     // - letter spacing
     // - word spacing
-    final style = paragraph.webOnlyGetParagraphGeometricStyle();
+    final ParagraphGeometricStyle style =
+        paragraph.webOnlyGetParagraphGeometricStyle();
     return paragraph.webOnlyGetPlainText() != null &&
         style.decoration == null &&
         style.letterSpacing == null &&
@@ -202,7 +203,8 @@ abstract class TextMeasurementService {
     ui.Paragraph paragraph,
     ui.ParagraphConstraints constraints,
   ) {
-    final style = paragraph.webOnlyGetParagraphGeometricStyle();
+    final ParagraphGeometricStyle style =
+        paragraph.webOnlyGetParagraphGeometricStyle();
     final ParagraphRuler ruler =
         TextMeasurementService.rulerManager.findOrCreateRuler(style);
 
@@ -264,9 +266,6 @@ abstract class TextMeasurementService {
   /// * maxIntrinsicWidth: the width of the paragraph with no line-wrapping.
   /// * minIntrinsicWidth: the min width the paragraph fits in without overflowing.
   ///
-  /// [MeasurementResult.height] will be equal to [MeasurementResult.lineHeight]
-  /// when [MeasurementResult.isSingleLine] is true.
-  ///
   /// [MeasurementResult.width] is set to the same value of [constraints.width].
   ///
   /// It also optionally computes [MeasurementResult.lineBreaks] in the given
@@ -286,12 +285,8 @@ abstract class TextMeasurementService {
 /// implementation such as letter-spacing, word-spacing, etc.
 class DomTextMeasurementService extends TextMeasurementService {
   /// The text measurement service singleton.
-  static DomTextMeasurementService get instance {
-    if (_instance == null) {
-      _instance = DomTextMeasurementService();
-    }
-    return _instance;
-  }
+  static DomTextMeasurementService get instance =>
+      _instance ??= DomTextMeasurementService();
 
   static DomTextMeasurementService _instance;
 
@@ -323,7 +318,8 @@ class DomTextMeasurementService extends TextMeasurementService {
 
   @override
   double measureSubstringWidth(ui.Paragraph paragraph, int start, int end) {
-    final style = paragraph.webOnlyGetParagraphGeometricStyle();
+    final ParagraphGeometricStyle style =
+        paragraph.webOnlyGetParagraphGeometricStyle();
     final ParagraphRuler ruler =
         TextMeasurementService.rulerManager.findOrCreateRuler(style);
 
@@ -361,13 +357,13 @@ class DomTextMeasurementService extends TextMeasurementService {
 
     maxIntrinsicWidth =
         _applySubPixelRoundingHack(minIntrinsicWidth, maxIntrinsicWidth);
-    final ideographicBaseline = alphabeticBaseline * _baselineRatioHack;
+    final double ideographicBaseline = alphabeticBaseline * _baselineRatioHack;
     return MeasurementResult(
       constraints.width,
       isSingleLine: true,
       width: width,
       height: height,
-      lineHeight: height,
+      naturalHeight: height,
       minIntrinsicWidth: minIntrinsicWidth,
       maxIntrinsicWidth: maxIntrinsicWidth,
       alphabeticBaseline: alphabeticBaseline,
@@ -391,23 +387,29 @@ class DomTextMeasurementService extends TextMeasurementService {
     final double minIntrinsicWidth = ruler.minIntrinsicDimensions.width;
     double maxIntrinsicWidth = ruler.singleLineDimensions.width;
     final double alphabeticBaseline = ruler.alphabeticBaseline;
-    final double height = ruler.constrainedDimensions.height;
+    // Natural height is the full height of text ignoring height constraints.
+    final double naturalHeight = ruler.constrainedDimensions.height;
 
-    double lineHeight;
-    if (paragraph.webOnlyGetParagraphGeometricStyle().maxLines != null) {
-      lineHeight = ruler.lineHeightDimensions.height;
+    double height;
+    final int maxLines = paragraph.webOnlyGetParagraphGeometricStyle().maxLines;
+    if (maxLines == null) {
+      height = naturalHeight;
+    } else {
+      // Lazily compute [lineHeight] when [maxLines] is not null.
+      final double lineHeight = ruler.lineHeightDimensions.height;
+      height = math.min(naturalHeight, maxLines * lineHeight);
     }
 
     maxIntrinsicWidth =
         _applySubPixelRoundingHack(minIntrinsicWidth, maxIntrinsicWidth);
     assert(minIntrinsicWidth <= maxIntrinsicWidth);
-    final ideographicBaseline = alphabeticBaseline * _baselineRatioHack;
+    final double ideographicBaseline = alphabeticBaseline * _baselineRatioHack;
     return MeasurementResult(
       constraints.width,
       isSingleLine: false,
       width: width,
       height: height,
-      lineHeight: lineHeight,
+      naturalHeight: naturalHeight,
       minIntrinsicWidth: minIntrinsicWidth,
       maxIntrinsicWidth: maxIntrinsicWidth,
       alphabeticBaseline: alphabeticBaseline,
@@ -447,12 +449,8 @@ class DomTextMeasurementService extends TextMeasurementService {
 /// provides line breaks information that can be useful for multi-line text.
 class CanvasTextMeasurementService extends TextMeasurementService {
   /// The text measurement service singleton.
-  static CanvasTextMeasurementService get instance {
-    if (_instance == null) {
-      _instance = CanvasTextMeasurementService();
-    }
-    return _instance;
-  }
+  static CanvasTextMeasurementService get instance =>
+      _instance ??= CanvasTextMeasurementService();
 
   static CanvasTextMeasurementService _instance;
 
@@ -473,7 +471,7 @@ class CanvasTextMeasurementService extends TextMeasurementService {
     // TODO(mdebbar): Check if the whole text can fit in a single-line. Then avoid all this ceremony.
     _canvasContext.font = style.cssFontString;
 
-    List<int> breaks = [];
+    final List<int> breaks = <int>[];
     int lineStart = 0;
     int lastMandatoryBreak = 0;
     // The greatest chunk width (without trailing whitespace).
@@ -501,7 +499,7 @@ class CanvasTextMeasurementService extends TextMeasurementService {
           brk.type == LineBreakType.endOfText) {
         // The continuous line is the chunk of text since the last mandatory
         // line break.
-        final continuousLineWidth = _measureSubstring(
+        final double continuousLineWidth = _measureSubstring(
           text,
           lastMandatoryBreak,
           brk.index,
@@ -523,13 +521,19 @@ class CanvasTextMeasurementService extends TextMeasurementService {
 
     final int lineCount = breaks.length + 1;
     final double lineHeight = ruler.lineHeightDimensions.height;
-    final result = MeasurementResult(
+    final double naturalHeight = lineCount * lineHeight;
+
+    final double height = style.maxLines == null
+        ? naturalHeight
+        : math.min(lineCount, style.maxLines) * lineHeight;
+
+    final MeasurementResult result = MeasurementResult(
       constraints.width,
       isSingleLine: lineCount == 1,
       alphabeticBaseline: ruler.alphabeticBaseline,
       ideographicBaseline: ruler.alphabeticBaseline * _baselineRatioHack,
-      height: lineCount * lineHeight,
-      lineHeight: lineHeight,
+      height: height,
+      naturalHeight: naturalHeight,
       // `minIntrinsicWidth` is the greatest width of text that can't
       // be broken down into multiple lines.
       minIntrinsicWidth: widestChunk,
@@ -546,8 +550,9 @@ class CanvasTextMeasurementService extends TextMeasurementService {
 
   @override
   double measureSubstringWidth(ui.Paragraph paragraph, int start, int end) {
-    final text = paragraph.webOnlyGetPlainText().substring(start, end);
-    final style = paragraph.webOnlyGetParagraphGeometricStyle();
+    final String text = paragraph.webOnlyGetPlainText().substring(start, end);
+    final ParagraphGeometricStyle style =
+        paragraph.webOnlyGetParagraphGeometricStyle();
     _canvasContext.font = style.cssFontString;
     return _canvasContext.measureText(text).width;
   }
@@ -593,7 +598,7 @@ class CanvasTextMeasurementService extends TextMeasurementService {
       return 0;
     }
 
-    final sub = text.substring(start, end);
+    final String sub = text.substring(start, end);
     final double width = _canvasContext.measureText(sub).width;
 
     // What we are doing here is we are rounding to the nearest 2nd decimal

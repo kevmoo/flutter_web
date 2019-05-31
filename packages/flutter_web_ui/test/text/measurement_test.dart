@@ -15,7 +15,7 @@ const ui.ParagraphConstraints infiniteConstraints =
     ui.ParagraphConstraints(width: double.infinity);
 
 ui.Paragraph build(ui.ParagraphStyle style, String text) {
-  var builder = ui.ParagraphBuilder(style);
+  final ui.ParagraphBuilder builder = ui.ParagraphBuilder(style);
   builder.addText(text);
   return builder.build();
 }
@@ -37,11 +37,11 @@ void testMeasurements(String description, MeasurementTestBody body) {
 
 void main() {
   group('$RulerManager', () {
-    ui.ParagraphStyle s1 = ui.ParagraphStyle(fontFamily: 'sans-serif');
-    ui.ParagraphStyle s2 = ui.ParagraphStyle(
+    final ui.ParagraphStyle s1 = ui.ParagraphStyle(fontFamily: 'sans-serif');
+    final ui.ParagraphStyle s2 = ui.ParagraphStyle(
       fontWeight: ui.FontWeight.bold,
     );
-    ui.ParagraphStyle s3 = ui.ParagraphStyle(fontSize: 22.0);
+    final ui.ParagraphStyle s3 = ui.ParagraphStyle(fontSize: 22.0);
 
     ParagraphGeometricStyle style1, style2, style3;
     ui.Paragraph style1Text1, style1Text2; // two paragraphs sharing style
@@ -57,7 +57,7 @@ void main() {
       style2 = style2Text1.webOnlyGetParagraphGeometricStyle();
       style3 = style3Text3.webOnlyGetParagraphGeometricStyle();
 
-      ParagraphGeometricStyle style1_2 =
+      final ParagraphGeometricStyle style1_2 =
           style1Text2.webOnlyGetParagraphGeometricStyle();
       expect(style1_2, style1); // styles must be equal despite different text
     });
@@ -251,24 +251,27 @@ void main() {
     });
 
     test('takes letter spacing into account', () {
-      final constraints = ui.ParagraphConstraints(width: 100);
+      const ui.ParagraphConstraints constraints =
+          ui.ParagraphConstraints(width: 100);
 
-      final normalBuilder = ui.ParagraphBuilder(ahemStyle);
+      final ui.ParagraphBuilder normalBuilder = ui.ParagraphBuilder(ahemStyle);
       normalBuilder.addText('abc');
-      final normalText = normalBuilder.build();
+      final ui.Paragraph normalText = normalBuilder.build();
 
-      final spacedBuilder = ui.ParagraphBuilder(ahemStyle);
+      final ui.ParagraphBuilder spacedBuilder = ui.ParagraphBuilder(ahemStyle);
       spacedBuilder.pushStyle(ui.TextStyle(letterSpacing: 1.5));
       spacedBuilder.addText('abc');
-      final spacedText = spacedBuilder.build();
+      final ui.Paragraph spacedText = spacedBuilder.build();
 
       // Letter spacing is only supported via DOM measurement.
       final TextMeasurementService instance =
           TextMeasurementService.forParagraph(spacedText);
       expect(instance, isInstanceOf<DomTextMeasurementService>());
 
-      final normalResult = instance.measure(normalText, constraints);
-      final spacedResult = instance.measure(spacedText, constraints);
+      final MeasurementResult normalResult =
+          instance.measure(normalText, constraints);
+      final MeasurementResult spacedResult =
+          instance.measure(spacedText, constraints);
 
       expect(
         normalResult.maxIntrinsicWidth < spacedResult.maxIntrinsicWidth,
@@ -277,24 +280,27 @@ void main() {
     });
 
     test('takes word spacing into account', () {
-      final constraints = ui.ParagraphConstraints(width: 100);
+      const ui.ParagraphConstraints constraints =
+          ui.ParagraphConstraints(width: 100);
 
-      final normalBuilder = ui.ParagraphBuilder(ahemStyle);
+      final ui.ParagraphBuilder normalBuilder = ui.ParagraphBuilder(ahemStyle);
       normalBuilder.addText('a b c');
-      final normalText = normalBuilder.build();
+      final ui.Paragraph normalText = normalBuilder.build();
 
-      final spacedBuilder = ui.ParagraphBuilder(ahemStyle);
+      final ui.ParagraphBuilder spacedBuilder = ui.ParagraphBuilder(ahemStyle);
       spacedBuilder.pushStyle(ui.TextStyle(wordSpacing: 1.5));
       spacedBuilder.addText('a b c');
-      final spacedText = spacedBuilder.build();
+      final ui.Paragraph spacedText = spacedBuilder.build();
 
       // Word spacing is only supported via DOM measurement.
       final TextMeasurementService instance =
           TextMeasurementService.forParagraph(spacedText);
       expect(instance, isInstanceOf<DomTextMeasurementService>());
 
-      final normalResult = instance.measure(normalText, constraints);
-      final spacedResult = instance.measure(spacedText, constraints);
+      final MeasurementResult normalResult =
+          instance.measure(normalText, constraints);
+      final MeasurementResult spacedResult =
+          instance.measure(spacedText, constraints);
 
       expect(
         normalResult.maxIntrinsicWidth < spacedResult.maxIntrinsicWidth,
@@ -359,19 +365,17 @@ void main() {
       final TextMeasurementService instance =
           TextMeasurementService.domInstance;
 
-      final overflowStyle = ui.ParagraphStyle(
+      final ui.ParagraphStyle overflowStyle = ui.ParagraphStyle(
         fontFamily: 'ahem',
         fontSize: 10,
         ellipsis: '...',
       );
 
-      final constraints = ui.ParagraphConstraints(width: 50);
-
       MeasurementResult result;
 
       // The text shouldn't be broken into multiple lines, so the height should
       // be equal to a height of a single line.
-      final longText = build(
+      final ui.Paragraph longText = build(
         overflowStyle,
         'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       );
@@ -380,7 +384,7 @@ void main() {
 
       // The short prefix should make the text break into two lines, but the
       // second line should remain unbroken.
-      final longTextShortPrefix = build(
+      final ui.Paragraph longTextShortPrefix = build(
         overflowStyle,
         'AAA\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       );
@@ -399,13 +403,8 @@ void main() {
       // expect(result.height, 10);
     });
 
-    // TODO(mdebbar): The canvas-based measurement doesn't handle this yet.
-    // https://github.com/flutter/flutter/issues/33223
-    test('respects max lines', () {
-      final TextMeasurementService instance =
-          TextMeasurementService.domInstance;
-
-      final maxlinesStyle = ui.ParagraphStyle(
+    testMeasurements('respects max lines', (TextMeasurementService instance) {
+      final ui.ParagraphStyle maxlinesStyle = ui.ParagraphStyle(
         fontFamily: 'ahem',
         fontSize: 10,
         maxLines: 2,
@@ -414,16 +413,15 @@ void main() {
       MeasurementResult result;
 
       // The height should be that of a single line.
-      final oneline = build(maxlinesStyle, 'One line');
+      final ui.Paragraph oneline = build(maxlinesStyle, 'One line');
       result = instance.measure(oneline, infiniteConstraints);
       expect(result.height, 10);
 
-      // This can only be done correctly in the canvas-based implementation.
-      // TODO(mdebbar): https://github.com/flutter/flutter/issues/33223
       // The height should respect max lines and be limited to two lines here.
-      // final threelines = build(maxlinesStyle, 'First\nSecond\nThird');
-      // result = instance.measure(threelines, infiniteConstraints);
-      // expect(result.height, 20);
+      final ui.Paragraph threelines =
+          build(maxlinesStyle, 'First\nSecond\nThird');
+      result = instance.measure(threelines, infiniteConstraints);
+      expect(result.height, 20);
     });
 
     test('canvas line breaks', () {

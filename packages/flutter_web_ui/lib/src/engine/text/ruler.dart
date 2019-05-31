@@ -58,15 +58,10 @@ class ParagraphGeometricStyle {
   /// Cached font string that can be used in CSS.
   ///
   /// See <https://developer.mozilla.org/en-US/docs/Web/CSS/font>.
-  String get cssFontString {
-    if (_cssFontString == null) {
-      _cssFontString = _buildCssFontString();
-    }
-    return _cssFontString;
-  }
+  String get cssFontString => _cssFontString ??= _buildCssFontString();
 
   String _buildCssFontString() {
-    final result = StringBuffer();
+    final StringBuffer result = StringBuffer();
 
     // Font style
     if (fontStyle != null) {
@@ -98,8 +93,12 @@ class ParagraphGeometricStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final ParagraphGeometricStyle typedOther = other;
     return fontWeight == typedOther.fontWeight &&
         fontStyle == typedOther.fontStyle &&
@@ -172,7 +171,7 @@ class TextDimensions {
     assert(_element != null);
     assert(from.webOnlyDebugHasSameRootStyle(style));
     assert(() {
-      bool wasEmptyOrPlainText = _element.childNodes.isEmpty ||
+      final bool wasEmptyOrPlainText = _element.childNodes.isEmpty ||
           (_element.childNodes.length == 1 &&
               _element.childNodes.first is html.Text);
       if (!wasEmptyOrPlainText) {
@@ -186,7 +185,7 @@ class TextDimensions {
     }());
 
     _invalidateBoundsCache();
-    String plainText = from.webOnlyGetPlainText();
+    final String plainText = from.webOnlyGetPlainText();
     if (plainText != null) {
       // Plain text: just set the string. The paragraph's style is assumed to
       // match the style set on the `element`. Setting text as plain string is
@@ -309,7 +308,7 @@ class ParagraphRuler {
   final RulerManager rulerManager;
 
   /// Probe to use for measuring alphabetic base line.
-  final _probe = html.DivElement();
+  final html.HtmlElement _probe = html.DivElement();
 
   /// Cached value of alphabetic base line.
   double _cachedAlphabeticBaseline;
@@ -633,7 +632,7 @@ class ParagraphRuler {
 
     // Measure the rects of [rangeSpan].
     final List<html.Rectangle<num>> clientRects = rangeSpan.getClientRects();
-    final List<ui.TextBox> boxes = [];
+    final List<ui.TextBox> boxes = <ui.TextBox>[];
 
     for (html.Rectangle<num> rect in clientRects) {
       boxes.add(ui.TextBox.fromLTRBD(
@@ -674,9 +673,9 @@ class ParagraphRuler {
 
   // Bounded cache for text measurement for a particular width constraint.
   Map<String, List<MeasurementResult>> _measurementCache =
-      Map<String, List<MeasurementResult>>();
+      <String, List<MeasurementResult>>{};
   // Mru list for cache.
-  final List<String> _mruList = [];
+  final List<String> _mruList = <String>[];
   static const int _cacheLimit = 2400;
   // Number of items to evict when cache limit is reached.
   static const int _cacheBlockFactor = 100;
@@ -686,12 +685,9 @@ class ParagraphRuler {
   static const int _constraintCacheSize = 8;
 
   void cacheMeasurement(ui.Paragraph paragraph, MeasurementResult item) {
-    final plainText = paragraph.webOnlyGetPlainText();
-    List<MeasurementResult> constraintCache = _measurementCache[plainText];
-    if (constraintCache == null) {
-      constraintCache =
-          _measurementCache[plainText] = List<MeasurementResult>();
-    }
+    final String plainText = paragraph.webOnlyGetPlainText();
+    final List<MeasurementResult> constraintCache =
+        _measurementCache[plainText] ??= <MeasurementResult>[];
     constraintCache.add(item);
     if (constraintCache.length > _constraintCacheSize) {
       constraintCache.removeAt(0);
@@ -708,13 +704,14 @@ class ParagraphRuler {
 
   MeasurementResult cacheLookup(
       ui.Paragraph paragraph, ui.ParagraphConstraints constraints) {
-    List<MeasurementResult> constraintCache =
+    final List<MeasurementResult> constraintCache =
         _measurementCache[paragraph.webOnlyGetPlainText()];
     if (constraintCache == null) {
       return null;
     }
-    for (int i = 0, len = constraintCache.length; i < len; i++) {
-      MeasurementResult item = constraintCache[i];
+    final int len = constraintCache.length;
+    for (int i = 0; i < len; i++) {
+      final MeasurementResult item = constraintCache[i];
       if (item.constraintWidth == constraints.width) {
         return item;
       }
@@ -739,11 +736,11 @@ class MeasurementResult {
   /// The amount of vertical space the paragraph occupies.
   final double height;
 
-  /// The amount of vertical space each line of the paragraph occupies.
+  /// {@macro dart.ui.paragraph.naturalHeight}
   ///
-  /// In some cases, measuring [lineHeight] is unnecessary, so it's nullable. If
-  /// present, it should be equal to [height] when [isSingleLine] is true.
-  final double lineHeight;
+  /// When [ParagraphGeometricStyle.maxLines] is null, [naturalHeight] and
+  /// [height] should be equal.
+  final double naturalHeight;
 
   /// {@macro dart.ui.paragraph.minIntrinsicWidth}
   final double minIntrinsicWidth;
@@ -775,7 +772,7 @@ class MeasurementResult {
     @required this.isSingleLine,
     @required this.width,
     @required this.height,
-    @required this.lineHeight,
+    @required this.naturalHeight,
     @required this.minIntrinsicWidth,
     @required this.maxIntrinsicWidth,
     @required this.alphabeticBaseline,
@@ -785,6 +782,7 @@ class MeasurementResult {
         assert(isSingleLine != null),
         assert(width != null),
         assert(height != null),
+        assert(naturalHeight != null),
         assert(minIntrinsicWidth != null),
         assert(maxIntrinsicWidth != null),
         assert(alphabeticBaseline != null),

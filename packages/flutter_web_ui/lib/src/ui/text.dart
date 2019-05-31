@@ -22,31 +22,31 @@ class FontWeight {
   final int index;
 
   /// Thin, the least thick
-  static const FontWeight w100 = const FontWeight._(0);
+  static const FontWeight w100 = FontWeight._(0);
 
   /// Extra-light
-  static const FontWeight w200 = const FontWeight._(1);
+  static const FontWeight w200 = FontWeight._(1);
 
   /// Light
-  static const FontWeight w300 = const FontWeight._(2);
+  static const FontWeight w300 = FontWeight._(2);
 
   /// Normal / regular / plain
-  static const FontWeight w400 = const FontWeight._(3);
+  static const FontWeight w400 = FontWeight._(3);
 
   /// Medium
-  static const FontWeight w500 = const FontWeight._(4);
+  static const FontWeight w500 = FontWeight._(4);
 
   /// Semi-bold
-  static const FontWeight w600 = const FontWeight._(5);
+  static const FontWeight w600 = FontWeight._(5);
 
   /// Bold
-  static const FontWeight w700 = const FontWeight._(6);
+  static const FontWeight w700 = FontWeight._(6);
 
   /// Extra-bold
-  static const FontWeight w800 = const FontWeight._(7);
+  static const FontWeight w800 = FontWeight._(7);
 
   /// Black, the most thick
-  static const FontWeight w900 = const FontWeight._(8);
+  static const FontWeight w900 = FontWeight._(8);
 
   /// The default font weight.
   static const FontWeight normal = w400;
@@ -55,7 +55,7 @@ class FontWeight {
   static const FontWeight bold = w700;
 
   /// A list of all the font weights.
-  static const List<FontWeight> values = const <FontWeight>[
+  static const List<FontWeight> values = <FontWeight>[
     w100,
     w200,
     w300,
@@ -350,7 +350,7 @@ class TextDecoration {
     for (TextDecoration decoration in decorations) {
       mask |= decoration._mask;
     }
-    return new TextDecoration._(mask);
+    return TextDecoration._(mask);
   }
 
   final int _mask;
@@ -361,20 +361,22 @@ class TextDecoration {
   }
 
   /// Do not draw a decoration
-  static const TextDecoration none = const TextDecoration._(0x0);
+  static const TextDecoration none = TextDecoration._(0x0);
 
   /// Draw a line underneath each line of text
-  static const TextDecoration underline = const TextDecoration._(0x1);
+  static const TextDecoration underline = TextDecoration._(0x1);
 
   /// Draw a line above each line of text
-  static const TextDecoration overline = const TextDecoration._(0x2);
+  static const TextDecoration overline = TextDecoration._(0x2);
 
   /// Draw a line through each line of text
-  static const TextDecoration lineThrough = const TextDecoration._(0x4);
+  static const TextDecoration lineThrough = TextDecoration._(0x4);
 
   @override
   bool operator ==(dynamic other) {
-    if (other is! TextDecoration) return false;
+    if (other is! TextDecoration) {
+      return false;
+    }
     final TextDecoration typedOther = other;
     return _mask == typedOther._mask;
   }
@@ -384,12 +386,22 @@ class TextDecoration {
 
   @override
   String toString() {
-    if (_mask == 0) return 'TextDecoration.none';
+    if (_mask == 0) {
+      return 'TextDecoration.none';
+    }
     final List<String> values = <String>[];
-    if (_mask & underline._mask != 0) values.add('underline');
-    if (_mask & overline._mask != 0) values.add('overline');
-    if (_mask & lineThrough._mask != 0) values.add('lineThrough');
-    if (values.length == 1) return 'TextDecoration.${values[0]}';
+    if (_mask & underline._mask != 0) {
+      values.add('underline');
+    }
+    if (_mask & overline._mask != 0) {
+      values.add('overline');
+    }
+    if (_mask & lineThrough._mask != 0) {
+      values.add('lineThrough');
+    }
+    if (values.length == 1) {
+      return 'TextDecoration.${values[0]}';
+    }
     return 'TextDecoration.combine([${values.join(", ")}])';
   }
 }
@@ -418,10 +430,16 @@ enum TextDecorationStyle {
 /// the same length, and contain the same elements in the same order. Returns
 /// false otherwise.
 bool _listEquals<T>(List<T> a, List<T> b) {
-  if (a == null) return b == null;
-  if (b == null || a.length != b.length) return false;
+  if (a == null) {
+    return b == null;
+  }
+  if (b == null || a.length != b.length) {
+    return false;
+  }
   for (int index = 0; index < a.length; index += 1) {
-    if (a[index] != b[index]) return false;
+    if (a[index] != b[index]) {
+      return false;
+    }
   }
   return true;
 }
@@ -533,8 +551,12 @@ class TextStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other is! TextStyle) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! TextStyle) {
+      return false;
+    }
     final TextStyle typedOther = other;
     return _color == typedOther._color &&
         _decoration == typedOther._decoration &&
@@ -729,8 +751,12 @@ class ParagraphStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final ParagraphStyle typedOther = other;
     return _textAlign == typedOther._textAlign ||
         _textDirection == typedOther._textDirection ||
@@ -834,8 +860,12 @@ class StrutStyle {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final StrutStyle typedOther = other;
     return _fontFamily == typedOther._fontFamily &&
         _fontSize == typedOther._fontSize &&
@@ -1000,7 +1030,7 @@ class TextBox {
   final TextDirection direction;
 
   /// Returns a rect of the same size as this box.
-  Rect toRect() => new Rect.fromLTRB(left, top, right, bottom);
+  Rect toRect() => Rect.fromLTRB(left, top, right, bottom);
 
   /// The [left] edge of the box for left-to-right text; the [right] edge of the box for right-to-left text.
   ///
@@ -1022,8 +1052,12 @@ class TextBox {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final TextBox typedOther = other;
     return typedOther.left == left &&
         typedOther.top == top &&
@@ -1137,7 +1171,9 @@ class TextPosition {
 
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType) return false;
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final TextPosition typedOther = other;
     return typedOther.offset == offset && typedOther.affinity == affinity;
   }
@@ -1186,7 +1222,9 @@ class ParagraphConstraints {
 
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType) return false;
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final ParagraphConstraints typedOther = other;
     return typedOther.width == width;
   }
@@ -1324,10 +1362,13 @@ class Paragraph {
   /// Valid only after [layout] has been called.
   double get height => _measurementResult?.height ?? 0;
 
-  /// The amount of vertical space one line of this paragraph occupies.
+  /// {@template dart.ui.paragraph.naturalHeight}
+  /// The amount of vertical space the paragraph occupies while ignoring the
+  /// [ParagraphGeometricStyle.maxLines] constraint.
+  /// {@endtemplate}
   ///
   /// Valid only after [layout] has been called.
-  double get _lineHeight => _measurementResult?.lineHeight ?? 0;
+  double get _naturalHeight => _measurementResult?.naturalHeight ?? 0;
 
   /// The distance from the left edge of the leftmost glyph to the right edge of
   /// the rightmost glyph in the paragraph.
@@ -1356,12 +1397,16 @@ class Paragraph {
   /// The distance from the top of the paragraph to the alphabetic
   /// baseline of the first line, in logical pixels.
   /// {@endtemplate}
+  ///
+  /// Valid only after [layout] has been called.
   double get alphabeticBaseline => _measurementResult?.alphabeticBaseline ?? -1;
 
   /// {@template dart.ui.paragraph.ideographicBaseline}
   /// The distance from the top of the paragraph to the ideographic
   /// baseline of the first line, in logical pixels.
   /// {@endtemplate}
+  ///
+  /// Valid only after [layout] has been called.
   double get ideographicBaseline =>
       _measurementResult?.ideographicBaseline ?? -1;
 
@@ -1393,7 +1438,7 @@ class Paragraph {
     _lastUsedConstraints = constraints;
 
     if (_paragraphGeometricStyle.maxLines != null) {
-      _didExceedMaxLines = webOnlyMaxLinesHeight < height;
+      _didExceedMaxLines = _naturalHeight > height;
     } else {
       _didExceedMaxLines = false;
     }
@@ -1438,24 +1483,6 @@ class Paragraph {
   /// This value is non-null only if the text is not rich. See
   /// [ParagraphBuilder] for more details on what is considered "rich".
   Paint webOnlyGetPaint() => _paint;
-
-  /// The expected height of the paragraph when it respects [maxLines].
-  ///
-  /// If [maxLines] is null, then [maxLinesHeight] will also be null indicating
-  /// that there's no expected height for this paragraph in order to respect
-  /// [maxLines].
-  double get webOnlyMaxLinesHeight {
-    assert(webOnlyIsLaidOut);
-    if (_paragraphGeometricStyle.maxLines == null) {
-      return null;
-    }
-    // If this assertion fails, it means we somehow forgot to measure lineHeight
-    // when we actually needed it.
-    //
-    // See [TextMeasurement._measureMultiLineParagraph].
-    assert(_lineHeight != null);
-    return _paragraphGeometricStyle.maxLines * _lineHeight;
-  }
 
   /// Whether or not this paragraph can be drawn on a single line.
   bool get _webOnlyIsSingleLine => _measurementResult.isSingleLine;
@@ -1517,13 +1544,13 @@ class Paragraph {
   List<TextBox> _getBoxesForRange(
       int start, int end, int boxHeightStyle, int boxWidthStyle) {
     if (_plainText == null) {
-      return [];
+      return <TextBox>[];
     }
 
     final int length = _plainText.length;
     // Ranges that are out of bounds should return an empty list.
     if (start < 0 || end < 0 || start > length || end > length) {
-      return [];
+      return <TextBox>[];
     }
 
     return _measurementService.measureBoxesForRange(
@@ -1554,7 +1581,7 @@ class Paragraph {
   /// within the text.
   TextPosition getPositionForOffset(Offset offset) {
     if (_plainText == null) {
-      return TextPosition(offset: 0);
+      return const TextPosition(offset: 0);
     }
 
     final double dx = offset.dx - webOnlyAlignOffset;
@@ -1598,12 +1625,12 @@ class Paragraph {
   /// http://www.unicode.org/reports/tr29/#Word_Boundaries
   List<int> getWordBoundary(int offset) {
     if (_plainText == null) {
-      return [offset, offset];
+      return <int>[offset, offset];
     }
 
     final int start = engine.WordBreaker.prevBreakIndex(_plainText, offset);
     final int end = engine.WordBreaker.nextBreakIndex(_plainText, offset);
-    return [start, end];
+    return <int>[start, end];
   }
 
   // TODO(yjbanov): figure out if we need this.
@@ -1629,7 +1656,7 @@ class Paragraph {
 /// paint it with [Canvas.drawParagraph].
 class ParagraphBuilder {
   /// Marks a call to the [pop] method in the [_ops] list.
-  static final _paragraphBuilderPop = Object();
+  static final Object _paragraphBuilderPop = Object();
 
   final html.HtmlElement _paragraphElement =
       engine.domRenderer.createElement('p');
@@ -1716,8 +1743,8 @@ class ParagraphBuilder {
     TextBaseline textBaseline;
     String fontFamily = _paragraphStyle._fontFamily;
     double fontSize = _paragraphStyle._fontSize;
-    TextAlign textAlign = _paragraphStyle._textAlign;
-    TextDirection textDirection = _paragraphStyle._textDirection;
+    final TextAlign textAlign = _paragraphStyle._textAlign;
+    final TextDirection textDirection = _paragraphStyle._textDirection;
     double letterSpacing;
     double wordSpacing;
     double height;
@@ -1732,7 +1759,7 @@ class ParagraphBuilder {
     // entirely. Occasionally there will be one [pushStyle], which causes this
     // loop to run once then move on to aggregating text.
     while (i < _ops.length && _ops[i] is TextStyle) {
-      TextStyle style = _ops[i];
+      final TextStyle style = _ops[i];
       if (style._color != null) {
         color = style._color;
       }
@@ -1813,7 +1840,7 @@ class ParagraphBuilder {
       // Empty paragraph.
       applyTextStyleToElement(
           element: _paragraphElement, style: cumulativeStyle);
-      return new Paragraph._(
+      return Paragraph._(
         paragraphElement: _paragraphElement,
         paragraphGeometricStyle: engine.ParagraphGeometricStyle(
           fontFamily: fontFamily,
@@ -1865,7 +1892,7 @@ class ParagraphBuilder {
       applyTextBackgroundToElement(
           element: _paragraphElement, style: cumulativeStyle);
     }
-    return new Paragraph._(
+    return Paragraph._(
       paragraphElement: _paragraphElement,
       paragraphGeometricStyle: engine.ParagraphGeometricStyle(
         fontFamily: fontFamily,
@@ -1889,13 +1916,13 @@ class ParagraphBuilder {
 
   /// Builds a [Paragraph] as rich text.
   Paragraph _buildRichText() {
-    List<dynamic> elementStack = <dynamic>[];
+    final List<dynamic> elementStack = <dynamic>[];
     dynamic currentElement() =>
         elementStack.isNotEmpty ? elementStack.last : _paragraphElement;
     for (int i = 0; i < _ops.length; i++) {
-      dynamic op = _ops[i];
+      final dynamic op = _ops[i];
       if (op is TextStyle) {
-        var span = engine.domRenderer.createElement('span');
+        final html.SpanElement span = engine.domRenderer.createElement('span');
         applyTextStyleToElement(element: span, style: op);
         if (op._background != null) {
           applyTextBackgroundToElement(element: span, style: op);
@@ -1911,7 +1938,7 @@ class ParagraphBuilder {
       }
     }
 
-    return new Paragraph._(
+    return Paragraph._(
       paragraphElement: _paragraphElement,
       paragraphGeometricStyle: engine.ParagraphGeometricStyle(
         fontFamily: _paragraphStyle._fontFamily,
@@ -1938,7 +1965,7 @@ void applyTextBackgroundToElement({
   @required TextStyle style,
   TextStyle previousStyle,
 }) {
-  var newBackground = style._background;
+  final Paint newBackground = style._background;
   if (previousStyle == null) {
     if (newBackground != null) {
       engine.domRenderer.setElementStyle(
@@ -1964,10 +1991,9 @@ void applyTextStyleToElement({
   assert(element != null);
   assert(style != null);
   bool updateDecoration = false;
-  html.CssStyleDeclaration cssStyle = element.style;
+  final html.CssStyleDeclaration cssStyle = element.style;
   if (previousStyle == null) {
-    var color = style._color;
-    if (style._foreground?.color != null) color = style._foreground.color;
+    final Color color = style._foreground?.color ?? style._color;
     if (color != null) {
       cssStyle.color = color.toCssString();
     }
@@ -1996,10 +2022,7 @@ void applyTextStyleToElement({
   } else {
     if (style._color != previousStyle._color ||
         style._foreground != previousStyle._foreground) {
-      var color = style._color;
-      if (style._foreground?.color != null) {
-        color = style._foreground.color;
-      }
+      final Color color = style._foreground?.color ?? style._color;
       cssStyle.color = color?.toCssString();
     }
 
@@ -2035,11 +2058,11 @@ void applyTextStyleToElement({
 
   if (updateDecoration) {
     if (style._decoration != null) {
-      String textDecoration =
+      final String textDecoration =
           _textDecorationToCssString(style._decoration, style._decorationStyle);
       if (textDecoration != null) {
         cssStyle.textDecoration = textDecoration;
-        var decorationColor = style._decorationColor;
+        final Color decorationColor = style._decorationColor;
         if (decorationColor != null) {
           cssStyle.textDecorationColor = decorationColor.toCssString();
         }
@@ -2051,7 +2074,7 @@ void applyTextStyleToElement({
 /// Converts text decoration style to CSS text-decoration-style value.
 String _textDecorationToCssString(
     TextDecoration decoration, TextDecorationStyle decorationStyle) {
-  StringBuffer decorations = new StringBuffer();
+  final StringBuffer decorations = StringBuffer();
   if (decoration != null) {
     if (decoration.contains(TextDecoration.underline)) {
       decorations.write('underline ');
@@ -2098,7 +2121,7 @@ void applyParagraphStyleToElement({
   assert(element != null);
   assert(style != null);
   // TODO(yjbanov): What do we do about ParagraphStyle._locale and ellipsis?
-  html.CssStyleDeclaration cssStyle = element.style;
+  final html.CssStyleDeclaration cssStyle = element.style;
   if (previousStyle == null) {
     if (style._textAlign != null) {
       cssStyle.textAlign = textAlignToCssValue(
@@ -2181,7 +2204,7 @@ String webOnlyFontWeightToCss(FontWeight fontWeight) {
 
   assert(() {
     throw AssertionError(
-      'Failed to convert font weight ${fontWeight} to CSS.',
+      'Failed to convert font weight $fontWeight to CSS.',
     );
   }());
 
