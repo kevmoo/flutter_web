@@ -1,6 +1,7 @@
 // Copyright 2019 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T16:11:53.690365.
 
 /// A constant that is true if the application was compiled in release mode.
 ///
@@ -33,3 +34,10 @@ const bool kProfileMode =
 /// a particular block of code will not be executed in debug mode, and hence
 /// can be removed.
 const bool kDebugMode = !kReleaseMode && !kProfileMode;
+
+/// The epsilon of tolerable double precision error.
+///
+/// This is used in various places in the framework to allow for floating point
+/// precision loss in calculations. Differences below this threshold are safe to
+/// disregard.
+const double precisionErrorTolerance = 1e-10;

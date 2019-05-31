@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 
@@ -1091,7 +1092,7 @@ void main() {
     );
 
     semantics.dispose();
-  });
+  }, skip: true); // TODO(flutter_web): re-enable.
 
   testWidgets('can move cursor with a11y means - character',
       (WidgetTester tester) async {
@@ -1641,7 +1642,7 @@ void main() {
     );
 
     semantics.dispose();
-  });
+  }, skip: true); // TODO(flutter_web): re-enable.
 
   group('a11y copy/cut/paste', () {
     Future<void> _buildApp(
@@ -1667,7 +1668,8 @@ void main() {
 
       controls = MockTextSelectionControls();
       when(controls.buildHandle(any, any, any)).thenReturn(Container());
-      when(controls.buildToolbar(any, any, any, any)).thenReturn(Container());
+      when(controls.buildToolbar(any, any, any, any, any))
+          .thenReturn(Container());
     });
 
     testWidgets('are exposed', (WidgetTester tester) async {

@@ -1,6 +1,7 @@
 // Copyright 2019 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.217457.
 
 import 'package:flutter_web/foundation.dart';
 
@@ -53,14 +54,15 @@ class PointerSignalResolver {
       _firstRegisteredCallback(event);
     } catch (exception, stack) {
       FlutterError.reportError(FlutterErrorDetails(
-          exception: exception,
-          stack: stack,
-          library: 'gesture library',
-          context: 'while resolving a PointerSignalEvent',
-          informationCollector: (StringBuffer information) {
-            information.writeln('Event:');
-            information.write('  $event');
-          }));
+        exception: exception,
+        stack: stack,
+        library: 'gesture library',
+        context: ErrorDescription('while resolving a PointerSignalEvent'),
+        informationCollector: () sync* {
+          yield DiagnosticsProperty<PointerSignalEvent>('Event', event,
+              style: DiagnosticsTreeStyle.errorProperty);
+        },
+      ));
     }
     _firstRegisteredCallback = null;
     _currentEvent = null;

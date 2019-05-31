@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web_test/flutter_web_test.dart';
@@ -8,6 +9,28 @@ import 'package:flutter_web_test/flutter_web_test.dart';
 class TestNotifier extends ChangeNotifier {
   void notify() {
     notifyListeners();
+  }
+
+  bool get isListenedTo => hasListeners;
+}
+
+class HasListenersTester<T> extends ValueNotifier<T> {
+  HasListenersTester(T value) : super(value);
+  bool get testHasListeners => hasListeners;
+}
+
+class A {
+  bool result = false;
+  void test() {
+    result = true;
+  }
+}
+
+class B extends A with ChangeNotifier {
+  @override
+  void test() {
+    notifyListeners();
+    super.test();
   }
 }
 
@@ -80,7 +103,6 @@ void main() {
 
     test.addListener(badListener);
     test.notify();
-    await tester.idle();
     expect(log, <String>['listener', 'listener2', 'listener1', 'badListener']);
     expect(tester.takeException(), isNullThrownError);
     log.clear();
@@ -91,7 +113,6 @@ void main() {
     test.removeListener(listener2);
     test.addListener(listener2);
     test.notify();
-    await tester.idle();
     expect(log, <String>['badListener', 'listener1', 'listener2']);
     expect(tester.takeException(), isNullThrownError);
     log.clear();
@@ -188,13 +209,12 @@ void main() {
     log.clear();
   });
 
-  test('Can dispose merged notifier', () {
+  test('Can remove from merged notifier', () {
     final TestNotifier source1 = TestNotifier();
     final TestNotifier source2 = TestNotifier();
     final List<String> log = <String>[];
 
-    final ChangeNotifier merged =
-        Listenable.merge(<Listenable>[source1, source2]);
+    final Listenable merged = Listenable.merge(<Listenable>[source1, source2]);
     final VoidCallback listener = () {
       log.add('listener');
     };
@@ -204,8 +224,8 @@ void main() {
     source2.notify();
     expect(log, <String>['listener', 'listener']);
     log.clear();
-    merged.dispose();
 
+    merged.removeListener(listener);
     source1.notify();
     source2.notify();
     expect(log, isEmpty);
@@ -250,7 +270,7 @@ void main() {
     final TestNotifier source1 = TestNotifier();
     final TestNotifier source2 = TestNotifier();
 
-    ChangeNotifier listenableUnderTest = Listenable.merge(<Listenable>[]);
+    Listenable listenableUnderTest = Listenable.merge(<Listenable>[]);
     expect(listenableUnderTest.toString(), 'Listenable.merge([])');
 
     listenableUnderTest = Listenable.merge(<Listenable>[null]);
@@ -275,6 +295,26 @@ void main() {
     );
   });
 
+  test('Listenable.merge does not leak', () {
+    // Regression test for https://github.com/flutter/flutter/issues/25163.
+
+    final TestNotifier source1 = TestNotifier();
+    final TestNotifier source2 = TestNotifier();
+    final VoidCallback fakeListener = () {};
+
+    final Listenable listenableUnderTest =
+        Listenable.merge(<Listenable>[source1, source2]);
+    expect(source1.isListenedTo, isFalse);
+    expect(source2.isListenedTo, isFalse);
+    listenableUnderTest.addListener(fakeListener);
+    expect(source1.isListenedTo, isTrue);
+    expect(source2.isListenedTo, isTrue);
+
+    listenableUnderTest.removeListener(fakeListener);
+    expect(source1.isListenedTo, isFalse);
+    expect(source2.isListenedTo, isFalse);
+  });
+
   test('hasListeners', () {
     final HasListenersTester<bool> notifier = HasListenersTester<bool>(true);
     expect(notifier.testHasListeners, isFalse);
@@ -297,9 +337,18 @@ void main() {
     notifier.removeListener(test2);
     expect(notifier.testHasListeners, isFalse);
   });
-}
 
-class HasListenersTester<T> extends ValueNotifier<T> {
-  HasListenersTester(T value) : super(value);
-  bool get testHasListeners => hasListeners;
+  test('ChangeNotifier as a mixin', () {
+    // We document that this is a valid way to use this class.
+    final B b = B();
+    int notifications = 0;
+    b.addListener(() {
+      notifications += 1;
+    });
+    expect(b.result, isFalse);
+    expect(notifications, 0);
+    b.test();
+    expect(b.result, isTrue);
+    expect(notifications, 1);
+  });
 }

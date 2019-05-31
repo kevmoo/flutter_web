@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:collection';
 import 'dart:math' as math;
@@ -209,7 +210,7 @@ class FlexColumnWidth extends TableColumnWidth {
   }
 
   @override
-  String toString() => '$runtimeType($value)';
+  String toString() => '$runtimeType(${debugPrintDouble(value)})';
 }
 
 /// Sizes the column such that it is the size that is the maximum of
@@ -234,14 +235,18 @@ class MaxColumnWidth extends TableColumnWidth {
 
   @override
   double minIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) {
-    return math.max(a.minIntrinsicWidth(cells, containerWidth),
-        b.minIntrinsicWidth(cells, containerWidth));
+    return math.max(
+      a.minIntrinsicWidth(cells, containerWidth),
+      b.minIntrinsicWidth(cells, containerWidth),
+    );
   }
 
   @override
   double maxIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) {
-    return math.max(a.maxIntrinsicWidth(cells, containerWidth),
-        b.maxIntrinsicWidth(cells, containerWidth));
+    return math.max(
+      a.maxIntrinsicWidth(cells, containerWidth),
+      b.maxIntrinsicWidth(cells, containerWidth),
+    );
   }
 
   @override
@@ -279,14 +284,18 @@ class MinColumnWidth extends TableColumnWidth {
 
   @override
   double minIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) {
-    return math.min(a.minIntrinsicWidth(cells, containerWidth),
-        b.minIntrinsicWidth(cells, containerWidth));
+    return math.min(
+      a.minIntrinsicWidth(cells, containerWidth),
+      b.minIntrinsicWidth(cells, containerWidth),
+    );
   }
 
   @override
   double maxIntrinsicWidth(Iterable<RenderBox> cells, double containerWidth) {
-    return math.min(a.maxIntrinsicWidth(cells, containerWidth),
-        b.maxIntrinsicWidth(cells, containerWidth));
+    return math.min(
+      a.maxIntrinsicWidth(cells, containerWidth),
+      b.maxIntrinsicWidth(cells, containerWidth),
+    );
   }
 
   @override
@@ -344,20 +353,20 @@ class RenderTable extends RenderBox {
   ///    if `children` is not null, then `rows` must be null.
   ///  * [defaultColumnWidth] must not be null.
   ///  * [configuration] must not be null (but has a default value).
-  RenderTable(
-      {int columns,
-      int rows,
-      Map<int, TableColumnWidth> columnWidths,
-      TableColumnWidth defaultColumnWidth = const FlexColumnWidth(1.0),
-      @required TextDirection textDirection,
-      TableBorder border,
-      List<Decoration> rowDecorations,
-      ImageConfiguration configuration = ImageConfiguration.empty,
-      TableCellVerticalAlignment defaultVerticalAlignment =
-          TableCellVerticalAlignment.top,
-      TextBaseline textBaseline,
-      List<List<RenderBox>> children})
-      : assert(columns == null || columns >= 0),
+  RenderTable({
+    int columns,
+    int rows,
+    Map<int, TableColumnWidth> columnWidths,
+    TableColumnWidth defaultColumnWidth = const FlexColumnWidth(1.0),
+    @required TextDirection textDirection,
+    TableBorder border,
+    List<Decoration> rowDecorations,
+    ImageConfiguration configuration = ImageConfiguration.empty,
+    TableCellVerticalAlignment defaultVerticalAlignment =
+        TableCellVerticalAlignment.top,
+    TextBaseline textBaseline,
+    List<List<RenderBox>> children,
+  })  : assert(columns == null || columns >= 0),
         assert(rows == null || rows >= 0),
         assert(rows == null || children == null),
         assert(defaultColumnWidth != null),
@@ -862,11 +871,11 @@ class RenderTable extends RenderBox {
         }
         assert(tableWidth >= targetWidth);
       }
-    } else // step 2 and 3 are mutually exclusive
+    } // step 2 and 3 are mutually exclusive
 
     // 3. if there were no flex columns, then grow the table to the
     //    minWidth.
-    if (tableWidth < minWidthConstraint) {
+    else if (tableWidth < minWidthConstraint) {
       final double delta = (minWidthConstraint - tableWidth) / columns;
       for (int x = 0; x < columns; x += 1) widths[x] += delta;
       tableWidth = minWidthConstraint;
@@ -901,7 +910,7 @@ class RenderTable extends RenderBox {
       int availableColumns = columns;
       // Handle double precision errors which causes this loop to become
       // stuck in certain configurations.
-      const double minimumDeficit = 0.00000001;
+      const double minimumDeficit = precisionErrorTolerance;
       while (deficit > minimumDeficit && totalFlex > minimumDeficit) {
         double newTotalFlex = 0.0;
         for (int x = 0; x < columns; x += 1) {
@@ -941,8 +950,8 @@ class RenderTable extends RenderBox {
                 deficit -= widths[x] - minWidths[x];
                 widths[x] = minWidths[x];
               } else {
-                deficit -= availableDelta;
-                widths[x] -= availableDelta;
+                deficit -= delta;
+                widths[x] -= delta;
                 newAvailableColumns += 1;
               }
             }
@@ -1098,14 +1107,21 @@ class RenderTable extends RenderBox {
   }
 
   @override
-  bool hitTestChildren(HitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     assert(_children.length == rows * columns);
     for (int index = _children.length - 1; index >= 0; index -= 1) {
       final RenderBox child = _children[index];
       if (child != null) {
         final BoxParentData childParentData = child.parentData;
-        if (child.hitTest(result, position: position - childParentData.offset))
-          return true;
+        final bool isHit = result.addWithPaintOffset(
+          offset: childParentData.offset,
+          position: position,
+          hitTest: (BoxHitTestResult result, Offset transformed) {
+            assert(transformed == position - childParentData.offset);
+            return child.hitTest(result, position: transformed);
+          },
+        );
+        if (isHit) return true;
       }
     }
     return false;
@@ -1132,10 +1148,11 @@ class RenderTable extends RenderBox {
           _rowDecorationPainters[y] ??=
               _rowDecorations[y].createBoxPainter(markNeedsPaint);
           _rowDecorationPainters[y].paint(
-              canvas,
-              Offset(offset.dx, offset.dy + _rowTops[y]),
-              configuration.copyWith(
-                  size: Size(size.width, _rowTops[y + 1] - _rowTops[y])));
+            canvas,
+            Offset(offset.dx, offset.dy + _rowTops[y]),
+            configuration.copyWith(
+                size: Size(size.width, _rowTops[y + 1] - _rowTops[y])),
+          );
         }
       }
     }

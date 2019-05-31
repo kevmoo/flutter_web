@@ -1,9 +1,8 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.779597.
 
-// TODO(yjbanov): port scroll_notification_test.dart when we have
-//                SingleChildScrollView.
 import 'package:flutter_web/gestures.dart';
 import 'package:flutter_web/rendering.dart';
 
@@ -78,9 +77,8 @@ mixin ViewportNotificationMixin on Notification {
 ///
 /// To drive layout based on the scroll position, consider listening to the
 /// [ScrollPosition] directly (or indirectly via a [ScrollController]).
-abstract class ScrollNotification extends LayoutChangedNotification {
-  // TODO(yjbanov): move to mixins when they are available
-  // with ViewportNotificationMixin {
+abstract class ScrollNotification extends LayoutChangedNotification
+    with ViewportNotificationMixin {
   /// Initializes fields for subclasses.
   ScrollNotification({
     @required this.metrics,
@@ -100,30 +98,7 @@ abstract class ScrollNotification extends LayoutChangedNotification {
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
-    // TODO(yjbanov): the following line is a copy from
-    //                ViewportNotificationMixin, which we cannot currently use.
-    description.add('depth: $depth (${depth == 0 ? "local" : "remote"})');
     description.add('$metrics');
-  }
-
-  // TODO(yjbanov): the code in this class is a straight copy from
-  //                ViewportNotificationMixin, which we cannot currently use.
-
-  /// The number of viewports that this notification has bubbled through.
-  ///
-  /// Typically listeners only respond to notifications with a [depth] of zero.
-  ///
-  /// Specifically, this is the number of [Widget]s representing
-  /// [RenderAbstractViewport] render objects through which this notification
-  /// has bubbled.
-  int get depth => _depth;
-  int _depth = 0;
-
-  @override
-  bool visitAncestor(Element element) {
-    if (element is RenderObjectElement &&
-        element.renderObject is RenderAbstractViewport) _depth += 1;
-    return super.visitAncestor(element);
   }
 }
 
@@ -189,9 +164,9 @@ class ScrollUpdateNotification extends ScrollNotification {
   }
 }
 
-/// A notification that a [Scrollable] widget has not changed its scroll
-/// position because the change would have caused its scroll position to go
-/// outside of its scroll bounds.
+/// A notification that a [Scrollable] widget has not changed its scroll position
+/// because the change would have caused its scroll position to go outside of
+/// its scroll bounds.
 ///
 /// See also:
 ///
@@ -303,7 +278,8 @@ class UserScrollNotification extends ScrollNotification {
 
 /// A predicate for [ScrollNotification], used to customize widgets that
 /// listen to notifications from their children.
-typedef bool ScrollNotificationPredicate(ScrollNotification notification);
+typedef ScrollNotificationPredicate = bool Function(
+    ScrollNotification notification);
 
 /// A [ScrollNotificationPredicate] that checks whether
 /// `notification.depth == 0`, which means that the notification did not bubble

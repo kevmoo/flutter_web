@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.338178.
 
 import 'dart:async';
 
@@ -30,15 +31,15 @@ import 'typography.dart';
 //    you must add it to every other language (all the other *.arb files in that
 //    same directory), listing the translation as `TBD`. After that you have to
 //    re-generate lib/src/l10n/localizations.dart by running
-//    `dart dev/tools/gen_localizations.dart --overwrite`. There is a README
-//    file with further information in the lib/src/l10n/ directory.
+//    `dart dev/tools/localization/gen_localizations.dart --overwrite`. There is
+//    a README file with further information in the lib/src/l10n/ directory.
 //
 // 5. If you are a Google employee, you should then also follow the instructions
 //    at go/flutter-l10n. If you're not, don't worry about it.
 //
 // 6. If you're adding a String for the sake of Flutter, not for an app-specific
 //    version of this interface, you are making a breaking API change. See
-//    https://flutter.io/design-principles/#handling-breaking-changes.
+//    https://github.com/flutter/flutter/wiki/Tree-hygiene#handling-breaking-changes.
 
 /// Defines the localized resource values used by the Material widgets.
 ///
@@ -279,27 +280,27 @@ abstract class MaterialLocalizations {
   /// shows the list of accounts.
   String get showAccountsLabel;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list to the start of the list.
   String get reorderItemToStart;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list to the end of the list.
   String get reorderItemToEnd;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list one space up the list.
   String get reorderItemUp;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list one space down the list.
   String get reorderItemDown;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list one space left in the list.
   String get reorderItemLeft;
 
-  /// The semantics label used for [ReorderableList] to reorder an item in the
+  /// The semantics label used for [ReorderableListView] to reorder an item in the
   /// list one space right in the list.
   String get reorderItemRight;
 
@@ -311,6 +312,9 @@ abstract class MaterialLocalizations {
 
   /// The label for the [TextField]'s character counter.
   String remainingTextFieldCharacterCount(int remaining);
+
+  /// The default semantics label for a [RefreshIndicator].
+  String get refreshIndicatorSemanticLabel;
 
   /// The `MaterialLocalizations` from the closest [Localizations] instance
   /// that encloses the given context.
@@ -343,6 +347,9 @@ class _MaterialLocalizationsDelegate
 
   @override
   bool shouldReload(_MaterialLocalizationsDelegate old) => false;
+
+  @override
+  String toString() => 'DefaultMaterialLocalizations.delegate(en_US)';
 }
 
 /// US English strings for the material widgets.
@@ -699,6 +706,9 @@ class DefaultMaterialLocalizations implements MaterialLocalizations {
 
   @override
   String get collapsedIconTapHint => 'Expand';
+
+  @override
+  String get refreshIndicatorSemanticLabel => 'Refresh';
 
   /// Creates an object that provides US English resource values for the material
   /// library widgets.

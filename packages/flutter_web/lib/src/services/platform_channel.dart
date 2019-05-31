@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -509,7 +510,8 @@ class EventChannel {
           exception: exception,
           stack: stack,
           library: 'services library',
-          context: 'while activating platform stream on channel $name',
+          context: ErrorDescription(
+              'while activating platform stream on channel $name'),
         ));
       }
     }, onCancel: () async {
@@ -521,7 +523,8 @@ class EventChannel {
           exception: exception,
           stack: stack,
           library: 'services library',
-          context: 'while de-activating platform stream on channel $name',
+          context: ErrorDescription(
+              'while de-activating platform stream on channel $name'),
         ));
       }
     });

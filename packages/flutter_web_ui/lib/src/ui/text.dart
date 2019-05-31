@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:57.833907.
 
 part of ui;
 
@@ -723,7 +724,7 @@ class ParagraphStyle {
     }
     // In this case, strut height acts as a minimum height for all parts of the
     // paragraph. So we take the max of strut height and paragraph style height.
-    return math.max(_strutStyle._height, _height);
+    return math.max(_strutStyle._height, _height ?? 0.0);
   }
 
   @override

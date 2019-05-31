@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:57.622135.
 
 import 'package:flutter_web_test/flutter_web_test.dart';
 import 'package:flutter_web/rendering.dart';
@@ -193,7 +194,7 @@ void main() {
     verifyPaintPosition(key2, const Offset(0.0, 0.0), true);
     verifyPaintPosition(key3, const Offset(0.0, 100.0), true);
     verifyActualBoxPosition(tester, find.byType(Container), 1,
-        Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
+        const Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
     verifyPaintPosition(key4, const Offset(0.0, 300.0), true);
     verifyPaintPosition(key5, const Offset(0.0, 850.0), false);
     position.animateTo(700.0,
@@ -203,7 +204,7 @@ void main() {
     verifyPaintPosition(key2, const Offset(0.0, 0.0), true);
     verifyPaintPosition(key3, const Offset(0.0, 100.0), true);
     verifyActualBoxPosition(tester, find.byType(Container), 1,
-        Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
+        const Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
     verifyPaintPosition(key4, const Offset(0.0, 250.0), true);
     verifyPaintPosition(key5, const Offset(0.0, 800.0), false);
     position.animateTo(750.0,
@@ -213,7 +214,7 @@ void main() {
     verifyPaintPosition(key2, const Offset(0.0, 0.0), true);
     verifyPaintPosition(key3, const Offset(0.0, 100.0), true);
     verifyActualBoxPosition(tester, find.byType(Container), 1,
-        Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
+        const Rect.fromLTWH(0.0, 100.0, 800.0, 200.0));
     verifyPaintPosition(key4, const Offset(0.0, 200.0), true);
     verifyPaintPosition(key5, const Offset(0.0, 750.0), false);
     position.animateTo(800.0,
@@ -247,7 +248,7 @@ void main() {
     verifyPaintPosition(key2, const Offset(0.0, 0.0), true);
     verifyPaintPosition(key3, const Offset(0.0, 100.0), true);
     verifyActualBoxPosition(tester, find.byType(Container), 1,
-        Rect.fromLTWH(0.0, 100.0, 800.0, 100.0));
+        const Rect.fromLTWH(0.0, 100.0, 800.0, 100.0));
     verifyPaintPosition(key4, const Offset(0.0, 0.0), true);
     verifyPaintPosition(key5, const Offset(0.0, 550.0), true);
   });
@@ -308,9 +309,9 @@ void main() {
           physics: const BouncingScrollPhysics(),
           slivers: <Widget>[
             SliverPersistentHeader(delegate: TestDelegate(), pinned: true),
-            const SliverList(
+            SliverList(
               delegate: SliverChildListDelegate(<Widget>[
-                SizedBox(
+                const SizedBox(
                   height: 300.0,
                   child: Text('X'),
                 ),

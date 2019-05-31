@@ -1,11 +1,13 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.350323.
 
 import 'dart:math' as math;
 
 import 'package:flutter_web/widgets.dart';
 import 'package:flutter_web/rendering.dart';
+import 'package:flutter_web/gestures.dart' show DragStartBehavior;
 
 import 'button_bar.dart';
 import 'button_theme.dart';
@@ -61,27 +63,29 @@ class PaginatedDataTable extends StatefulWidget {
   ///
   /// The [rowsPerPage] and [availableRowsPerPage] must not be null (they
   /// both have defaults, though, so don't have to be specified).
-  PaginatedDataTable(
-      {Key key,
-      @required this.header,
-      this.actions,
-      @required this.columns,
-      this.sortColumnIndex,
-      this.sortAscending = true,
-      this.onSelectAll,
-      this.initialFirstRowIndex = 0,
-      this.onPageChanged,
-      this.rowsPerPage = defaultRowsPerPage,
-      this.availableRowsPerPage = const <int>[
-        defaultRowsPerPage,
-        defaultRowsPerPage * 2,
-        defaultRowsPerPage * 5,
-        defaultRowsPerPage * 10
-      ],
-      this.onRowsPerPageChanged,
-      @required this.source})
-      : assert(header != null),
+  PaginatedDataTable({
+    Key key,
+    @required this.header,
+    this.actions,
+    @required this.columns,
+    this.sortColumnIndex,
+    this.sortAscending = true,
+    this.onSelectAll,
+    this.initialFirstRowIndex = 0,
+    this.onPageChanged,
+    this.rowsPerPage = defaultRowsPerPage,
+    this.availableRowsPerPage = const <int>[
+      defaultRowsPerPage,
+      defaultRowsPerPage * 2,
+      defaultRowsPerPage * 5,
+      defaultRowsPerPage * 10
+    ],
+    this.onRowsPerPageChanged,
+    this.dragStartBehavior = DragStartBehavior.start,
+    @required this.source,
+  })  : assert(header != null),
         assert(columns != null),
+        assert(dragStartBehavior != null),
         assert(columns.isNotEmpty),
         assert(sortColumnIndex == null ||
             (sortColumnIndex >= 0 && sortColumnIndex < columns.length)),
@@ -177,6 +181,9 @@ class PaginatedDataTable extends StatefulWidget {
   /// [PaginatedDataTable] constructor is called.
   final DataTableSource source;
 
+  /// {@macro flutter.widgets.scrollable.dragStartBehavior}
+  final DragStartBehavior dragStartBehavior;
+
   @override
   PaginatedDataTableState createState() => PaginatedDataTableState();
 }
@@ -239,10 +246,11 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
 
   DataRow _getBlankRowFor(int index) {
     return DataRow.byIndex(
-        index: index,
-        cells: widget.columns
-            .map<DataCell>((DataColumn column) => DataCell.empty)
-            .toList());
+      index: index,
+      cells: widget.columns
+          .map<DataCell>((DataColumn column) => DataCell.empty)
+          .toList(),
+    );
   }
 
   DataRow _getProgressIndicatorRowFor(int index) {
@@ -259,7 +267,10 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
       haveProgressIndicator = true;
       cells[0] = const DataCell(CircularProgressIndicator());
     }
-    return DataRow.byIndex(index: index, cells: cells);
+    return DataRow.byIndex(
+      index: index,
+      cells: cells,
+    );
   }
 
   List<DataRow> _getRows(int firstRowIndex, int rowsPerPage) {
@@ -335,7 +346,10 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
           .where(
               (int value) => value <= _rowCount || value == widget.rowsPerPage)
           .map<DropdownMenuItem<int>>((int value) {
-        return DropdownMenuItem<int>(value: value, child: Text('$value'));
+        return DropdownMenuItem<int>(
+          value: value,
+          child: Text('$value'),
+        );
       }).toList();
       footerWidgets.addAll(<Widget>[
         Container(
@@ -363,25 +377,28 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
     footerWidgets.addAll(<Widget>[
       Container(width: 32.0),
       Text(localizations.pageRowsInfoTitle(
-          _firstRowIndex + 1,
-          _firstRowIndex + widget.rowsPerPage,
-          _rowCount,
-          _rowCountApproximate)),
+        _firstRowIndex + 1,
+        _firstRowIndex + widget.rowsPerPage,
+        _rowCount,
+        _rowCountApproximate,
+      )),
       Container(width: 32.0),
       IconButton(
-          icon: const Icon(Icons.chevron_left),
-          padding: EdgeInsets.zero,
-          tooltip: localizations.previousPageTooltip,
-          onPressed: _firstRowIndex <= 0 ? null : _handlePrevious),
+        icon: const Icon(Icons.chevron_left),
+        padding: EdgeInsets.zero,
+        tooltip: localizations.previousPageTooltip,
+        onPressed: _firstRowIndex <= 0 ? null : _handlePrevious,
+      ),
       Container(width: 24.0),
       IconButton(
-          icon: const Icon(Icons.chevron_right),
-          padding: EdgeInsets.zero,
-          tooltip: localizations.nextPageTooltip,
-          onPressed: (!_rowCountApproximate &&
-                  (_firstRowIndex + widget.rowsPerPage >= _rowCount))
-              ? null
-              : _handleNext),
+        icon: const Icon(Icons.chevron_right),
+        padding: EdgeInsets.zero,
+        tooltip: localizations.nextPageTooltip,
+        onPressed: (!_rowCountApproximate &&
+                (_firstRowIndex + widget.rowsPerPage >= _rowCount))
+            ? null
+            : _handleNext,
+      ),
       Container(width: 14.0),
     ]);
 
@@ -396,7 +413,7 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
             child: DefaultTextStyle(
               // These typographic styles aren't quite the regular ones. We pick the closest ones from the regular
               // list and then tweak them appropriately.
-              // See https://material.google.com/components/data-tables.html#data-tables-tables-within-cards
+              // See https://material.io/design/components/data-tables.html#tables-within-cards
               style: _selectedRowCount > 0
                   ? themeData.textTheme.subhead
                       .copyWith(color: themeData.accentColor)
@@ -414,8 +431,9 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
                       padding: EdgeInsetsDirectional.only(
                           start: startPadding, end: 14.0),
                       child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: headerWidgets),
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: headerWidgets,
+                      ),
                     ),
                   ),
                 ),
@@ -423,14 +441,17 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
             ),
           ),
           SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                  key: _tableKey,
-                  columns: widget.columns,
-                  sortColumnIndex: widget.sortColumnIndex,
-                  sortAscending: widget.sortAscending,
-                  onSelectAll: widget.onSelectAll,
-                  rows: _getRows(_firstRowIndex, widget.rowsPerPage))),
+            scrollDirection: Axis.horizontal,
+            dragStartBehavior: widget.dragStartBehavior,
+            child: DataTable(
+              key: _tableKey,
+              columns: widget.columns,
+              sortColumnIndex: widget.sortColumnIndex,
+              sortAscending: widget.sortAscending,
+              onSelectAll: widget.onSelectAll,
+              rows: _getRows(_firstRowIndex, widget.rowsPerPage),
+            ),
+          ),
           DefaultTextStyle(
             style: footerTextStyle,
             child: IconTheme.merge(
@@ -438,6 +459,7 @@ class PaginatedDataTableState extends State<PaginatedDataTable> {
               child: Container(
                 height: 56.0,
                 child: SingleChildScrollView(
+                  dragStartBehavior: widget.dragStartBehavior,
                   scrollDirection: Axis.horizontal,
                   reverse: true,
                   child: Row(

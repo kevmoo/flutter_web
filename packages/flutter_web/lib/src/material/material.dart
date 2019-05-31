@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.328871.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/rendering.dart';
@@ -151,7 +152,7 @@ abstract class MaterialInkController {
 ///
 /// See also:
 ///
-///  * [MergeableMaterial], a piece of material that can split and remerge.
+///  * [MergeableMaterial], a piece of material that can split and re-merge.
 ///  * [Card], a wrapper for a [Material] of [type] [MaterialType.card].
 ///  * <https://material.io/design/>
 class Material extends StatefulWidget {
@@ -330,27 +331,34 @@ class _MaterialState extends State<Material> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = _getBackgroundColor(context);
-    assert(backgroundColor != null || widget.type == MaterialType.transparency);
+    assert(
+        backgroundColor != null || widget.type == MaterialType.transparency,
+        'If Material type is not MaterialType.transparency, a color must '
+        'either be passed in through the `color` property, or be defined '
+        'in the theme (ex. canvasColor != null if type is set to '
+        'MaterialType.canvas)');
     Widget contents = widget.child;
     if (contents != null) {
       contents = AnimatedDefaultTextStyle(
-          style: widget.textStyle ?? Theme.of(context).textTheme.body1,
-          duration: widget.animationDuration,
-          child: contents);
+        style: widget.textStyle ?? Theme.of(context).textTheme.body1,
+        duration: widget.animationDuration,
+        child: contents,
+      );
     }
     contents = NotificationListener<LayoutChangedNotification>(
-        onNotification: (LayoutChangedNotification notification) {
-          final _RenderInkFeatures renderer =
-              _inkFeatureRenderer.currentContext.findRenderObject();
-          renderer._didChangeLayout();
-          return true;
-        },
-        child: _InkFeatures(
-          key: _inkFeatureRenderer,
-          color: backgroundColor,
-          child: contents,
-          vsync: this,
-        ));
+      onNotification: (LayoutChangedNotification notification) {
+        final _RenderInkFeatures renderer =
+            _inkFeatureRenderer.currentContext.findRenderObject();
+        renderer._didChangeLayout();
+        return false;
+      },
+      child: _InkFeatures(
+        key: _inkFeatureRenderer,
+        color: backgroundColor,
+        child: contents,
+        vsync: this,
+      ),
+    );
 
     // PhysicalModel has a temporary workaround for a performance issue that
     // speeds up rectangular non transparent material (the workaround is to
@@ -729,7 +737,9 @@ class _MaterialInteriorState
         borderOnForeground: widget.borderOnForeground,
       ),
       clipper: ShapeBorderClipper(
-          shape: shape, textDirection: Directionality.of(context)),
+        shape: shape,
+        textDirection: Directionality.of(context),
+      ),
       clipBehavior: widget.clipBehavior,
       elevation: _elevation.evaluate(animation),
       color: widget.color,

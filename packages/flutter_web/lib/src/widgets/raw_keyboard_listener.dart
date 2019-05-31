@@ -1,11 +1,13 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.768929.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/services.dart';
 
 import 'basic.dart';
+import 'focus_scope.dart';
 import 'focus_manager.dart';
 import 'framework.dart';
 
@@ -109,5 +111,6 @@ class _RawKeyboardListenerState extends State<RawKeyboardListener> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) =>
+      Focus(focusNode: widget.focusNode, child: widget.child);
 }

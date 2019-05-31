@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.405462.
 
 import 'package:flutter_web/cupertino.dart';
 import 'package:flutter_web/foundation.dart';
@@ -9,17 +10,20 @@ import 'package:flutter_web/widgets.dart';
 
 import 'app_bar_theme.dart';
 import 'bottom_app_bar_theme.dart';
+import 'bottom_sheet_theme.dart';
 import 'button_theme.dart';
 import 'card_theme.dart';
 import 'chip_theme.dart';
 import 'color_scheme.dart';
 import 'colors.dart';
 import 'dialog_theme.dart';
+import 'floating_action_button_theme.dart';
 import 'ink_splash.dart';
 import 'ink_well.dart' show InteractiveInkFeatureFactory;
 import 'input_decorator.dart';
 import 'page_transitions_theme.dart';
 import 'slider_theme.dart';
+import 'snack_bar_theme.dart';
 import 'tab_bar_theme.dart';
 import 'text_theme.dart';
 import 'typography.dart';
@@ -106,59 +110,65 @@ class ThemeData extends Diagnosticable {
   ///
   /// See <https://material.io/design/color/> for
   /// more discussion on how to pick the right colors.
-  factory ThemeData(
-      {Brightness brightness,
-      MaterialColor primarySwatch,
-      Color primaryColor,
-      Brightness primaryColorBrightness,
-      Color primaryColorLight,
-      Color primaryColorDark,
-      Color accentColor,
-      Brightness accentColorBrightness,
-      Color canvasColor,
-      Color scaffoldBackgroundColor,
-      Color bottomAppBarColor,
-      Color cardColor,
-      Color dividerColor,
-      Color highlightColor,
-      Color splashColor,
-      InteractiveInkFeatureFactory splashFactory,
-      Color selectedRowColor,
-      Color unselectedWidgetColor,
-      Color disabledColor,
-      Color buttonColor,
-      ButtonThemeData buttonTheme,
-      Color secondaryHeaderColor,
-      Color textSelectionColor,
-      Color cursorColor,
-      Color textSelectionHandleColor,
-      Color backgroundColor,
-      Color dialogBackgroundColor,
-      Color indicatorColor,
-      Color hintColor,
-      Color errorColor,
-      Color toggleableActiveColor,
-      String fontFamily,
-      TextTheme textTheme,
-      TextTheme primaryTextTheme,
-      TextTheme accentTextTheme,
-      InputDecorationTheme inputDecorationTheme,
-      IconThemeData iconTheme,
-      IconThemeData primaryIconTheme,
-      IconThemeData accentIconTheme,
-      SliderThemeData sliderTheme,
-      TabBarTheme tabBarTheme,
-      CardTheme cardTheme,
-      ChipThemeData chipTheme,
-      TargetPlatform platform,
-      MaterialTapTargetSize materialTapTargetSize,
-      PageTransitionsTheme pageTransitionsTheme,
-      AppBarTheme appBarTheme,
-      BottomAppBarTheme bottomAppBarTheme,
-      ColorScheme colorScheme,
-      DialogTheme dialogTheme,
-      Typography typography,
-      CupertinoThemeData cupertinoOverrideTheme}) {
+  factory ThemeData({
+    Brightness brightness,
+    MaterialColor primarySwatch,
+    Color primaryColor,
+    Brightness primaryColorBrightness,
+    Color primaryColorLight,
+    Color primaryColorDark,
+    Color accentColor,
+    Brightness accentColorBrightness,
+    Color canvasColor,
+    Color scaffoldBackgroundColor,
+    Color bottomAppBarColor,
+    Color cardColor,
+    Color dividerColor,
+    Color focusColor,
+    Color hoverColor,
+    Color highlightColor,
+    Color splashColor,
+    InteractiveInkFeatureFactory splashFactory,
+    Color selectedRowColor,
+    Color unselectedWidgetColor,
+    Color disabledColor,
+    Color buttonColor,
+    ButtonThemeData buttonTheme,
+    Color secondaryHeaderColor,
+    Color textSelectionColor,
+    Color cursorColor,
+    Color textSelectionHandleColor,
+    Color backgroundColor,
+    Color dialogBackgroundColor,
+    Color indicatorColor,
+    Color hintColor,
+    Color errorColor,
+    Color toggleableActiveColor,
+    String fontFamily,
+    TextTheme textTheme,
+    TextTheme primaryTextTheme,
+    TextTheme accentTextTheme,
+    InputDecorationTheme inputDecorationTheme,
+    IconThemeData iconTheme,
+    IconThemeData primaryIconTheme,
+    IconThemeData accentIconTheme,
+    SliderThemeData sliderTheme,
+    TabBarTheme tabBarTheme,
+    CardTheme cardTheme,
+    ChipThemeData chipTheme,
+    TargetPlatform platform,
+    MaterialTapTargetSize materialTapTargetSize,
+    PageTransitionsTheme pageTransitionsTheme,
+    AppBarTheme appBarTheme,
+    BottomAppBarTheme bottomAppBarTheme,
+    ColorScheme colorScheme,
+    DialogTheme dialogTheme,
+    FloatingActionButtonThemeData floatingActionButtonTheme,
+    Typography typography,
+    CupertinoThemeData cupertinoOverrideTheme,
+    SnackBarThemeData snackBarTheme,
+    BottomSheetThemeData bottomSheetTheme,
+  }) {
     brightness ??= Brightness.light;
     final bool isDark = brightness == Brightness.dark;
     primarySwatch ??= Colors.blue;
@@ -196,7 +206,7 @@ class ThemeData extends Diagnosticable {
     // Spec doesn't specify a dark theme secondaryHeaderColor, this is a guess.
     secondaryHeaderColor ??= isDark ? Colors.grey[700] : primarySwatch[50];
     textSelectionColor ??= isDark ? accentColor : primarySwatch[200];
-    // todo (sandrasandeep): change to color provided by Material Design team
+    // TODO(sandrasandeep): change to color provided by Material Design team
     cursorColor = cursorColor ?? const Color.fromRGBO(66, 133, 244, 1.0);
     textSelectionHandleColor ??=
         isDark ? Colors.tealAccent[400] : primarySwatch[300];
@@ -237,10 +247,18 @@ class ThemeData extends Diagnosticable {
     // Used as the default color (fill color) for RaisedButtons. Computing the
     // default for ButtonThemeData for the sake of backwards compatibility.
     buttonColor ??= isDark ? primarySwatch[600] : Colors.grey[300];
+    focusColor ??= isDark
+        ? Colors.white.withOpacity(0.12)
+        : Colors.black.withOpacity(0.12);
+    hoverColor ??= isDark
+        ? Colors.white.withOpacity(0.04)
+        : Colors.black.withOpacity(0.04);
     buttonTheme ??= ButtonThemeData(
       colorScheme: colorScheme,
       buttonColor: buttonColor,
       disabledColor: disabledColor,
+      focusColor: focusColor,
+      hoverColor: hoverColor,
       highlightColor: highlightColor,
       splashColor: splashColor,
       materialTapTargetSize: materialTapTargetSize,
@@ -250,12 +268,7 @@ class ThemeData extends Diagnosticable {
         isDark ? _kDarkThemeHighlightColor : _kLightThemeHighlightColor;
     splashColor ??= isDark ? _kDarkThemeSplashColor : _kLightThemeSplashColor;
 
-    sliderTheme ??= SliderThemeData.fromPrimaryColors(
-      primaryColor: primaryColor,
-      primaryColorLight: primaryColorLight,
-      primaryColorDark: primaryColorDark,
-      valueIndicatorTextStyle: accentTextTheme.body2,
-    );
+    sliderTheme ??= const SliderThemeData();
     tabBarTheme ??= const TabBarTheme();
     appBarTheme ??= const AppBarTheme();
     bottomAppBarTheme ??= const BottomAppBarTheme();
@@ -266,7 +279,10 @@ class ThemeData extends Diagnosticable {
       labelStyle: textTheme.body2,
     );
     dialogTheme ??= const DialogTheme();
+    floatingActionButtonTheme ??= const FloatingActionButtonThemeData();
     cupertinoOverrideTheme = cupertinoOverrideTheme?.noDefault();
+    snackBarTheme ??= const SnackBarThemeData();
+    bottomSheetTheme ??= const BottomSheetThemeData();
 
     return ThemeData.raw(
       brightness: brightness,
@@ -281,6 +297,8 @@ class ThemeData extends Diagnosticable {
       bottomAppBarColor: bottomAppBarColor,
       cardColor: cardColor,
       dividerColor: dividerColor,
+      focusColor: focusColor,
+      hoverColor: hoverColor,
       highlightColor: highlightColor,
       splashColor: splashColor,
       splashFactory: splashFactory,
@@ -317,8 +335,11 @@ class ThemeData extends Diagnosticable {
       bottomAppBarTheme: bottomAppBarTheme,
       colorScheme: colorScheme,
       dialogTheme: dialogTheme,
+      floatingActionButtonTheme: floatingActionButtonTheme,
       typography: typography,
       cupertinoOverrideTheme: cupertinoOverrideTheme,
+      snackBarTheme: snackBarTheme,
+      bottomSheetTheme: bottomSheetTheme,
     );
   }
 
@@ -345,6 +366,8 @@ class ThemeData extends Diagnosticable {
     @required this.bottomAppBarColor,
     @required this.cardColor,
     @required this.dividerColor,
+    @required this.focusColor,
+    @required this.hoverColor,
     @required this.highlightColor,
     @required this.splashColor,
     @required this.splashFactory,
@@ -381,8 +404,11 @@ class ThemeData extends Diagnosticable {
     @required this.bottomAppBarTheme,
     @required this.colorScheme,
     @required this.dialogTheme,
+    @required this.floatingActionButtonTheme,
     @required this.typography,
     @required this.cupertinoOverrideTheme,
+    @required this.snackBarTheme,
+    @required this.bottomSheetTheme,
   })  : assert(brightness != null),
         assert(primaryColor != null),
         assert(primaryColorBrightness != null),
@@ -395,6 +421,8 @@ class ThemeData extends Diagnosticable {
         assert(bottomAppBarColor != null),
         assert(cardColor != null),
         assert(dividerColor != null),
+        assert(focusColor != null),
+        assert(hoverColor != null),
         assert(highlightColor != null),
         assert(splashColor != null),
         assert(splashFactory != null),
@@ -430,7 +458,10 @@ class ThemeData extends Diagnosticable {
         assert(bottomAppBarTheme != null),
         assert(colorScheme != null),
         assert(dialogTheme != null),
-        assert(typography != null);
+        assert(floatingActionButtonTheme != null),
+        assert(typography != null),
+        assert(snackBarTheme != null),
+        assert(bottomSheetTheme != null);
 
   // Warning: make sure these properties are in the exact same order as in
   // hashValues() and in the raw constructor and in the order of fields in
@@ -472,6 +503,11 @@ class ThemeData extends Diagnosticable {
   final Brightness brightness;
 
   /// The background color for major parts of the app (toolbars, tab bars, etc)
+  ///
+  /// The theme's [colorScheme] property contains [ColorScheme.primary], as
+  /// well as a color that contrasts well with the primary color called
+  /// [ColorScheme.onPrimary]. It might be simpler to just configure an app's
+  /// visuals in terms of the theme's [colorScheme].
   final Color primaryColor;
 
   /// The brightness of the [primaryColor]. Used to determine the color of text and
@@ -488,6 +524,13 @@ class ThemeData extends Diagnosticable {
   final Color canvasColor;
 
   /// The foreground color for widgets (knobs, text, overscroll edge effect, etc).
+  ///
+  /// Accent color is also known as the secondary color.
+  ///
+  /// The theme's [colorScheme] property contains [ColorScheme.secondary], as
+  /// well as a color that contrasts well with the secondary color called
+  /// [ColorScheme.onSecondary]. It might be simpler to just configure an app's
+  /// visuals in terms of the theme's [colorScheme].
   final Color accentColor;
 
   /// The brightness of the [accentColor]. Used to determine the color of text
@@ -513,6 +556,13 @@ class ThemeData extends Diagnosticable {
   /// To create an appropriate [BorderSide] that uses this color, consider
   /// [Divider.createBorderSide].
   final Color dividerColor;
+
+  /// The focus color used indicate that a component has the input focus.
+  final Color focusColor;
+
+  /// The hover color used to indicate when a pointer is hovering over a
+  /// component.
+  final Color hoverColor;
 
   /// The highlight color used during ink splash animations or to
   /// indicate an item in a menu is selected.
@@ -668,8 +718,15 @@ class ThemeData extends Diagnosticable {
   /// that is possible without significant backwards compatibility breaks.
   final ColorScheme colorScheme;
 
+  /// A theme for customizing colors, shape, elevation, and behavior of a [SnackBar].
+  final SnackBarThemeData snackBarTheme;
+
   /// A theme for customizing the shape of a dialog.
   final DialogTheme dialogTheme;
+
+  /// A theme for customizing the shape, elevation, and color of a
+  /// [FloatingActionButton].
+  final FloatingActionButtonThemeData floatingActionButtonTheme;
 
   /// The color and geometry [TextTheme] values used to configure [textTheme],
   /// [primaryTextTheme], and [accentTextTheme].
@@ -687,6 +744,9 @@ class ThemeData extends Diagnosticable {
   /// can be overridden using attributes of this [cupertinoOverrideTheme].
   final CupertinoThemeData cupertinoOverrideTheme;
 
+  /// A theme for customizing the color, elevation, and shape of a bottom sheet.
+  final BottomSheetThemeData bottomSheetTheme;
+
   /// Creates a copy of this theme but with the given fields replaced with the new values.
   ThemeData copyWith({
     Brightness brightness,
@@ -701,6 +761,8 @@ class ThemeData extends Diagnosticable {
     Color bottomAppBarColor,
     Color cardColor,
     Color dividerColor,
+    Color focusColor,
+    Color hoverColor,
     Color highlightColor,
     Color splashColor,
     InteractiveInkFeatureFactory splashFactory,
@@ -737,8 +799,11 @@ class ThemeData extends Diagnosticable {
     BottomAppBarTheme bottomAppBarTheme,
     ColorScheme colorScheme,
     DialogTheme dialogTheme,
+    FloatingActionButtonThemeData floatingActionButtonTheme,
     Typography typography,
     CupertinoThemeData cupertinoOverrideTheme,
+    SnackBarThemeData snackBarTheme,
+    BottomSheetThemeData bottomSheetTheme,
   }) {
     cupertinoOverrideTheme = cupertinoOverrideTheme?.noDefault();
     return ThemeData.raw(
@@ -757,6 +822,8 @@ class ThemeData extends Diagnosticable {
       bottomAppBarColor: bottomAppBarColor ?? this.bottomAppBarColor,
       cardColor: cardColor ?? this.cardColor,
       dividerColor: dividerColor ?? this.dividerColor,
+      focusColor: focusColor ?? this.focusColor,
+      hoverColor: hoverColor ?? this.hoverColor,
       highlightColor: highlightColor ?? this.highlightColor,
       splashColor: splashColor ?? this.splashColor,
       splashFactory: splashFactory ?? this.splashFactory,
@@ -798,9 +865,13 @@ class ThemeData extends Diagnosticable {
       bottomAppBarTheme: bottomAppBarTheme ?? this.bottomAppBarTheme,
       colorScheme: colorScheme ?? this.colorScheme,
       dialogTheme: dialogTheme ?? this.dialogTheme,
+      floatingActionButtonTheme:
+          floatingActionButtonTheme ?? this.floatingActionButtonTheme,
       typography: typography ?? this.typography,
       cupertinoOverrideTheme:
           cupertinoOverrideTheme ?? this.cupertinoOverrideTheme,
+      snackBarTheme: snackBarTheme ?? this.snackBarTheme,
+      bottomSheetTheme: bottomSheetTheme ?? this.bottomSheetTheme,
     );
   }
 
@@ -901,6 +972,8 @@ class ThemeData extends Diagnosticable {
           Color.lerp(a.bottomAppBarColor, b.bottomAppBarColor, t),
       cardColor: Color.lerp(a.cardColor, b.cardColor, t),
       dividerColor: Color.lerp(a.dividerColor, b.dividerColor, t),
+      focusColor: Color.lerp(a.focusColor, b.focusColor, t),
+      hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
       highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t),
       splashColor: Color.lerp(a.splashColor, b.splashColor, t),
       splashFactory: t < 0.5 ? a.splashFactory : b.splashFactory,
@@ -950,9 +1023,15 @@ class ThemeData extends Diagnosticable {
           BottomAppBarTheme.lerp(a.bottomAppBarTheme, b.bottomAppBarTheme, t),
       colorScheme: ColorScheme.lerp(a.colorScheme, b.colorScheme, t),
       dialogTheme: DialogTheme.lerp(a.dialogTheme, b.dialogTheme, t),
+      floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(
+          a.floatingActionButtonTheme, b.floatingActionButtonTheme, t),
       typography: Typography.lerp(a.typography, b.typography, t),
       cupertinoOverrideTheme:
           t < 0.5 ? a.cupertinoOverrideTheme : b.cupertinoOverrideTheme,
+      snackBarTheme:
+          SnackBarThemeData.lerp(a.snackBarTheme, b.snackBarTheme, t),
+      bottomSheetTheme:
+          BottomSheetThemeData.lerp(a.bottomSheetTheme, b.bottomSheetTheme, t),
     );
   }
 
@@ -1011,17 +1090,19 @@ class ThemeData extends Diagnosticable {
         (otherData.bottomAppBarTheme == bottomAppBarTheme) &&
         (otherData.colorScheme == colorScheme) &&
         (otherData.dialogTheme == dialogTheme) &&
+        (otherData.floatingActionButtonTheme == floatingActionButtonTheme) &&
         (otherData.typography == typography) &&
-        (otherData.cupertinoOverrideTheme == cupertinoOverrideTheme);
+        (otherData.cupertinoOverrideTheme == cupertinoOverrideTheme) &&
+        (otherData.snackBarTheme == snackBarTheme) &&
+        (otherData.bottomSheetTheme == bottomSheetTheme);
   }
 
   @override
   int get hashCode {
-    // The hashValues() function supports up to 20 arguments.
-    return hashValues(
-      // Warning: make sure these properties are in the exact same order as in
-      // operator == and in the raw constructor and in the order of fields in
-      // the class and in the lerp() method.
+    // Warning: For the sanity of the reader, please make sure these properties
+    // are in the exact same order as in operator == and in the raw constructor
+    // and in the order of fields in the class and in the lerp() method.
+    final List<Object> values = <Object>[
       brightness,
       primaryColor,
       primaryColorBrightness,
@@ -1034,6 +1115,8 @@ class ThemeData extends Diagnosticable {
       bottomAppBarColor,
       cardColor,
       dividerColor,
+      focusColor,
+      hoverColor,
       highlightColor,
       splashColor,
       splashFactory,
@@ -1041,42 +1124,42 @@ class ThemeData extends Diagnosticable {
       unselectedWidgetColor,
       disabledColor,
       buttonTheme,
-      hashValues(
-        buttonColor,
-        toggleableActiveColor,
-        secondaryHeaderColor,
-        textSelectionColor,
-        cursorColor,
-        textSelectionHandleColor,
-        backgroundColor,
-        dialogBackgroundColor,
-        indicatorColor,
-        hintColor,
-        errorColor,
-        textTheme,
-        primaryTextTheme,
-        accentTextTheme,
-        inputDecorationTheme,
-        iconTheme,
-        primaryIconTheme,
-        accentIconTheme,
-        sliderTheme,
-        hashValues(
-          tabBarTheme,
-          cardTheme,
-          chipTheme,
-          platform,
-          materialTapTargetSize,
-          pageTransitionsTheme,
-          appBarTheme,
-          bottomAppBarTheme,
-          colorScheme,
-          dialogTheme,
-          typography,
-          cupertinoOverrideTheme,
-        ),
-      ),
-    );
+      buttonColor,
+      toggleableActiveColor,
+      secondaryHeaderColor,
+      textSelectionColor,
+      cursorColor,
+      textSelectionHandleColor,
+      backgroundColor,
+      dialogBackgroundColor,
+      indicatorColor,
+      hintColor,
+      errorColor,
+      textTheme,
+      primaryTextTheme,
+      accentTextTheme,
+      inputDecorationTheme,
+      iconTheme,
+      primaryIconTheme,
+      accentIconTheme,
+      sliderTheme,
+      tabBarTheme,
+      cardTheme,
+      chipTheme,
+      platform,
+      materialTapTargetSize,
+      pageTransitionsTheme,
+      appBarTheme,
+      bottomAppBarTheme,
+      colorScheme,
+      dialogTheme,
+      floatingActionButtonTheme,
+      typography,
+      cupertinoOverrideTheme,
+      snackBarTheme,
+      bottomSheetTheme,
+    ];
+    return hashList(values);
   }
 
   @override
@@ -1109,6 +1192,10 @@ class ThemeData extends Diagnosticable {
         defaultValue: defaultData.cardColor));
     properties.add(DiagnosticsProperty<Color>('dividerColor', dividerColor,
         defaultValue: defaultData.dividerColor));
+    properties.add(DiagnosticsProperty<Color>('focusColor', focusColor,
+        defaultValue: defaultData.focusColor));
+    properties.add(DiagnosticsProperty<Color>('hoverColor', hoverColor,
+        defaultValue: defaultData.hoverColor));
     properties.add(DiagnosticsProperty<Color>('highlightColor', highlightColor,
         defaultValue: defaultData.highlightColor));
     properties.add(DiagnosticsProperty<Color>('splashColor', splashColor,
@@ -1182,11 +1269,20 @@ class ThemeData extends Diagnosticable {
         defaultValue: defaultData.colorScheme));
     properties.add(DiagnosticsProperty<DialogTheme>('dialogTheme', dialogTheme,
         defaultValue: defaultData.dialogTheme));
+    properties.add(DiagnosticsProperty<FloatingActionButtonThemeData>(
+        'floatingActionButtonThemeData', floatingActionButtonTheme,
+        defaultValue: defaultData.floatingActionButtonTheme));
     properties.add(DiagnosticsProperty<Typography>('typography', typography,
         defaultValue: defaultData.typography));
     properties.add(DiagnosticsProperty<CupertinoThemeData>(
         'cupertinoOverrideTheme', cupertinoOverrideTheme,
         defaultValue: defaultData.cupertinoOverrideTheme));
+    properties.add(DiagnosticsProperty<SnackBarThemeData>(
+        'snackBarTheme', snackBarTheme,
+        defaultValue: defaultData.snackBarTheme));
+    properties.add(DiagnosticsProperty<BottomSheetThemeData>(
+        'bottomSheetTheme', bottomSheetTheme,
+        defaultValue: defaultData.bottomSheetTheme));
   }
 }
 

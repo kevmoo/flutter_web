@@ -1,9 +1,11 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.905460.
 
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web_test/flutter_web_test.dart';
+import 'package:flutter_web/gestures.dart' show DragStartBehavior;
 
 import 'data_table_test_utils.dart';
 
@@ -47,28 +49,29 @@ void main() {
     final List<String> log = <String>[];
 
     await tester.pumpWidget(MaterialApp(
-        home: PaginatedDataTable(
-      header: const Text('Test table'),
-      source: source,
-      rowsPerPage: 2,
-      availableRowsPerPage: const <int>[
-        2,
-        4,
-        8,
-        16,
-      ],
-      onRowsPerPageChanged: (int rowsPerPage) {
-        log.add('rows-per-page-changed: $rowsPerPage');
-      },
-      onPageChanged: (int rowIndex) {
-        log.add('page-changed: $rowIndex');
-      },
-      columns: const <DataColumn>[
-        DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Calories'), numeric: true),
-        DataColumn(label: Text('Generation')),
-      ],
-    )));
+      home: PaginatedDataTable(
+        header: const Text('Test table'),
+        source: source,
+        rowsPerPage: 2,
+        availableRowsPerPage: const <int>[
+          2,
+          4,
+          8,
+          16,
+        ],
+        onRowsPerPageChanged: (int rowsPerPage) {
+          log.add('rows-per-page-changed: $rowsPerPage');
+        },
+        onPageChanged: (int rowIndex) {
+          log.add('page-changed: $rowIndex');
+        },
+        columns: const <DataColumn>[
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Calories'), numeric: true),
+          DataColumn(label: Text('Generation')),
+        ],
+      ),
+    ));
 
     await tester.tap(find.byTooltip('Next page'));
 
@@ -124,12 +127,13 @@ void main() {
             tooltip: 'Name',
           ),
           DataColumn(
-              label: const Text('Calories'),
-              tooltip: 'Calories',
-              numeric: true,
-              onSort: (int columnIndex, bool ascending) {
-                log.add('column-sort: $columnIndex $ascending');
-              }),
+            label: const Text('Calories'),
+            tooltip: 'Calories',
+            numeric: true,
+            onSort: (int columnIndex, bool ascending) {
+              log.add('column-sort: $columnIndex $ascending');
+            },
+          ),
           const DataColumn(
             label: Text('Generation'),
             tooltip: 'Generation',
@@ -151,7 +155,11 @@ void main() {
     ));
 
     // the column overflows because we're forcing it to 600 pixels high
-    expect(tester.takeException(), contains('A RenderFlex overflowed by'));
+    final dynamic exception = tester.takeException();
+    expect(exception, isInstanceOf<FlutterError>());
+    expect(exception.diagnostics.first.level, DiagnosticLevel.summary);
+    expect(exception.diagnostics.first.toString(),
+        startsWith('A RenderFlex overflowed by '));
 
     expect(find.text('Gingerbread (0)'), findsOneWidget);
     expect(find.text('Gingerbread (1)'), findsNothing);
@@ -239,7 +247,12 @@ void main() {
       ),
     ));
     // the column overflows because we're forcing it to 600 pixels high
-    expect(tester.takeException(), contains('A RenderFlex overflowed by'));
+    final dynamic exception = tester.takeException();
+    expect(exception, isInstanceOf<FlutterError>());
+    expect(exception.diagnostics.first.level, DiagnosticLevel.summary);
+    expect(exception.diagnostics.first.toString(),
+        contains('A RenderFlex overflowed by'));
+
     expect(find.text('Rows per page:'), findsOneWidget);
     // Test that we will show some options in the drop down even if the lowest option is bigger than the source:
     assert(501 > source.rowCount);
@@ -253,26 +266,29 @@ void main() {
 
   testWidgets('PaginatedDataTable footer scrolls', (WidgetTester tester) async {
     final TestDataSource source = TestDataSource();
-    await tester.pumpWidget(MaterialApp(
-      home: Align(
-        alignment: Alignment.topLeft,
-        child: SizedBox(
-          width: 100.0,
-          child: PaginatedDataTable(
-            header: const Text('HEADER'),
-            source: source,
-            rowsPerPage: 5,
-            availableRowsPerPage: const <int>[5],
-            onRowsPerPageChanged: (int rowsPerPage) {},
-            columns: const <DataColumn>[
-              DataColumn(label: Text('COL1')),
-              DataColumn(label: Text('COL2')),
-              DataColumn(label: Text('COL3')),
-            ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 100.0,
+            child: PaginatedDataTable(
+              header: const Text('HEADER'),
+              source: source,
+              rowsPerPage: 5,
+              dragStartBehavior: DragStartBehavior.down,
+              availableRowsPerPage: const <int>[5],
+              onRowsPerPageChanged: (int rowsPerPage) {},
+              columns: const <DataColumn>[
+                DataColumn(label: Text('COL1')),
+                DataColumn(label: Text('COL2')),
+                DataColumn(label: Text('COL3')),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
     expect(find.text('Rows per page:'), findsOneWidget);
     expect(tester.getTopLeft(find.text('Rows per page:')).dx,
         lessThan(0.0)); // off screen

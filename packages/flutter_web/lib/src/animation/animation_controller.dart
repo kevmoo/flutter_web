@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.120575.
 
 import 'dart:async' show Future;
 
@@ -49,7 +50,7 @@ const Tolerance _kFlingTolerance = Tolerance(
 /// Configures how an [AnimationController] behaves when animations are disabled.
 ///
 /// When [AccessibilityFeatures.disableAnimations] is true, the device is asking
-/// flutter to reduce or disable animations as much as possible. To honor this,
+/// Flutter to reduce or disable animations as much as possible. To honor this,
 /// we reduce the duration and the corresponding number of frames for animations.
 /// This enum is used to allow certain [AnimationController]s to opt out of this
 /// behavior.
@@ -217,7 +218,7 @@ class AnimationController extends Animation<double>
         AnimationLocalStatusListenersMixin {
   /// Creates an animation controller.
   ///
-  /// * [value] is the initial value of the animation. If defaults to the lower
+  /// * `value` is the initial value of the animation. If defaults to the lower
   ///   bound.
   ///
   /// * [duration] is the length of time this animation should last.
@@ -239,6 +240,7 @@ class AnimationController extends Animation<double>
   AnimationController({
     double value,
     this.duration,
+    this.reverseDuration,
     this.debugLabel,
     this.lowerBound = 0.0,
     this.upperBound = 1.0,
@@ -272,6 +274,7 @@ class AnimationController extends Animation<double>
   AnimationController.unbounded({
     double value = 0.0,
     this.duration,
+    this.reverseDuration,
     this.debugLabel,
     @required TickerProvider vsync,
     this.animationBehavior = AnimationBehavior.preserve,
@@ -308,7 +311,16 @@ class AnimationController extends Animation<double>
   Animation<double> get view => this;
 
   /// The length of time this animation should last.
+  ///
+  /// If [reverseDuration] is specified, then [duration] is only used when going
+  /// [forward]. Otherwise, it specifies the duration going in both directions.
   Duration duration;
+
+  /// The length of time this animation should last when going in [reverse].
+  ///
+  /// The value of [duration] us used if [reverseDuration] is not specified or
+  /// set to null.
+  Duration reverseDuration;
 
   Ticker _ticker;
 
@@ -438,7 +450,7 @@ class AnimationController extends Animation<double>
     assert(() {
       if (duration == null) {
         throw FlutterError(
-            'AnimationController.forward() called with no default Duration.\n'
+            'AnimationController.forward() called with no default duration.\n'
             'The "duration" property should be set, either in the constructor or later, before '
             'calling the forward() function.');
       }
@@ -466,10 +478,10 @@ class AnimationController extends Animation<double>
   /// reached at the end of the animation.
   TickerFuture reverse({double from}) {
     assert(() {
-      if (duration == null) {
+      if (duration == null && reverseDuration == null) {
         throw FlutterError(
-            'AnimationController.reverse() called with no default Duration.\n'
-            'The "duration" property should be set, either in the constructor or later, before '
+            'AnimationController.reverse() called with no default duration or reverseDuration.\n'
+            'The "duration" or "reverseDuration" property should be set, either in the constructor or later, before '
             'calling the reverse() function.');
       }
       return true;
@@ -528,14 +540,10 @@ class AnimationController extends Animation<double>
   }
 
   TickerFuture _animateToInternal(double target,
-      {Duration duration,
-      Curve curve = Curves.linear,
-      AnimationBehavior animationBehavior}) {
-    final AnimationBehavior behavior =
-        animationBehavior ?? this.animationBehavior;
+      {Duration duration, Curve curve = Curves.linear}) {
     double scale = 1.0;
     if (SemanticsBinding.instance.disableAnimations) {
-      switch (behavior) {
+      switch (animationBehavior) {
         case AnimationBehavior.normal:
           // Since the framework cannot handle zero duration animations, we run it at 5% of the normal
           // duration to limit most animations to a single frame.
@@ -549,11 +557,14 @@ class AnimationController extends Animation<double>
     Duration simulationDuration = duration;
     if (simulationDuration == null) {
       assert(() {
-        if (this.duration == null) {
+        if ((this.duration == null &&
+                _direction == _AnimationDirection.reverse &&
+                reverseDuration == null) ||
+            this.duration == null) {
           throw FlutterError(
-              'AnimationController.animateTo() called with no explicit Duration and no default Duration.\n'
+              'AnimationController.animateTo() called with no explicit duration and no default duration or reverseDuration.\n'
               'Either the "duration" argument to the animateTo() method should be provided, or the '
-              '"duration" property should be set, either in the constructor or later, before '
+              '"duration" and/or "reverseDuration" property should be set, either in the constructor or later, before '
               'calling the animateTo() function.');
         }
         return true;
@@ -561,7 +572,11 @@ class AnimationController extends Animation<double>
       final double range = upperBound - lowerBound;
       final double remainingFraction =
           range.isFinite ? (target - _value).abs() / range : 1.0;
-      simulationDuration = this.duration * remainingFraction;
+      final Duration directionDuration =
+          (_direction == _AnimationDirection.reverse && reverseDuration != null)
+              ? reverseDuration
+              : this.duration;
+      simulationDuration = directionDuration * remainingFraction;
     } else if (target == value) {
       // Already at target, don't animate.
       simulationDuration = Duration.zero;

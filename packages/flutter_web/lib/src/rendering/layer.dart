@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:collection';
@@ -177,6 +178,19 @@ abstract class Layer extends AbstractNode with DiagnosticableTreeMixin {
   ///  * [AnnotatedRegionLayer], for placing values in the layer tree.
   S find<S>(Offset regionOffset);
 
+  /// Returns an iterable of [S] values that corresponds to the point described
+  /// by [regionOffset] on all layers under the point.
+  ///
+  /// Returns an empty list if no matching region is found.
+  ///
+  /// The main way for a value to be found here is by pushing an
+  /// [AnnotatedRegionLayer] into the layer tree.
+  ///
+  /// See also:
+  ///
+  ///  * [AnnotatedRegionLayer], for placing values in the layer tree.
+  Iterable<S> findAll<S>(Offset regionOffset);
+
   /// Override this method to upload this layer to the engine.
   ///
   /// Return the engine layer for retained rendering. When there's no
@@ -305,6 +319,9 @@ class PictureLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => null;
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 /// A composited layer that maps a backend texture to a rectangle.
@@ -376,6 +393,9 @@ class TextureLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => null;
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 /// A layer that shows an embedded [UIView](https://developer.apple.com/documentation/uikit/uiview)
@@ -413,6 +433,9 @@ class PlatformViewLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => null;
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 /// A layer that indicates to the compositor that it should display
@@ -488,6 +511,9 @@ class PerformanceOverlayLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => null;
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 /// A composited layer that has a list of children.
@@ -547,6 +573,17 @@ class ContainerLayer extends Layer {
       current = current.previousSibling;
     }
     return null;
+  }
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) sync* {
+    if (firstChild == null) return;
+    Layer child = lastChild;
+    while (true) {
+      yield* child.findAll<S>(regionOffset);
+      if (child == firstChild) break;
+      child = child.previousSibling;
+    }
   }
 
   @override

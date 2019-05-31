@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.440946.
 
 import 'package:flutter_web_ui/ui.dart' as ui
     show ParagraphStyle, TextStyle, StrutStyle, lerpDouble, Shadow;
@@ -295,6 +296,8 @@ const String _kColorBackgroundWarning =
 ///  * [RichText], the widget for showing a paragraph of mix-style text.
 ///  * [TextSpan], the class that wraps a [TextStyle] for the purposes of
 ///    passing it to a [RichText].
+///  * [TextStyle](https://api.flutter.dev/flutter/dart-ui/TextStyle-class.html), the class in the [dart:ui] library.
+///
 @immutable
 class TextStyle extends Diagnosticable {
   /// Creates a text style.
@@ -320,6 +323,7 @@ class TextStyle extends Diagnosticable {
     this.decoration,
     this.decorationColor,
     this.decorationStyle,
+    this.decorationThickness,
     this.debugLabel,
     String fontFamily,
     List<String> fontFamilyFallback,
@@ -491,6 +495,8 @@ class TextStyle extends Diagnosticable {
   final Paint background;
 
   /// The decorations to paint near the text (e.g., an underline).
+  ///
+  /// Multiple decorations can be applied using [TextDecoration.combine].
   final TextDecoration decoration;
 
   /// The color in which to paint the text decorations.
@@ -498,6 +504,51 @@ class TextStyle extends Diagnosticable {
 
   /// The style in which to paint the text decorations (e.g., dashed).
   final TextDecorationStyle decorationStyle;
+
+  /// The thickness of the decoration stroke as a muliplier of the thickness
+  /// defined by the font.
+  ///
+  /// The font provides a base stroke width for [decoration]s which scales off
+  /// of the [fontSize]. This property may be used to achieve a thinner or
+  /// thicker decoration stroke, without changing the [fontSize]. For example,
+  /// a [decorationThickness] of 2.0 will draw a decoration twice as thick as
+  /// the font defined decoration thickness.
+  ///
+  /// {@tool sample}
+  /// To achieve a bolded strike-through, we can apply a thicker stroke for the
+  /// decoration.
+  ///
+  /// ```dart
+  /// Text(
+  ///   'This has a very BOLD strike through!',
+  ///   style: TextStyle(
+  ///     decoration: TextDecoration.lineThrough,
+  ///     decorationThickness: 2.85,
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// {@tool sample}
+  /// We can apply a very thin and subtle wavy underline (perhaps, when words
+  /// are misspelled) by using a [decorationThickness] < 1.0.
+  ///
+  /// ```dart
+  /// Text(
+  ///   'oopsIforgottousespaces!',
+  ///   style: TextStyle(
+  ///     decoration: TextDecoration.underline,
+  ///     decorationStyle: TextDecorationStyle.wavy,
+  ///     decorationColor: Colors.red,
+  ///     decorationThickness: 0.5,
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// The default [decorationThickness] is 1.0, which will use the font's base
+  /// stroke thickness/width.
+  final double decorationThickness;
 
   /// A human-readable description of this text style.
   ///
@@ -531,6 +582,7 @@ class TextStyle extends Diagnosticable {
   /// [background] specified it will be given preference over any
   /// backgroundColor parameter.
   TextStyle copyWith({
+    bool inherit,
     Color color,
     Color backgroundColor,
     String fontFamily,
@@ -549,6 +601,7 @@ class TextStyle extends Diagnosticable {
     TextDecoration decoration,
     Color decorationColor,
     TextDecorationStyle decorationStyle,
+    double decorationThickness,
     String debugLabel,
   }) {
     assert(color == null || foreground == null, _kColorForegroundWarning);
@@ -561,7 +614,7 @@ class TextStyle extends Diagnosticable {
       return true;
     }());
     return TextStyle(
-      inherit: inherit,
+      inherit: inherit ?? this.inherit,
       color: this.foreground == null && foreground == null
           ? color ?? this.color
           : null,
@@ -584,6 +637,7 @@ class TextStyle extends Diagnosticable {
       decoration: decoration ?? this.decoration,
       decorationColor: decorationColor ?? this.decorationColor,
       decorationStyle: decorationStyle ?? this.decorationStyle,
+      decorationThickness: decorationThickness ?? this.decorationThickness,
       debugLabel: newDebugLabel,
     );
   }
@@ -623,6 +677,8 @@ class TextStyle extends Diagnosticable {
     TextDecoration decoration,
     Color decorationColor,
     TextDecorationStyle decorationStyle,
+    double decorationThicknessFactor = 1.0,
+    double decorationThicknessDelta = 0.0,
     String fontFamily,
     List<String> fontFamilyFallback,
     double fontSizeFactor = 1.0,
@@ -651,6 +707,10 @@ class TextStyle extends Diagnosticable {
     assert(heightFactor != null);
     assert(heightDelta != null);
     assert(heightFactor != null || (heightFactor == 1.0 && heightDelta == 0.0));
+    assert(decorationThicknessFactor != null);
+    assert(decorationThicknessDelta != null);
+    assert(decorationThickness != null ||
+        (decorationThicknessFactor == 1.0 && decorationThicknessDelta == 0.0));
 
     String modifiedDebugLabel;
     assert(() {
@@ -687,6 +747,10 @@ class TextStyle extends Diagnosticable {
       decoration: decoration ?? this.decoration,
       decorationColor: decorationColor ?? this.decorationColor,
       decorationStyle: decorationStyle ?? this.decorationStyle,
+      decorationThickness: decorationThickness == null
+          ? null
+          : decorationThickness * decorationThicknessFactor +
+              decorationThicknessDelta,
       debugLabel: modifiedDebugLabel,
     );
   }
@@ -743,6 +807,7 @@ class TextStyle extends Diagnosticable {
       decoration: other.decoration,
       decorationColor: other.decorationColor,
       decorationStyle: other.decorationStyle,
+      decorationThickness: other.decorationThickness,
       debugLabel: mergedDebugLabel,
     );
   }
@@ -795,6 +860,7 @@ class TextStyle extends Diagnosticable {
         shadows: t < 0.5 ? null : b.shadows,
         decorationColor: Color.lerp(null, b.decorationColor, t),
         decorationStyle: t < 0.5 ? null : b.decorationStyle,
+        decorationThickness: t < 0.5 ? null : b.decorationThickness,
         debugLabel: lerpDebugLabel,
       );
     }
@@ -820,6 +886,7 @@ class TextStyle extends Diagnosticable {
         decoration: t < 0.5 ? a.decoration : null,
         decorationColor: Color.lerp(a.decorationColor, null, t),
         decorationStyle: t < 0.5 ? a.decorationStyle : null,
+        decorationThickness: t < 0.5 ? a.decorationThickness : null,
         debugLabel: lerpDebugLabel,
       );
     }
@@ -859,6 +926,10 @@ class TextStyle extends Diagnosticable {
       decoration: t < 0.5 ? a.decoration : b.decoration,
       decorationColor: Color.lerp(a.decorationColor, b.decorationColor, t),
       decorationStyle: t < 0.5 ? a.decorationStyle : b.decorationStyle,
+      decorationThickness: ui.lerpDouble(
+          a.decorationThickness ?? b.decorationThickness,
+          b.decorationThickness ?? a.decorationThickness,
+          t),
       debugLabel: lerpDebugLabel,
     );
   }
@@ -870,6 +941,7 @@ class TextStyle extends Diagnosticable {
       decoration: decoration,
       decorationColor: decorationColor,
       decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
       fontWeight: fontWeight,
       fontStyle: fontStyle,
       textBaseline: textBaseline,
@@ -967,7 +1039,9 @@ class TextStyle extends Diagnosticable {
         backgroundColor != other.backgroundColor ||
         decoration != other.decoration ||
         decorationColor != other.decorationColor ||
-        decorationStyle != other.decorationStyle) return RenderComparison.paint;
+        decorationStyle != other.decorationStyle ||
+        decorationThickness != other.decorationThickness)
+      return RenderComparison.paint;
     return RenderComparison.identical;
   }
 
@@ -993,6 +1067,7 @@ class TextStyle extends Diagnosticable {
         decoration == typedOther.decoration &&
         decorationColor == typedOther.decorationColor &&
         decorationStyle == typedOther.decorationStyle &&
+        decorationThickness == typedOther.decorationThickness &&
         listEquals(shadows, typedOther.shadows) &&
         listEquals(fontFamilyFallback, typedOther.fontFamilyFallback);
   }
@@ -1075,7 +1150,8 @@ class TextStyle extends Diagnosticable {
         defaultValue: null));
     if (decoration != null ||
         decorationColor != null ||
-        decorationStyle != null) {
+        decorationStyle != null ||
+        decorationThickness != null) {
       final List<String> decorationDescription = <String>[];
       if (decorationStyle != null)
         decorationDescription.add(describeEnum(decorationStyle));
@@ -1099,6 +1175,9 @@ class TextStyle extends Diagnosticable {
       assert(decorationDescription.isNotEmpty);
       styles.add(MessageProperty(
           '${prefix}decoration', decorationDescription.join(' ')));
+      styles.add(DoubleProperty(
+          '${prefix}decorationThickness', decorationThickness,
+          unit: 'x', defaultValue: null));
     }
 
     final bool styleSpecified =

@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:developer';
 import 'package:flutter_web/io.dart' show Platform;
@@ -39,6 +40,7 @@ class ViewConfiguration {
     return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 1.0);
   }
 
+  // TODO(flutter_web): upstream debugPrintDouble call.
   @override
   String toString() => assertionsEnabled
       ? '$size at ${debugPrintDouble(devicePixelRatio)}x'
@@ -174,7 +176,8 @@ class RenderView extends RenderObject
   /// coordinate system as that expected by the root [Layer], which will
   /// normally be in physical (device) pixels.
   bool hitTest(HitTestResult result, {Offset position}) {
-    if (child != null) child.hitTest(result, position: position);
+    if (child != null)
+      child.hitTest(BoxHitTestResult.wrap(result), position: position);
     result.add(HitTestEntry(this));
     return true;
   }

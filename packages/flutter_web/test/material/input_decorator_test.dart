@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/io.dart' show Platform;
 import 'package:flutter_web/material.dart';
@@ -2339,7 +2340,8 @@ void main() {
       'labelStyle: TextStyle(<all styles inherited>)',
       'helperStyle: TextStyle(<all styles inherited>)',
       'hintStyle: TextStyle(<all styles inherited>)',
-      'errorMaxLines: 5',
+      // TODO(flutter_web): fix diagnostics property errorMaxLines.
+      'errorMaxLines: 5.0',
       'hasFloatingPlaceholder: false',
       'contentPadding: EdgeInsetsDirectional(40.0, 12.0, 0.0, 12.0)',
       'prefixStyle: TextStyle(<all styles inherited>)',

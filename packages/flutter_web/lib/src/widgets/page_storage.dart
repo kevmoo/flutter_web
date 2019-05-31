@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.765649.
 
 import 'framework.dart';
 
@@ -10,12 +11,11 @@ import 'framework.dart';
 /// scroll offset. Each time a scroll completes, the scrollable's page
 /// storage is updated.
 ///
-/// [PageStorage] is used to save and restore values that can outlive the
-/// widget. The values are stored in a per-route [Map] whose keys are defined by
-/// the [PageStorageKey]s for the widget and its ancestors. To make it possible
+/// [PageStorage] is used to save and restore values that can outlive the widget.
+/// The values are stored in a per-route [Map] whose keys are defined by the
+/// [PageStorageKey]s for the widget and its ancestors. To make it possible
 /// for a saved value to be found when a widget is recreated, the key's values
-/// must not be objects whose identity will change each time the widget is
-/// created.
+/// must not be objects whose identity will change each time the widget is created.
 ///
 /// For example, to ensure that the scroll offsets for the scrollable within
 /// each `MyScrollableTabView` below are restored when the [TabBarView]
@@ -23,18 +23,17 @@ import 'framework.dart';
 /// tabs' string labels.
 ///
 /// ```dart
-/// new TabBarView(
+/// TabBarView(
 ///   children: myTabs.map((Tab tab) {
-///     new MyScrollableTabView(
-///       key: new PageStorageKey<String>(tab.text), // like 'Tab 1'
+///     MyScrollableTabView(
+///       key: PageStorageKey<String>(tab.text), // like 'Tab 1'
 ///       tab: tab,
-///    ),
-///  }),
-///)
+///     ),
+///   }),
+/// )
 /// ```
 class PageStorageKey<T> extends ValueKey<T> {
-  /// Creates a [ValueKey] that defines where [PageStorage] values will be
-  /// saved.
+  /// Creates a [ValueKey] that defines where [PageStorage] values will be saved.
   const PageStorageKey(T value) : super(value);
 }
 
@@ -88,7 +87,7 @@ class PageStorageBucket {
   }
 
   _StorageEntryIdentifier _computeIdentifier(BuildContext context) {
-    return new _StorageEntryIdentifier(_allKeys(context));
+    return _StorageEntryIdentifier(_allKeys(context));
   }
 
   Map<Object, dynamic> _storage;
@@ -134,8 +133,11 @@ class PageStorage extends StatelessWidget {
   /// Creates a widget that provides a storage bucket for its descendants.
   ///
   /// The [bucket] argument must not be null.
-  const PageStorage({Key key, @required this.bucket, @required this.child})
-      : assert(bucket != null),
+  const PageStorage({
+    Key key,
+    @required this.bucket,
+    @required this.child,
+  })  : assert(bucket != null),
         super(key: key);
 
   /// The widget below this widget in the tree.
@@ -146,8 +148,7 @@ class PageStorage extends StatelessWidget {
   /// The page storage bucket to use for this subtree.
   final PageStorageBucket bucket;
 
-  /// The bucket from the closest instance of this class that encloses the given
-  /// context.
+  /// The bucket from the closest instance of this class that encloses the given context.
   ///
   /// Returns null if none exists.
   ///

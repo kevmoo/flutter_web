@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.188335.
 
 import 'package:flutter_web_ui/ui.dart' as ui
     show PointerData, PointerChange, PointerSignalKind;
@@ -49,12 +50,16 @@ class _PointerState {
 // https://github.com/flutter/flutter/issues/30454
 int _synthesiseDownButtons(int buttons, PointerDeviceKind kind) {
   switch (kind) {
+    case PointerDeviceKind.mouse:
+      return buttons;
     case PointerDeviceKind.touch:
     case PointerDeviceKind.stylus:
     case PointerDeviceKind.invertedStylus:
       return buttons | kPrimaryButton;
     default:
-      return buttons;
+      // We have no information about the device but we know we never want
+      // buttons to be 0 when the pointer is down.
+      return buttons == 0 ? kPrimaryButton : buttons;
   }
 }
 
@@ -347,7 +352,6 @@ class PointerEventConverter {
                 position: position,
                 buttons: datum.buttons,
                 obscured: datum.obscured,
-                pressure: datum.pressure,
                 pressureMin: datum.pressureMin,
                 pressureMax: datum.pressureMax,
                 distance: datum.distance,
@@ -374,7 +378,6 @@ class PointerEventConverter {
                 position: state.lastPosition, // Change position in Hover
                 buttons: datum.buttons,
                 obscured: datum.obscured,
-                pressure: datum.pressure,
                 pressureMin: datum.pressureMin,
                 pressureMax: datum.pressureMax,
                 distance: datum.distance,

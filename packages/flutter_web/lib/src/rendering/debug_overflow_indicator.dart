@@ -1,10 +1,12 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.473069.
 
 import 'dart:math' as math;
 import 'package:flutter_web_ui/ui.dart' as ui;
 
+import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/painting.dart';
 
 import 'object.dart';
@@ -89,7 +91,7 @@ class _OverflowRegionData {
 mixin DebugOverflowIndicatorMixin on RenderObject {
   static const Color _black = Color(0xBF000000);
   static const Color _yellow = Color(0xBFFFFF00);
-// The fraction of the container that the indicator covers.
+  // The fraction of the container that the indicator covers.
   static const double _indicatorFraction = 0.1;
   static const double _indicatorFontSizePixels = 7.5;
   static const double _indicatorLabelPaddingPixels = 1.0;
@@ -114,8 +116,8 @@ mixin DebugOverflowIndicatorMixin on RenderObject {
     TextPainter(textDirection: TextDirection.ltr), // This label is in English.
   );
 
-// Set to true to trigger a debug message in the console upon
-// the next paint call. Will be reset after each paint.
+  // Set to true to trigger a debug message in the console upon
+  // the next paint call. Will be reset after each paint.
   bool _overflowReportNeeded = true;
 
   String _formatPixels(double value) {
@@ -204,16 +206,21 @@ mixin DebugOverflowIndicatorMixin on RenderObject {
     return regions;
   }
 
-  void _reportOverflow(RelativeRect overflow, String overflowHints) {
-    overflowHints ??= 'The edge of the $runtimeType that is '
-        'overflowing has been marked in the rendering with a yellow and black '
-        'striped pattern. This is usually caused by the contents being too big '
-        'for the $runtimeType.\n'
-        'This is considered an error condition because it indicates that there '
-        'is content that cannot be seen. If the content is legitimately bigger '
-        'than the available space, consider clipping it with a ClipRect widget '
-        'before putting it in the $runtimeType, or using a scrollable '
-        'container, like a ListView.';
+  void _reportOverflow(
+      RelativeRect overflow, List<DiagnosticsNode> overflowHints) {
+    overflowHints ??= <DiagnosticsNode>[];
+    if (overflowHints.isEmpty) {
+      overflowHints.add(ErrorDescription('The edge of the $runtimeType that is '
+          'overflowing has been marked in the rendering with a yellow and black '
+          'striped pattern. This is usually caused by the contents being too big '
+          'for the $runtimeType.'));
+      overflowHints.add(ErrorHint(
+          'This is considered an error condition because it indicates that there '
+          'is content that cannot be seen. If the content is legitimately bigger '
+          'than the available space, consider clipping it with a ClipRect widget '
+          'before putting it in the $runtimeType, or using a scrollable '
+          'container, like a ListView.'));
+    }
 
     final List<String> overflows = <String>[];
     if (overflow.left > 0.0)
@@ -239,19 +246,24 @@ mixin DebugOverflowIndicatorMixin on RenderObject {
             'and ${overflows[overflows.length - 1]}';
         overflowText = overflows.join(', ');
     }
+    // TODO(jacobr): add the overflows in pixels as structured data so they can
+    // be visualized in debugging tools.
     FlutterError.reportError(
       FlutterErrorDetailsForRendering(
-        exception: 'A $runtimeType overflowed by $overflowText.',
-        library: 'rendering library',
-        context: 'during layout',
-        renderObject: this,
-        informationCollector: (StringBuffer information) {
-          information.writeln(overflowHints);
-          information.writeln('The specific $runtimeType in question is:');
-          information.writeln('  ${toStringShallow(joiner: '\n  ')}');
-          information.writeln('◢◤' * (FlutterError.wrapWidth ~/ 2));
-        },
-      ),
+          exception:
+              FlutterError('A $runtimeType overflowed by $overflowText.'),
+          library: 'rendering library',
+          context: ErrorDescription('during layout'),
+          renderObject: this,
+          informationCollector: () sync* {
+            yield* overflowHints;
+            yield describeForError('The specific $runtimeType in question is');
+            // TODO(jacobr): this line is ascii art that it would be nice to
+            // handle a little more generically in GUI debugging clients in the
+            // future.
+            yield DiagnosticsNode.message('◢◤' * (FlutterError.wrapWidth ~/ 2),
+                allowWrap: false);
+          }),
     );
   }
 
@@ -266,7 +278,7 @@ mixin DebugOverflowIndicatorMixin on RenderObject {
     Offset offset,
     Rect containerRect,
     Rect childRect, {
-    String overflowHints,
+    List<DiagnosticsNode> overflowHints,
   }) {
     final RelativeRect overflow =
         RelativeRect.fromRect(containerRect, childRect);

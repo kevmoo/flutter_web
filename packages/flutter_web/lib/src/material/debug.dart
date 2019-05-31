@@ -1,10 +1,12 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.270409.
 
 import 'package:flutter_web/widgets.dart';
 
 import 'material.dart';
+import 'scaffold.dart';
 import 'material_localizations.dart';
 
 /// Asserts that the given context has a [Material] ancestor.
@@ -24,7 +26,7 @@ bool debugCheckHasMaterial(BuildContext context) {
   assert(() {
     if (context.widget is! Material &&
         context.ancestorWidgetOfExactType(Material) == null) {
-      final StringBuffer message = new StringBuffer();
+      final StringBuffer message = StringBuffer();
       message.writeln('No Material widget found.');
       message
           .writeln('${context.widget.runtimeType} widgets require a Material '
@@ -54,7 +56,7 @@ bool debugCheckHasMaterial(BuildContext context) {
         message.writeln('This widget is the root of the tree, so it has no '
             'ancestors, let alone a "Material" ancestor.');
       }
-      throw new FlutterError(message.toString());
+      throw FlutterError(message.toString());
     }
     return true;
   }());
@@ -108,6 +110,38 @@ bool debugCheckHasMaterialLocalizations(BuildContext context) {
             'ancestors, let alone a "Localizations" ancestor.');
       }
       throw FlutterError(message.toString());
+    }
+    return true;
+  }());
+  return true;
+}
+
+/// Asserts that the given context has a [Scaffold] ancestor.
+///
+/// Used by various widgets to make sure that they are only used in an
+/// appropriate context.
+///
+/// To invoke this function, use the following pattern, typically in the
+/// relevant Widget's build method:
+///
+/// ```dart
+/// assert(debugCheckHasScaffold(context));
+/// ```
+///
+/// Does nothing if asserts are disabled. Always returns true.
+bool debugCheckHasScaffold(BuildContext context) {
+  assert(() {
+    if (context.widget is! Scaffold &&
+        context.ancestorWidgetOfExactType(Scaffold) == null) {
+      final Element element = context;
+      throw FlutterError('No Scaffold widget found.\n'
+          '${context.widget.runtimeType} widgets require a Scaffold widget ancestor.\n'
+          'The Specific widget that could not find a Scaffold ancestor was:\n'
+          '  ${context.widget}\n'
+          'The ownership chain for the affected widget is:\n'
+          '  ${element.debugGetCreatorChain(10)}\n'
+          'Typically, the Scaffold widget is introduced by the MaterialApp or '
+          'WidgetsApp widget at the top of your application widget tree.');
     }
     return true;
   }());

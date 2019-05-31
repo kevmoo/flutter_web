@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.574503.
 
 import 'dart:math' as math;
 
@@ -11,7 +12,6 @@ import 'package:flutter_web/scheduler.dart';
 import 'package:flutter_web/semantics.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-import 'binding.dart';
 import 'box.dart';
 import 'object.dart';
 import 'sliver.dart';
@@ -172,11 +172,11 @@ abstract class RenderSliverPersistentHeader extends RenderSliver
       super.childMainAxisPosition(child);
 
   @override
-  bool hitTestChildren(HitTestResult result,
+  bool hitTestChildren(SliverHitTestResult result,
       {@required double mainAxisPosition, @required double crossAxisPosition}) {
     assert(geometry.hitTestExtent > 0.0);
     if (child != null)
-      return hitTestBoxChild(result, child,
+      return hitTestBoxChild(BoxHitTestResult.wrap(result), child,
           mainAxisPosition: mainAxisPosition,
           crossAxisPosition: crossAxisPosition);
     return false;
@@ -561,6 +561,7 @@ abstract class RenderSliverFloatingPinnedPersistentHeader
     final double layoutExtent = maxExtent - constraints.scrollOffset;
     geometry = SliverGeometry(
       scrollExtent: maxExtent,
+      paintOrigin: math.min(constraints.overlap, 0.0),
       paintExtent: clampedPaintExtent,
       layoutExtent: layoutExtent.clamp(0.0, clampedPaintExtent),
       maxPaintExtent: maxExtent,

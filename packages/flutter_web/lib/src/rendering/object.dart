@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:developer';
 import 'package:flutter_web_ui/ui.dart' as ui show PictureRecorder;
@@ -192,6 +193,7 @@ class PaintingContext extends ClipContext {
       if (debugProfilePaintsEnabled)
         Timeline.startSync('${child.runtimeType}',
             arguments: timelineWhitelistArguments);
+      if (debugOnProfilePaint != null) debugOnProfilePaint(child);
       return true;
     }());
 
@@ -452,7 +454,6 @@ class PaintingContext extends ClipContext {
   /// * `painter` is a callback that will paint with the `clipRRect` applied. This
   ///   function calls the `painter` synchronously.
   /// * `clipBehavior` controls how the path is clipped.
-  // ignore: deprecated_member_use
   void pushClipRRect(bool needsCompositing, Offset offset, Rect bounds,
       RRect clipRRect, PaintingContextCallback painter,
       {Clip clipBehavior = Clip.antiAlias}) {
@@ -485,7 +486,6 @@ class PaintingContext extends ClipContext {
   /// * `painter` is a callback that will paint with the `clipPath` applied. This
   ///   function calls the `painter` synchronously.
   /// * `clipBehavior` controls how the rounded rectangle is clipped.
-  // ignore: deprecated_member_use
   void pushClipPath(bool needsCompositing, Offset offset, Rect bounds,
       Path clipPath, PaintingContextCallback painter,
       {Clip clipBehavior = Clip.antiAlias}) {
@@ -638,9 +638,10 @@ abstract class Constraints {
   /// then included in the message after the error line.
   ///
   /// Returns the same as [isNormalized] if asserts are disabled.
-  bool debugAssertIsValid(
-      {bool isAppliedConstraint = false,
-      InformationCollector informationCollector}) {
+  bool debugAssertIsValid({
+    bool isAppliedConstraint = false,
+    InformationCollector informationCollector,
+  }) {
     assert(isNormalized);
     return isNormalized;
   }
@@ -804,9 +805,9 @@ class PipelineOwner {
   ///
   /// See [RendererBinding] for an example of how this function is used.
   void flushLayout() {
-    profile(() {
+    if (!kReleaseMode) {
       Timeline.startSync('Layout', arguments: timelineWhitelistArguments);
-    });
+    }
     assert(() {
       _debugDoingLayout = true;
       return true;
@@ -827,9 +828,9 @@ class PipelineOwner {
         _debugDoingLayout = false;
         return true;
       }());
-      profile(() {
+      if (!kReleaseMode) {
         Timeline.finishSync();
-      });
+      }
     }
   }
 
@@ -867,9 +868,9 @@ class PipelineOwner {
   /// Called as part of the rendering pipeline after [flushLayout] and before
   /// [flushPaint].
   void flushCompositingBits() {
-    profile(() {
+    if (!kReleaseMode) {
       Timeline.startSync('Compositing bits');
-    });
+    }
     _nodesNeedingCompositingBitsUpdate
         .sort((RenderObject a, RenderObject b) => a.depth - b.depth);
     for (RenderObject node in _nodesNeedingCompositingBitsUpdate) {
@@ -877,9 +878,9 @@ class PipelineOwner {
         node._updateCompositingBits();
     }
     _nodesNeedingCompositingBitsUpdate.clear();
-    profile(() {
+    if (!kReleaseMode) {
       Timeline.finishSync();
-    });
+    }
   }
 
   List<RenderObject> _nodesNeedingPaint = <RenderObject>[];
@@ -900,9 +901,9 @@ class PipelineOwner {
   ///
   /// See [RendererBinding] for an example of how this function is used.
   void flushPaint() {
-    profile(() {
+    if (!kReleaseMode) {
       Timeline.startSync('Paint', arguments: timelineWhitelistArguments);
-    });
+    }
     assert(() {
       _debugDoingPaint = true;
       return true;
@@ -928,9 +929,9 @@ class PipelineOwner {
         _debugDoingPaint = false;
         return true;
       }());
-      profile(() {
+      if (!kReleaseMode) {
         Timeline.finishSync();
-      });
+      }
     }
   }
 
@@ -987,7 +988,7 @@ class PipelineOwner {
   }
 
   bool _debugDoingSemantics = false;
-  final Set<RenderObject> _nodesNeedingSemantics = Set<RenderObject>();
+  final Set<RenderObject> _nodesNeedingSemantics = <RenderObject>{};
 
   /// Update the semantics for render objects marked as needing a semantics
   /// update.
@@ -1002,9 +1003,9 @@ class PipelineOwner {
   /// See [RendererBinding] for an example of how this function is used.
   void flushSemantics() {
     if (_semanticsOwner == null) return;
-    profile(() {
+    if (!kReleaseMode) {
       Timeline.startSync('Semantics');
-    });
+    }
     assert(_semanticsOwner != null);
     assert(() {
       _debugDoingSemantics = true;
@@ -1025,9 +1026,9 @@ class PipelineOwner {
         _debugDoingSemantics = false;
         return true;
       }());
-      profile(() {
+      if (!kReleaseMode) {
         Timeline.finishSync();
-      });
+      }
     }
   }
 }
@@ -1164,7 +1165,7 @@ abstract class RenderObject extends AbstractNode
   ///
   /// See also:
   ///
-  /// * [BindingBase.reassembleApplication].
+  ///  * [BindingBase.reassembleApplication]
   void reassemble() {
     markNeedsLayout();
     markNeedsCompositingBitsUpdate();
@@ -1252,40 +1253,17 @@ abstract class RenderObject extends AbstractNode
         exception: exception,
         stack: stack,
         library: 'rendering library',
-        context: 'during $method()',
+        context: ErrorDescription('during $method()'),
         renderObject: this,
-        informationCollector: (StringBuffer information) {
-          information.writeln(
-              'The following RenderObject was being processed when the exception was fired:');
-          information.writeln('  ${toStringShallow(joiner: '\n  ')}');
-          final List<String> descendants = <String>[];
-          const int maxDepth = 5;
-          int depth = 0;
-          const int maxLines = 25;
-          int lines = 0;
-          void visitor(RenderObject child) {
-            if (lines < maxLines) {
-              depth += 1;
-              descendants.add('${"  " * depth}$child');
-              if (depth < maxDepth) child.visitChildren(visitor);
-              depth -= 1;
-            } else if (lines == maxLines) {
-              descendants
-                  .add('  ...(descendants list truncated after $lines lines)');
-            }
-            lines += 1;
-          }
-
-          visitChildren(visitor);
-          if (lines > 1) {
-            information.writeln(
-                'This RenderObject had the following descendants (showing up to depth $maxDepth):');
-          } else if (descendants.length == 1) {
-            information.writeln('This RenderObject had the following child:');
-          } else {
-            information.writeln('This RenderObject has no descendants.');
-          }
-          information.writeAll(descendants, '\n');
+        informationCollector: () sync* {
+          yield describeForError(
+              'The following RenderObject was being processed when the exception was fired');
+          // TODO(jacobr): this error message has a code smell. Consider whether
+          // displaying the truncated children is really useful for command line
+          // users. Inspector users can see the full tree by clicking on the
+          // render object so this may not be that useful.
+          yield describeForError('This RenderObject',
+              style: DiagnosticsTreeStyle.truncateChildren);
         }));
   }
 
@@ -1607,51 +1585,53 @@ abstract class RenderObject extends AbstractNode
   /// required to obey the given constraints.
   ///
   /// If the parent reads information computed during the child's layout, the
-  /// parent must pass true for parentUsesSize. In that case, the parent will be
-  /// marked as needing layout whenever the child is marked as needing layout
+  /// parent must pass true for `parentUsesSize`. In that case, the parent will
+  /// be marked as needing layout whenever the child is marked as needing layout
   /// because the parent's layout information depends on the child's layout
   /// information. If the parent uses the default value (false) for
-  /// parentUsesSize, the child can change its layout information (subject to
+  /// `parentUsesSize`, the child can change its layout information (subject to
   /// the given constraints) without informing the parent.
   ///
   /// Subclasses should not override [layout] directly. Instead, they should
   /// override [performResize] and/or [performLayout]. The [layout] method
   /// delegates the actual work to [performResize] and [performLayout].
   ///
-  /// The parent's performLayout method should call the [layout] of all its
+  /// The parent's [performLayout] method should call the [layout] of all its
   /// children unconditionally. It is the [layout] method's responsibility (as
   /// implemented here) to return early if the child does not need to do any
   /// work to update its layout information.
   void layout(Constraints constraints, {bool parentUsesSize = false}) {
     assert(constraints != null);
     assert(constraints.debugAssertIsValid(
-        isAppliedConstraint: true,
-        informationCollector: (StringBuffer information) {
-          final List<String> stack = StackTrace.current.toString().split('\n');
-          int targetFrame;
-          final Pattern layoutFramePattern =
-              RegExp(r'^#[0-9]+ +RenderObject.layout \(');
-          for (int i = 0; i < stack.length; i += 1) {
-            if (layoutFramePattern.matchAsPrefix(stack[i]) != null) {
-              targetFrame = i + 1;
-              break;
-            }
+      isAppliedConstraint: true,
+      informationCollector: () sync* {
+        final List<String> stack = StackTrace.current.toString().split('\n');
+        int targetFrame;
+        final Pattern layoutFramePattern =
+            RegExp(r'^#[0-9]+ +RenderObject.layout \(');
+        for (int i = 0; i < stack.length; i += 1) {
+          if (layoutFramePattern.matchAsPrefix(stack[i]) != null) {
+            targetFrame = i + 1;
+            break;
           }
-          if (targetFrame != null && targetFrame < stack.length) {
-            information.writeln(
-                'These invalid constraints were provided to $runtimeType\'s layout() '
-                'function by the following function, which probably computed the '
-                'invalid constraints in question:');
-            final Pattern targetFramePattern = RegExp(r'^#[0-9]+ +(.+)$');
-            final Match targetFrameMatch =
-                targetFramePattern.matchAsPrefix(stack[targetFrame]);
-            if (targetFrameMatch != null && targetFrameMatch.groupCount > 0) {
-              information.writeln('  ${targetFrameMatch.group(1)}');
-            } else {
-              information.writeln(stack[targetFrame]);
-            }
-          }
-        }));
+        }
+        if (targetFrame != null && targetFrame < stack.length) {
+          final Pattern targetFramePattern = RegExp(r'^#[0-9]+ +(.+)$');
+          final Match targetFrameMatch =
+              targetFramePattern.matchAsPrefix(stack[targetFrame]);
+          final String problemFunction =
+              (targetFrameMatch != null && targetFrameMatch.groupCount > 0)
+                  ? targetFrameMatch.group(1)
+                  : stack[targetFrame].trim();
+          // TODO(jacobr): this case is similar to displaying a single stack frame.
+          yield ErrorDescription(
+              'These invalid constraints were provided to $runtimeType\'s layout() '
+              'function by the following function, which probably computed the '
+              'invalid constraints in question:\n'
+              '  $problemFunction');
+        }
+      },
+    ));
     assert(!_debugDoingThisResize);
     assert(!_debugDoingThisLayout);
     RenderObject relayoutBoundary;
@@ -1832,10 +1812,11 @@ abstract class RenderObject extends AbstractNode
   }
 
   /// Rotate this render object (not yet implemented).
-  void rotate(
-      {int oldAngle, // 0..3
-      int newAngle, // 0..3
-      Duration time}) {}
+  void rotate({
+    int oldAngle, // 0..3
+    int newAngle, // 0..3
+    Duration time,
+  }) {}
 
   // when the parent has rotated (e.g. when the screen has been turned
   // 90 degrees), immediately prior to layout() being called for the
@@ -1963,7 +1944,7 @@ abstract class RenderObject extends AbstractNode
     if (owner != null) owner._nodesNeedingCompositingBitsUpdate.add(this);
   }
 
-  bool _needsCompositing; // initialised in the constructor
+  bool _needsCompositing; // initialized in the constructor
   /// Whether we or one of our descendants has a compositing layer.
   ///
   /// If this node needs compositing as indicated by this bit, then all ancestor
@@ -2329,7 +2310,7 @@ abstract class RenderObject extends AbstractNode
   /// asynchronous computation) will at best have no useful effect and at worse
   /// will cause crashes as the data will be in an inconsistent state.
   ///
-  /// ## Sample code
+  /// {@tool sample}
   ///
   /// The following snippet will describe the node as a button that responds to
   /// tap actions.
@@ -2350,6 +2331,7 @@ abstract class RenderObject extends AbstractNode
   ///   }
   /// }
   /// ```
+  /// {@end-tool}
   @protected
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
     // Nothing to do by default.
@@ -2524,7 +2506,7 @@ abstract class RenderObject extends AbstractNode
     final List<_InterestingSemanticsFragment> fragments =
         <_InterestingSemanticsFragment>[];
     final Set<_InterestingSemanticsFragment> toBeMarkedExplicit =
-        Set<_InterestingSemanticsFragment>();
+        <_InterestingSemanticsFragment>{};
     final bool childrenMergeIntoParent =
         mergeIntoParent || config.isMergingSemanticsOfDescendants;
 
@@ -2689,6 +2671,7 @@ abstract class RenderObject extends AbstractNode
     }
     if (_needsLayout) header += ' NEEDS-LAYOUT';
     if (_needsPaint) header += ' NEEDS-PAINT';
+    if (_needsCompositingBitsUpdate) header += ' NEEDS-COMPOSITING-BITS-UPDATE';
     if (!attached) header += ' DETACHED';
     return header;
   }
@@ -2753,6 +2736,8 @@ abstract class RenderObject extends AbstractNode
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(FlagProperty('needsCompositing',
+        value: _needsCompositing, ifTrue: 'needs compositing'));
     properties.add(DiagnosticsProperty<dynamic>('creator', debugCreator,
         defaultValue: null, level: DiagnosticLevel.debug));
     properties.add(DiagnosticsProperty<ParentData>('parentData', parentData,
@@ -2811,6 +2796,20 @@ abstract class RenderObject extends AbstractNode
         curve: curve,
       );
     }
+  }
+
+  /// Adds a debug representation of a [RenderObject] optimized for including in
+  /// error messages.
+  ///
+  /// The default [style] of [DiagnosticsTreeStyle.shallow] ensures that all of
+  /// the properties of the render object are included in the error output but
+  /// none of the children of the object are.
+  ///
+  /// You should always include a RenderObject in an error message if it is the
+  /// [RenderObject] causing the failure or contract violation of the error.
+  DiagnosticsNode describeForError(String name,
+      {DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow}) {
+    return toDiagnosticsNode(name: name, style: style);
   }
 }
 
@@ -3211,15 +3210,15 @@ class FlutterErrorDetailsForRendering extends FlutterErrorDetails {
   ///
   /// The rendering library calls this constructor when catching an exception
   /// that will subsequently be reported using [FlutterError.onError].
-  const FlutterErrorDetailsForRendering(
-      {dynamic exception,
-      StackTrace stack,
-      String library,
-      String context,
-      this.renderObject,
-      InformationCollector informationCollector,
-      bool silent = false})
-      : super(
+  const FlutterErrorDetailsForRendering({
+    dynamic exception,
+    StackTrace stack,
+    String library,
+    DiagnosticsNode context,
+    this.renderObject,
+    InformationCollector informationCollector,
+    bool silent = false,
+  }) : super(
             exception: exception,
             stack: stack,
             library: library,
@@ -3298,10 +3297,10 @@ class _ContainerSemanticsFragment extends _SemanticsFragment {
 /// should be added to the parent's [SemanticsNode] and which [config] should be
 /// merged into the parent's [SemanticsNode].
 abstract class _InterestingSemanticsFragment extends _SemanticsFragment {
-  _InterestingSemanticsFragment(
-      {@required RenderObject owner,
-      @required bool dropsSemanticsOfPreviousSiblings})
-      : assert(owner != null),
+  _InterestingSemanticsFragment({
+    @required RenderObject owner,
+    @required bool dropsSemanticsOfPreviousSiblings,
+  })  : assert(owner != null),
         _ancestorChain = <RenderObject>[owner],
         super(
             dropsSemanticsOfPreviousSiblings: dropsSemanticsOfPreviousSiblings);
@@ -3364,7 +3363,7 @@ abstract class _InterestingSemanticsFragment extends _SemanticsFragment {
   /// Tag all children produced by [compileChildren] with `tags`.
   void addTags(Iterable<SemanticsTag> tags) {
     if (tags == null || tags.isEmpty) return;
-    _tagsForChildren ??= Set<SemanticsTag>();
+    _tagsForChildren ??= <SemanticsTag>{};
     _tagsForChildren.addAll(tags);
   }
 
@@ -3705,9 +3704,11 @@ class _SemanticsGeometry {
   }
 
   // Reduces temporary allocations in _transformRect.
+  // TODO(flutter_web): upstream optimization.
   static Matrix4 _transformRectTransform;
 
   /// From parent to child coordinate system.
+  /// TODO(flutter_web): upstream optimization.
   static Rect _transformRect(
       Rect rect, RenderObject parent, RenderObject child) {
     if (rect == null) return null;

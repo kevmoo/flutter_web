@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.549880.
 
 import 'dart:math' as math;
 
@@ -24,8 +25,10 @@ class RenderRotatedBox extends RenderBox
   /// Creates a rotated render box.
   ///
   /// The [quarterTurns] argument must not be null.
-  RenderRotatedBox({@required int quarterTurns, RenderBox child})
-      : assert(quarterTurns != null),
+  RenderRotatedBox({
+    @required int quarterTurns,
+    RenderBox child,
+  })  : assert(quarterTurns != null),
         _quarterTurns = quarterTurns {
     this.child = child;
   }
@@ -94,12 +97,16 @@ class RenderRotatedBox extends RenderBox
   }
 
   @override
-  bool hitTestChildren(HitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     assert(_paintTransform != null || debugNeedsLayout || child == null);
     if (child == null || _paintTransform == null) return false;
-    final Matrix4 inverse = Matrix4.inverted(_paintTransform);
-    return child.hitTest(result,
-        position: MatrixUtils.transformPoint(inverse, position));
+    return result.addWithPaintTransform(
+      transform: _paintTransform,
+      position: position,
+      hitTest: (BoxHitTestResult result, Offset position) {
+        return child.hitTest(result, position: position);
+      },
+    );
   }
 
   void _paintChild(PaintingContext context, Offset offset) {

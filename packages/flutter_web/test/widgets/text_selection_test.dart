@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:57.784247.
 
 import 'package:flutter_web_test/flutter_web_test.dart';
 import 'package:flutter_web/gestures.dart' show PointerDeviceKind;
@@ -380,6 +381,8 @@ void main() {
     expect(tapCount, 1);
     expect(singleTapUpCount, 1);
     expect(singleLongTapStartCount, 0);
+
+    await gesture.removePointer();
   });
 
   testWidgets('a touch drag is not recognized for text selection',
@@ -402,6 +405,8 @@ void main() {
     expect(dragStartCount, 0);
     expect(dragUpdateCount, 0);
     expect(dragEndCount, 0);
+
+    await gesture.removePointer();
   });
 
   testWidgets('a mouse drag is recognized for text selection',
@@ -424,6 +429,8 @@ void main() {
     expect(dragStartCount, 1);
     expect(dragUpdateCount, 1);
     expect(dragEndCount, 1);
+
+    await gesture.removePointer();
   });
 
   testWidgets('a slow mouse drag is still recognized for text selection',
@@ -444,5 +451,7 @@ void main() {
     expect(dragStartCount, 1);
     expect(dragUpdateCount, 1);
     expect(dragEndCount, 1);
+
+    await gesture.removePointer();
   });
 }

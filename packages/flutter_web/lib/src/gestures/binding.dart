@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.180455.
 
 import 'dart:async';
 import 'dart:collection';
@@ -185,12 +186,13 @@ mixin GestureBinding on BindingBase
           exception: exception,
           stack: stack,
           library: 'gesture library',
-          context: 'while dispatching a non-hit-tested pointer event',
+          context: ErrorDescription(
+              'while dispatching a non-hit-tested pointer event'),
           event: event,
           hitTestEntry: null,
-          informationCollector: (StringBuffer information) {
-            information.writeln('Event:');
-            information.writeln('  $event');
+          informationCollector: () sync* {
+            yield DiagnosticsProperty<PointerEvent>('Event', event,
+                style: DiagnosticsTreeStyle.errorProperty);
           },
         ));
       }
@@ -204,14 +206,14 @@ mixin GestureBinding on BindingBase
           exception: exception,
           stack: stack,
           library: 'gesture library',
-          context: 'while dispatching a pointer event',
+          context: ErrorDescription('while dispatching a pointer event'),
           event: event,
           hitTestEntry: entry,
-          informationCollector: (StringBuffer information) {
-            information.writeln('Event:');
-            information.writeln('  $event');
-            information.writeln('Target:');
-            information.write('  ${entry.target}');
+          informationCollector: () sync* {
+            yield DiagnosticsProperty<PointerEvent>('Event', event,
+                style: DiagnosticsTreeStyle.errorProperty);
+            yield DiagnosticsProperty<HitTestTarget>('Target', entry.target,
+                style: DiagnosticsTreeStyle.errorProperty);
           },
         ));
       }
@@ -246,7 +248,7 @@ class FlutterErrorDetailsForPointerEventDispatcher extends FlutterErrorDetails {
     dynamic exception,
     StackTrace stack,
     String library,
-    String context,
+    DiagnosticsNode context,
     this.event,
     this.hitTestEntry,
     InformationCollector informationCollector,

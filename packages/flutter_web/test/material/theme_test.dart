@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.949220.
 
 import 'package:flutter_web_ui/ui.dart' as ui;
 import 'package:flutter_web/cupertino.dart';
@@ -421,29 +422,27 @@ void main() {
   group('Cupertino theme', () {
     int buildCount;
     CupertinoThemeData actualTheme;
+    IconThemeData actualIconTheme;
 
     final Widget singletonThemeSubtree = Builder(
       builder: (BuildContext context) {
         buildCount++;
         actualTheme = CupertinoTheme.of(context);
+        actualIconTheme = IconTheme.of(context);
         return const Placeholder();
       },
     );
 
     Future<CupertinoThemeData> testTheme(
         WidgetTester tester, ThemeData theme) async {
-      await tester.pumpWidget(
-        Theme(
-          data: theme,
-          child: singletonThemeSubtree,
-        ),
-      );
+      await tester.pumpWidget(Theme(data: theme, child: singletonThemeSubtree));
       return actualTheme;
     }
 
     setUp(() {
       buildCount = 0;
       actualTheme = null;
+      actualIconTheme = null;
     });
 
     testWidgets('Default theme has defaults', (WidgetTester tester) async {
@@ -525,6 +524,23 @@ void main() {
 
       expect(buildCount, 2);
       expect(theme.primaryColor, Colors.orange);
+    });
+
+    testWidgets(
+        "CupertinoThemeData does not override material theme's icon theme",
+        (WidgetTester tester) async {
+      const Color materialIconColor = Colors.blue;
+      const Color cupertinoIconColor = Colors.black;
+
+      await testTheme(
+          tester,
+          ThemeData(
+              iconTheme: const IconThemeData(color: materialIconColor),
+              cupertinoOverrideTheme:
+                  const CupertinoThemeData(primaryColor: cupertinoIconColor)));
+
+      expect(buildCount, 1);
+      expect(actualIconTheme.color, materialIconColor);
     });
 
     testWidgets(
@@ -717,6 +733,8 @@ class _TextStyleProxy implements TextStyle {
   @override
   TextDecorationStyle get decorationStyle => _delegate.decorationStyle;
   @override
+  double get decorationThickness => _delegate.decorationThickness;
+  @override
   String get fontFamily => _delegate.fontFamily;
   @override
   List<String> get fontFamilyFallback => _delegate.fontFamilyFallback;
@@ -760,23 +778,26 @@ class _TextStyleProxy implements TextStyle {
   }
 
   @override
-  TextStyle apply(
-      {Color color,
-      Color backgroundColor,
-      TextDecoration decoration,
-      Color decorationColor,
-      TextDecorationStyle decorationStyle,
-      String fontFamily,
-      List<String> fontFamilyFallback,
-      double fontSizeFactor = 1.0,
-      double fontSizeDelta = 0.0,
-      int fontWeightDelta = 0,
-      double letterSpacingFactor = 1.0,
-      double letterSpacingDelta = 0.0,
-      double wordSpacingFactor = 1.0,
-      double wordSpacingDelta = 0.0,
-      double heightFactor = 1.0,
-      double heightDelta = 0.0}) {
+  TextStyle apply({
+    Color color,
+    Color backgroundColor,
+    TextDecoration decoration,
+    Color decorationColor,
+    TextDecorationStyle decorationStyle,
+    double decorationThicknessFactor = 1.0,
+    double decorationThicknessDelta = 0.0,
+    String fontFamily,
+    List<String> fontFamilyFallback,
+    double fontSizeFactor = 1.0,
+    double fontSizeDelta = 0.0,
+    int fontWeightDelta = 0,
+    double letterSpacingFactor = 1.0,
+    double letterSpacingDelta = 0.0,
+    double wordSpacingFactor = 1.0,
+    double wordSpacingDelta = 0.0,
+    double heightFactor = 1.0,
+    double heightDelta = 0.0,
+  }) {
     throw UnimplementedError();
   }
 
@@ -786,26 +807,29 @@ class _TextStyleProxy implements TextStyle {
   }
 
   @override
-  TextStyle copyWith(
-      {Color color,
-      Color backgroundColor,
-      String fontFamily,
-      List<String> fontFamilyFallback,
-      double fontSize,
-      FontWeight fontWeight,
-      FontStyle fontStyle,
-      double letterSpacing,
-      double wordSpacing,
-      TextBaseline textBaseline,
-      double height,
-      Locale locale,
-      ui.Paint foreground,
-      ui.Paint background,
-      List<Shadow> shadows,
-      TextDecoration decoration,
-      Color decorationColor,
-      TextDecorationStyle decorationStyle,
-      String debugLabel}) {
+  TextStyle copyWith({
+    bool inherit,
+    Color color,
+    Color backgroundColor,
+    String fontFamily,
+    List<String> fontFamilyFallback,
+    double fontSize,
+    FontWeight fontWeight,
+    FontStyle fontStyle,
+    double letterSpacing,
+    double wordSpacing,
+    TextBaseline textBaseline,
+    double height,
+    Locale locale,
+    ui.Paint foreground,
+    ui.Paint background,
+    List<Shadow> shadows,
+    TextDecoration decoration,
+    Color decorationColor,
+    TextDecorationStyle decorationStyle,
+    double decorationThickness,
+    String debugLabel,
+  }) {
     throw UnimplementedError();
   }
 
@@ -816,19 +840,20 @@ class _TextStyleProxy implements TextStyle {
   }
 
   @override
-  ui.ParagraphStyle getParagraphStyle(
-      {TextAlign textAlign,
-      TextDirection textDirection,
-      double textScaleFactor = 1.0,
-      String ellipsis,
-      int maxLines,
-      Locale locale,
-      String fontFamily,
-      double fontSize,
-      FontWeight fontWeight,
-      FontStyle fontStyle,
-      double height,
-      StrutStyle strutStyle}) {
+  ui.ParagraphStyle getParagraphStyle({
+    TextAlign textAlign,
+    TextDirection textDirection,
+    double textScaleFactor = 1.0,
+    String ellipsis,
+    int maxLines,
+    Locale locale,
+    String fontFamily,
+    double fontSize,
+    FontWeight fontWeight,
+    FontStyle fontStyle,
+    double height,
+    StrutStyle strutStyle,
+  }) {
     throw UnimplementedError();
   }
 

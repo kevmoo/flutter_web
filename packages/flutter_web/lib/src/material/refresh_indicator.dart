@@ -1,12 +1,15 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.363259.
 
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter_web/widgets.dart';
 
+import 'debug.dart';
+import 'material_localizations.dart';
 import 'progress_indicator.dart';
 import 'theme.dart';
 
@@ -71,7 +74,7 @@ enum _RefreshIndicatorMode {
 ///
 /// See also:
 ///
-///  * <https://material.google.com/patterns/swipe-to-refresh.html>
+///  * <https://material.io/design/platform-guidance/android-swipe-to-refresh.html>
 ///  * [RefreshIndicatorState], can be used to programmatically show the refresh indicator.
 ///  * [RefreshProgressIndicator], widget used by [RefreshIndicator] to show
 ///    the inner circular progress spinner during refreshes.
@@ -85,6 +88,11 @@ class RefreshIndicator extends StatefulWidget {
   /// The [onRefresh], [child], and [notificationPredicate] arguments must be
   /// non-null. The default
   /// [displacement] is 40.0 logical pixels.
+  ///
+  /// The [semanticsLabel] is used to specify an accessibility label for this widget.
+  /// If it is null, it will be defaulted to [MaterialLocalizations.refreshIndicatorSemanticLabel].
+  /// An empty string may be passed to avoid having anything read by screen reading software.
+  /// The [semanticsValue] may be used to specify progress on the widget.
   const RefreshIndicator({
     Key key,
     @required this.child,
@@ -93,6 +101,8 @@ class RefreshIndicator extends StatefulWidget {
     this.color,
     this.backgroundColor,
     this.notificationPredicate = defaultScrollNotificationPredicate,
+    this.semanticsLabel,
+    this.semanticsValue,
   })  : assert(child != null),
         assert(onRefresh != null),
         assert(notificationPredicate != null),
@@ -130,6 +140,15 @@ class RefreshIndicator extends StatefulWidget {
   /// By default, checks whether `notification.depth == 0`. Set it to something
   /// else for more complicated layouts.
   final ScrollNotificationPredicate notificationPredicate;
+
+  /// {@macro flutter.material.progressIndicator.semanticsLabel}
+  ///
+  /// This will be defaulted to [MaterialLocalizations.refreshIndicatorSemanticLabel]
+  /// if it is null.
+  final String semanticsLabel;
+
+  /// {@macro flutter.material.progressIndicator.semanticsValue}
+  final String semanticsValue;
 
   @override
   RefreshIndicatorState createState() => RefreshIndicatorState();
@@ -175,10 +194,10 @@ class RefreshIndicatorState extends State<RefreshIndicator>
     final ThemeData theme = Theme.of(context);
     _valueColor = _positionController.drive(
       ColorTween(
-              begin: (widget.color ?? theme.accentColor).withOpacity(0.0),
-              end: (widget.color ?? theme.accentColor).withOpacity(1.0))
-          .chain(CurveTween(
-              curve: const Interval(0.0, 1.0 / _kDragSizeFactorLimit))),
+        begin: (widget.color ?? theme.accentColor).withOpacity(0.0),
+        end: (widget.color ?? theme.accentColor).withOpacity(1.0),
+      ).chain(
+          CurveTween(curve: const Interval(0.0, 1.0 / _kDragSizeFactorLimit))),
     );
     super.didChangeDependencies();
   }
@@ -357,7 +376,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
             FlutterError.reportError(FlutterErrorDetails(
               exception: FlutterError('The onRefresh callback returned null.\n'
                   'The RefreshIndicator onRefresh callback must return a Future.'),
-              context: 'when calling onRefresh',
+              context: ErrorDescription('when calling onRefresh'),
               library: 'material library',
             ));
           return true;
@@ -402,6 +421,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
 
   @override
   Widget build(BuildContext context) {
+    assert(debugCheckHasMaterialLocalizations(context));
     final Widget child = NotificationListener<ScrollNotification>(
       key: _key,
       onNotification: _handleScrollNotification,
@@ -446,6 +466,10 @@ class RefreshIndicatorState extends State<RefreshIndicator>
                   animation: _positionController,
                   builder: (BuildContext context, Widget child) {
                     return RefreshProgressIndicator(
+                      semanticsLabel: widget.semanticsLabel ??
+                          MaterialLocalizations.of(context)
+                              .refreshIndicatorSemanticLabel,
+                      semanticsValue: widget.semanticsValue,
                       value: showIndeterminateIndicator ? null : _value.value,
                       valueColor: _valueColor,
                       backgroundColor: widget.backgroundColor,

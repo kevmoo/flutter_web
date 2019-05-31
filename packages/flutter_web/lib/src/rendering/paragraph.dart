@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.527167.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/gestures.dart';
@@ -13,6 +14,9 @@ import 'debug.dart';
 import 'object.dart';
 
 /// How overflowing text should be handled.
+///
+/// A [TextOverflow] can be passed to [Text] and [RichText] via their
+/// [Text.overflow] and [RichText.overflow] properties respectively.
 enum TextOverflow {
   /// Clip the overflowing text to fix its container.
   clip,
@@ -46,6 +50,7 @@ class RenderParagraph extends RenderBox {
     TextOverflow overflow = TextOverflow.clip,
     double textScaleFactor = 1.0,
     int maxLines,
+    TextWidthBasis textWidthBasis = TextWidthBasis.parent,
     Locale locale,
     StrutStyle strutStyle,
   })  : assert(text != null),
@@ -56,6 +61,7 @@ class RenderParagraph extends RenderBox {
         assert(overflow != null),
         assert(textScaleFactor != null),
         assert(maxLines == null || maxLines > 0),
+        assert(textWidthBasis != null),
         _softWrap = softWrap,
         _overflow = overflow,
         _textPainter = TextPainter(
@@ -67,6 +73,7 @@ class RenderParagraph extends RenderBox {
           ellipsis: overflow == TextOverflow.ellipsis ? _kEllipsis : null,
           locale: locale,
           strutStyle: strutStyle,
+          textWidthBasis: textWidthBasis,
         );
 
   final TextPainter _textPainter;
@@ -204,6 +211,16 @@ class RenderParagraph extends RenderBox {
     markNeedsLayout();
   }
 
+  /// {@macro flutter.widgets.basic.TextWidthBasis}
+  TextWidthBasis get textWidthBasis => _textPainter.textWidthBasis;
+  set textWidthBasis(TextWidthBasis value) {
+    assert(value != null);
+    if (_textPainter.textWidthBasis == value) return;
+    _textPainter.textWidthBasis = value;
+    _overflowShader = null;
+    markNeedsLayout();
+  }
+
   void _layoutText({double minWidth = 0.0, double maxWidth = double.infinity}) {
     final bool widthMatters = softWrap || overflow == TextOverflow.ellipsis;
     _textPainter.layout(
@@ -258,25 +275,6 @@ class RenderParagraph extends RenderBox {
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     assert(debugHandleEvent(event, entry));
     if (event is! PointerDownEvent) return;
-
-    // TODO(het): Upstream this.
-    // Finding the offset of an event is somewhat expensive on the web,
-    // and if there is no gesture recognizer on this paragraph, there is
-    // no reason to try to calculate the offset. Check if there is a
-    // gesture recognizer before calculating the offset position.
-    bool hasGestureRecognizer = false;
-    _textPainter.text.visitTextSpan((span) {
-      if (span.recognizer != null) {
-        hasGestureRecognizer = true;
-        return false;
-      }
-      // Return 'true' to keep looking for recognizers in child spans.
-      return true;
-    });
-    if (!hasGestureRecognizer) {
-      return;
-    }
-
     _layoutTextWithConstraints(constraints);
     final Offset offset = entry.localPosition;
     final TextPosition position = _textPainter.getPositionForOffset(offset);
@@ -489,7 +487,7 @@ class RenderParagraph extends RenderBox {
       if (span.recognizer != null &&
           (span.recognizer is TapGestureRecognizer ||
               span.recognizer is LongPressGestureRecognizer)) {
-        final int length = span.text.length;
+        final int length = span.semanticsLabel?.length ?? span.text.length;
         _recognizerOffsets.add(offset);
         _recognizerOffsets.add(offset + length);
         _recognizers.add(span.recognizer);

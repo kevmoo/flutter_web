@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/widgets.dart';
 
@@ -34,7 +35,6 @@ import 'theme.dart';
 ///
 ///  * [PageTransitionsTheme], which defines the default page transitions used
 ///    by [MaterialPageRoute.buildTransitions].
-///
 class MaterialPageRoute<T> extends PageRoute<T> {
   /// Construct a MaterialPageRoute whose contents are defined by [builder].
   ///
@@ -48,10 +48,8 @@ class MaterialPageRoute<T> extends PageRoute<T> {
   })  : assert(builder != null),
         assert(maintainState != null),
         assert(fullscreenDialog != null),
-        super(settings: settings, fullscreenDialog: fullscreenDialog) {
-    // ignore: prefer_asserts_in_initializer_lists , https://github.com/dart-lang/sdk/issues/31223
-    assert(opaque);
-  }
+        assert(opaque),
+        super(settings: settings, fullscreenDialog: fullscreenDialog);
 
   /// Builds the primary contents of the route.
   final WidgetBuilder builder;
@@ -71,22 +69,25 @@ class MaterialPageRoute<T> extends PageRoute<T> {
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
     return previousRoute is MaterialPageRoute;
+    // TODO(flutter_web): enable after implementing cupertino.
+    //    || previousRoute is CupertinoPageRoute;
   }
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
     // Don't perform outgoing animation if the next route is a fullscreen dialog.
     return (nextRoute is MaterialPageRoute && !nextRoute.fullscreenDialog);
+    // TODO(flutter_web): enable after implementing cupertino.
+    //    || (nextRoute is CupertinoPageRoute && !nextRoute.fullscreenDialog);
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    final Widget result = Semantics(
-      scopesRoute: true,
-      explicitChildNodes: true,
-      child: builder(context),
-    );
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    final Widget result = builder(context);
     assert(() {
       if (result == null) {
         throw FlutterError(
@@ -95,7 +96,11 @@ class MaterialPageRoute<T> extends PageRoute<T> {
       }
       return true;
     }());
-    return result;
+    return Semantics(
+      scopesRoute: true,
+      explicitChildNodes: true,
+      child: result,
+    );
   }
 
   @override

@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.747224.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/rendering.dart';
@@ -20,21 +21,25 @@ typedef LayoutWidgetBuilder = Widget Function(
 /// the child's intrinsic size. The [LayoutBuilder]'s final size will match its
 /// child's size.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=IYDVcriKjsw}
+///
 /// If the child should be smaller than the parent, consider wrapping the child
 /// in an [Align] widget. If the child might want to be bigger, consider
 /// wrapping it in a [SingleChildScrollView].
 ///
 /// See also:
 ///
-/// * [Builder], which calls a `builder` function at build time.
-/// * [StatefulBuilder], which passes its `builder` function a `setState` callback.
-/// * [CustomSingleChildLayout], which positions its child during layout.
+///  * [Builder], which calls a `builder` function at build time.
+///  * [StatefulBuilder], which passes its `builder` function a `setState` callback.
+///  * [CustomSingleChildLayout], which positions its child during layout.
 class LayoutBuilder extends RenderObjectWidget {
   /// Creates a widget that defers its building until layout.
   ///
   /// The [builder] argument must not be null.
-  const LayoutBuilder({Key key, @required this.builder})
-      : assert(builder != null),
+  const LayoutBuilder({
+    Key key,
+    @required this.builder,
+  })  : assert(builder != null),
         super(key: key);
 
   /// Called at layout time to construct the widget tree. The builder must not
@@ -111,16 +116,16 @@ class _LayoutBuilderElement extends RenderObjectElement {
           built = widget.builder(this, constraints);
           debugWidgetBuilderValue(widget, built);
         } catch (e, stack) {
-          built = ErrorWidget.builder(
-              _debugReportException('building $widget', e, stack));
+          built = ErrorWidget.builder(_debugReportException(
+              ErrorDescription('building $widget'), e, stack));
         }
       }
       try {
         _child = updateChild(_child, built, null);
         assert(_child != null);
       } catch (e, stack) {
-        built = ErrorWidget.builder(
-            _debugReportException('building $widget', e, stack));
+        built = ErrorWidget.builder(_debugReportException(
+            ErrorDescription('building $widget'), e, stack));
         _child = updateChild(null, built, slot);
       }
     });
@@ -214,7 +219,7 @@ class _RenderLayoutBuilder extends RenderBox
   }
 
   @override
-  bool hitTestChildren(HitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     return child?.hitTest(result, position: position) ?? false;
   }
 
@@ -225,15 +230,16 @@ class _RenderLayoutBuilder extends RenderBox
 }
 
 FlutterErrorDetails _debugReportException(
-  String context,
+  DiagnosticsNode context,
   dynamic exception,
   StackTrace stack,
 ) {
   final FlutterErrorDetails details = FlutterErrorDetails(
-      exception: exception,
-      stack: stack,
-      library: 'widgets library',
-      context: context);
+    exception: exception,
+    stack: stack,
+    library: 'widgets library',
+    context: context,
+  );
   FlutterError.reportError(details);
   return details;
 }

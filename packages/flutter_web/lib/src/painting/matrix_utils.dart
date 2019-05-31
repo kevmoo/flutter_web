@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -249,6 +250,13 @@ class MatrixUtils {
 
     // Essentially perspective * view * model.
     return result;
+  }
+
+  /// Returns a matrix that transforms every point to [offset].
+  static Matrix4 forceToPoint(Offset offset) {
+    return Matrix4.identity()
+      ..setRow(0, Vector4(0, 0, 0, offset.dx))
+      ..setRow(1, Vector4(0, 0, 0, offset.dy));
   }
 }
 

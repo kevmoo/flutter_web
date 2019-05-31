@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.809545.
 
 export 'package:vector_math/vector_math_64.dart' show Matrix4;
 
@@ -29,6 +30,7 @@ export 'src/widgets/drag_target.dart';
 export 'src/widgets/editable_text.dart';
 export 'src/widgets/fade_in_image.dart';
 export 'src/widgets/focus_scope.dart';
+export 'src/widgets/focus_traversal.dart';
 export 'src/widgets/focus_manager.dart';
 export 'src/widgets/form.dart';
 export 'src/widgets/framework.dart';

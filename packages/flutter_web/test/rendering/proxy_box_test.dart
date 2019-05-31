@@ -1,25 +1,26 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:typed_data';
-
 import 'package:flutter_web/animation.dart';
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/gestures.dart';
 import 'package:flutter_web/rendering.dart';
 import 'package:flutter_web/src/scheduler/ticker.dart';
-import 'package:flutter_web_ui/ui.dart' as ui show Image;
+import 'package:flutter_web_ui/ui.dart' as ui show Image, isWeb;
 import 'package:flutter_web_test/flutter_web_test.dart';
 
 import 'rendering_tester.dart';
 
 void main() {
-  test('RenderFittedBox paint', () {
+  test('RenderFittedBox does not paint with empty sizes', () {
     bool painted;
-    RenderFittedBox makeFittedBox() {
+    RenderFittedBox makeFittedBox(Size size) {
       return RenderFittedBox(
         child: RenderCustomPaint(
+          preferredSize: size,
           painter: TestCallbackPainter(onPaint: () {
             painted = true;
           }),
@@ -27,13 +28,19 @@ void main() {
       );
     }
 
+    // The RenderFittedBox paints if both its size and its child's size are nonempty.
     painted = false;
-    layout(makeFittedBox(), phase: EnginePhase.paint);
+    layout(makeFittedBox(const Size(1, 1)), phase: EnginePhase.paint);
     expect(painted, equals(true));
+
+    // The RenderFittedBox should not paint if its child is empty-sized.
+    painted = false;
+    layout(makeFittedBox(Size.zero), phase: EnginePhase.paint);
+    expect(painted, equals(false));
 
     // The RenderFittedBox should not paint if it is empty.
     painted = false;
-    layout(makeFittedBox(),
+    layout(makeFittedBox(const Size(1, 1)),
         constraints: BoxConstraints.tight(Size.zero), phase: EnginePhase.paint);
     expect(painted, equals(false));
   });
@@ -44,7 +51,7 @@ void main() {
     final RenderPhysicalModel root =
         RenderPhysicalModel(color: const Color(0xffff00ff));
     layout(root, phase: EnginePhase.composite);
-    expect(root.needsCompositing, isFalse);
+    expect(root.needsCompositing, isTrue);
 
     // On Fuchsia, the system compositor is responsible for drawing shadows
     // for physical model layers with non-zero elevation.
@@ -54,7 +61,7 @@ void main() {
 
     root.elevation = 0.0;
     pumpFrame(phase: EnginePhase.composite);
-    expect(root.needsCompositing, isFalse);
+    expect(root.needsCompositing, isTrue);
 
     debugDefaultTargetPlatformOverride = null;
   });
@@ -65,16 +72,16 @@ void main() {
     final RenderPhysicalModel root =
         RenderPhysicalModel(color: const Color(0xffff00ff));
     layout(root, phase: EnginePhase.composite);
-    expect(root.needsCompositing, isFalse);
+    expect(root.needsCompositing, isTrue);
 
-    // On non-Fuchsia platforms, Flutter draws its own shadows.
+    // Flutter now composites physical shapes on all platforms.
     root.elevation = 1.0;
     pumpFrame(phase: EnginePhase.composite);
-    expect(root.needsCompositing, isFalse);
+    expect(root.needsCompositing, isTrue);
 
     root.elevation = 0.0;
     pumpFrame(phase: EnginePhase.composite);
-    expect(root.needsCompositing, isFalse);
+    expect(root.needsCompositing, isTrue);
 
     debugDefaultTargetPlatformOverride = null;
   });
@@ -94,10 +101,10 @@ void main() {
     expect(config.getActionHandler(SemanticsAction.scrollRight), isNotNull);
 
     config = SemanticsConfiguration();
-    renderObj.validActions = <SemanticsAction>[
+    renderObj.validActions = <SemanticsAction>{
       SemanticsAction.tap,
       SemanticsAction.scrollLeft
-    ].toSet();
+    };
 
     renderObj.describeSemanticsConfiguration(config);
     expect(config.getActionHandler(SemanticsAction.tap), isNotNull);
@@ -133,16 +140,16 @@ void main() {
         clipper: const ShapeBorderClipper(shape: CircleBorder()),
       );
       layout(root, phase: EnginePhase.composite);
-      expect(root.needsCompositing, isFalse);
+      expect(root.needsCompositing, isTrue);
 
-      // On non-Fuchsia platforms, Flutter draws its own shadows.
+      // On non-Fuchsia platforms, we composite physical shape layers
       root.elevation = 1.0;
       pumpFrame(phase: EnginePhase.composite);
-      expect(root.needsCompositing, isFalse);
+      expect(root.needsCompositing, isTrue);
 
       root.elevation = 0.0;
       pumpFrame(phase: EnginePhase.composite);
-      expect(root.needsCompositing, isFalse);
+      expect(root.needsCompositing, isTrue);
 
       debugDefaultTargetPlatformOverride = null;
     });
@@ -235,7 +242,7 @@ void main() {
     expect(getPixel(20, 20), equals(0x00000080));
     expect(getPixel(image.width - 1, 0), equals(0x00000000));
     expect(getPixel(image.width - 1, 20), equals(0xffffffff));
-  }, skip: 'layer.toImage() is not implemented yet');
+  }, skip: ui.isWeb);
 
   test('RenderOpacity does not composite if it is transparent', () {
     final RenderOpacity renderOpacity = RenderOpacity(

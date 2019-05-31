@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'package:flutter_web_ui/ui.dart' as ui show Image, Codec, FrameInfo;
@@ -248,7 +249,8 @@ abstract class ImageStreamCompleter extends Diagnosticable {
           FlutterErrorDetails(
             exception: exception,
             library: 'image resource service',
-            context: 'by a synchronously-called image error listener',
+            context: ErrorDescription(
+                'by a synchronously-called image error listener'),
             stack: stack,
           ),
         );
@@ -306,7 +308,7 @@ abstract class ImageStreamCompleter extends Diagnosticable {
       exception: exception,
       stack: stack,
       library: 'image resource service',
-      context: context,
+      context: ErrorDescription(context),
       informationCollector: informationCollector,
       silent: silent,
     );
@@ -326,7 +328,7 @@ abstract class ImageStreamCompleter extends Diagnosticable {
         } catch (exception, stack) {
           FlutterError.reportError(
             FlutterErrorDetails(
-              context: 'by an image error listener',
+              context: ErrorDescription('by an image error listener'),
               library: 'image resource service',
               exception: exception,
               stack: stack,

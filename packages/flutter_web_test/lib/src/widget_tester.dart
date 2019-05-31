@@ -1,3 +1,4 @@
+// Synced 2019-05-30T14:20:57.821452.
 import 'dart:async';
 
 import 'package:flutter_web/gestures.dart';
@@ -54,8 +55,13 @@ typedef WidgetTesterCallback = Future<void> Function(WidgetTester widgetTester);
 ///     });
 /// ```
 @isTest
-void testWidgets(String description, WidgetTesterCallback callback,
-    {bool skip = false, test_package.Timeout timeout}) {
+void testWidgets(
+  String description,
+  WidgetTesterCallback callback, {
+  bool skip = false,
+  test_package.Timeout timeout,
+  bool semanticsEnabled = false,
+}) {
   debugIsInTest = true;
 
   final Future<void> webEngineInitialization =
@@ -67,10 +73,17 @@ void testWidgets(String description, WidgetTesterCallback callback,
   timeout ??= binding.defaultTestTimeout;
   test_package.test(description, () async {
     await webEngineInitialization;
+    SemanticsHandle semanticsHandle;
+    if (semanticsEnabled == true) {
+      semanticsHandle = tester.ensureSemantics();
+    }
     tester._recordNumberOfSemanticsHandles();
     test_package.addTearDown(binding.postTest);
     return binding.runTest(
-      () => callback(tester),
+      () async {
+        await callback(tester);
+        semanticsHandle?.dispose();
+      },
       tester._endOfTestVerifications,
       description: description ?? '',
     );

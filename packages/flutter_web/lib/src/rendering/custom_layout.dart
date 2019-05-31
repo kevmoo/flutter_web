@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.464043.
 
 import 'package:flutter_web/foundation.dart';
 
@@ -45,7 +46,7 @@ class MultiChildLayoutParentData extends ContainerBoxParentData<RenderBox> {
 /// identifies it to the delegate. The [LayoutId.id] needs to be unique among
 /// the children that the [CustomMultiChildLayout] manages.
 ///
-/// ## Sample code
+/// {@tool sample}
 ///
 /// Below is an example implementation of [performLayout] that causes one widget
 /// (the follower) to be the same size as another (the leader):
@@ -80,6 +81,7 @@ class MultiChildLayoutParentData extends ContainerBoxParentData<RenderBox> {
 ///   bool shouldRelayout(MultiChildLayoutDelegate oldDelegate) => false;
 /// }
 /// ```
+/// {@end-tool}
 ///
 /// The delegate gives the leader widget loose constraints, which means the
 /// child determines what size to be (subject to fitting within the given size).
@@ -177,7 +179,7 @@ abstract class MultiChildLayoutDelegate {
     Set<RenderBox> debugPreviousChildrenNeedingLayout;
     assert(() {
       debugPreviousChildrenNeedingLayout = _debugChildrenNeedingLayout;
-      _debugChildrenNeedingLayout = Set<RenderBox>();
+      _debugChildrenNeedingLayout = <RenderBox>{};
       return true;
     }());
 
@@ -207,7 +209,7 @@ abstract class MultiChildLayoutDelegate {
           if (_debugChildrenNeedingLayout.length > 1) {
             throw FlutterError(
                 'The $this custom multichild layout delegate forgot to lay out the following children:\n'
-                '  ${_debugChildrenNeedingLayout.map(_debugDescribeChild).join("\n  ")}\n'
+                '  ${_debugChildrenNeedingLayout.map<String>(_debugDescribeChild).join("\n  ")}\n'
                 'Each child must be laid out exactly once.');
           } else {
             throw FlutterError(
@@ -274,9 +276,10 @@ class RenderCustomMultiChildLayoutBox extends RenderBox
   /// Creates a render object that customizes the layout of multiple children.
   ///
   /// The [delegate] argument must not be null.
-  RenderCustomMultiChildLayoutBox(
-      {List<RenderBox> children, @required MultiChildLayoutDelegate delegate})
-      : assert(delegate != null),
+  RenderCustomMultiChildLayoutBox({
+    List<RenderBox> children,
+    @required MultiChildLayoutDelegate delegate,
+  })  : assert(delegate != null),
         _delegate = delegate {
     addAll(children);
   }
@@ -351,7 +354,7 @@ class RenderCustomMultiChildLayoutBox extends RenderBox
   }
 
   @override
-  bool hitTestChildren(HitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
 }

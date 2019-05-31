@@ -1,3 +1,4 @@
+// Synced 2019-05-30T14:20:57.803608.
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -713,8 +714,10 @@ class _EqualsIgnoringHashCodes extends Matcher {
 
   static final Object _mismatchedValueKey = Object();
 
+  // TODO(flutter_web): upstream so that uppercase ending runtimeType is
+  // correctly matched.
   static String _normalize(String s) {
-    return s.replaceAll(RegExp(r'#[0-9a-f]{5}'), '#00000');
+    return s.replaceAll(RegExp(r'#[0-9a-fA-F]{5}'), '#00000');
   }
 
   @override
@@ -758,9 +761,13 @@ class _EqualsIgnoringHashCodes extends Matcher {
         const int snippetLength = 20;
         int len = math.min(
             math.min(valueLength - i, actualLength - i), snippetLength);
+        String before =
+            _EqualsIgnoringHashCodes._normalize(_value.substring(i, i + len));
+        String after = _EqualsIgnoringHashCodes._normalize(
+            actualValue.substring(i, i + len));
         mismatchDescription.add('Mismatch at offset $i '
-            '[${_value.substring(i, i + len)}] => '
-            '[${actualValue.substring(i, i + len)}]');
+            '[$before] => '
+            '[$after]');
       }
       return mismatchDescription
           .add('expected normalized value\n  ')

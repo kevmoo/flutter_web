@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:developer';
@@ -246,7 +247,7 @@ mixin RendererBinding
       // the logical coordinates of the event location back to device pixels
       // here.
       return renderView.layer
-          .find<MouseTrackerAnnotation>(offset * window.devicePixelRatio);
+          .findAll<MouseTrackerAnnotation>(offset * window.devicePixelRatio);
     });
   }
 

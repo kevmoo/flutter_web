@@ -1,3 +1,4 @@
+// Synced 2019-05-30T14:20:57.788350.
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web/rendering.dart';
 import 'package:flutter_web_ui/ui.dart' as ui;
@@ -8,6 +9,7 @@ import 'package:test/test.dart' as test_package;
 
 export 'dart:async' show Future;
 
+export 'src/accessibility.dart';
 export 'src/binding.dart';
 export 'src/controller.dart';
 export 'src/finders.dart';

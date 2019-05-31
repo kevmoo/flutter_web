@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.292280.
 
 import 'package:flutter_web/rendering.dart';
 import 'package:flutter_web/widgets.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_web/widgets.dart';
 import 'ink_well.dart' show InteractiveInkFeature;
 import 'material.dart';
 
-const Duration _kHighlightFadeDuration = Duration(milliseconds: 200);
+const Duration _kDefaultHighlightFadeDuration = Duration(milliseconds: 200);
 
 /// A visual emphasis on a part of a [Material] receiving user interaction.
 ///
@@ -45,9 +46,11 @@ class InkHighlight extends InteractiveInkFeature {
     ShapeBorder customBorder,
     RectCallback rectCallback,
     VoidCallback onRemoved,
+    Duration fadeDuration = _kDefaultHighlightFadeDuration,
   })  : assert(color != null),
         assert(shape != null),
         assert(textDirection != null),
+        assert(fadeDuration != null),
         _shape = shape,
         _borderRadius = borderRadius ?? BorderRadius.zero,
         _customBorder = customBorder,
@@ -58,11 +61,11 @@ class InkHighlight extends InteractiveInkFeature {
             referenceBox: referenceBox,
             color: color,
             onRemoved: onRemoved) {
-    _alphaController = AnimationController(
-        duration: _kHighlightFadeDuration, vsync: controller.vsync)
-      ..addListener(controller.markNeedsPaint)
-      ..addStatusListener(_handleAlphaStatusChanged)
-      ..forward();
+    _alphaController =
+        AnimationController(duration: fadeDuration, vsync: controller.vsync)
+          ..addListener(controller.markNeedsPaint)
+          ..addStatusListener(_handleAlphaStatusChanged)
+          ..forward();
     _alpha = _alphaController.drive(IntTween(
       begin: 0,
       end: color.alpha,

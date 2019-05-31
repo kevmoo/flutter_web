@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:developer' as developer;
@@ -745,6 +746,12 @@ mixin WidgetsBinding
     ).attachToRenderTree(buildOwner, renderViewElement);
   }
 
+  /// Whether the [renderViewElement] has been initialized.
+  ///
+  /// This will be false until [runApp] is called (or [WidgetTester.pumpWidget]
+  /// is called in the context of a [TestWidgetsFlutterBinding]).
+  bool get isRootWidgetAttached => _renderViewElement != null;
+
   @override
   Future<void> performReassemble() {
     assert(() {
@@ -957,7 +964,7 @@ class RenderObjectToWidgetElement<T extends RenderObject>
         exception: exception,
         stack: stack,
         library: 'widgets library',
-        context: 'attaching to the render tree',
+        context: ErrorDescription('attaching to the render tree'),
       );
       FlutterError.reportError(details);
       final Widget error = ErrorWidget.builder(details);

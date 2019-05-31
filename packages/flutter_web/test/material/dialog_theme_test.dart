@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web/rendering.dart';
@@ -10,19 +11,23 @@ MaterialApp _appWithAlertDialog(WidgetTester tester, AlertDialog dialog,
     {ThemeData theme}) {
   return MaterialApp(
     theme: theme,
-    home: Material(child: Builder(builder: (BuildContext context) {
-      return Center(
+    home: Material(
+      child: Builder(builder: (BuildContext context) {
+        return Center(
           child: RaisedButton(
-              child: const Text('X'),
-              onPressed: () {
-                showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return RepaintBoundary(key: _painterKey, child: dialog);
-                  },
-                );
-              }));
-    })),
+            child: const Text('X'),
+            onPressed: () {
+              showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return RepaintBoundary(key: _painterKey, child: dialog);
+                },
+              );
+            },
+          ),
+        );
+      }),
+    ),
   );
 }
 
@@ -46,19 +51,19 @@ void main() {
       (WidgetTester tester) async {
     final DiagnosticPropertiesBuilder builder = DiagnosticPropertiesBuilder();
     const DialogTheme(
-            backgroundColor: Color(0xff123456),
-            elevation: 8.0,
-            shape: null,
-            titleTextStyle: TextStyle(color: Color(0xffffffff)),
-            contentTextStyle: TextStyle(color: Color(0xff000000)))
-        .debugFillProperties(builder);
+      backgroundColor: Color(0xff123456),
+      elevation: 8.0,
+      shape: null,
+      titleTextStyle: TextStyle(color: Color(0xffffffff)),
+      contentTextStyle: TextStyle(color: Color(0xff000000)),
+    ).debugFillProperties(builder);
     final List<String> description = builder.properties
         .where((DiagnosticsNode n) => !n.isFiltered(DiagnosticLevel.info))
         .map((DiagnosticsNode n) => n.toString())
         .toList();
     expect(description, <String>[
       'backgroundColor: Color(0xff123456)',
-      'elevation: 8',
+      'elevation: 8.0',
       'titleTextStyle: TextStyle(inherit: true, color: Color(0xffffffff))',
       'contentTextStyle: TextStyle(inherit: true, color: Color(0xff000000))',
     ]);
@@ -131,13 +136,12 @@ void main() {
     await tester.tap(find.text('X'));
     await tester.pumpAndSettle();
 
-    // TODO(flutter_web): golden support.
-//    await expectLater(
-//      find.byKey(_painterKey),
-//      matchesGoldenFile('dialog_theme.dialog_with_custom_border.png'),
-//      skip: !Platform.isLinux,
-//    );
-  });
+    await expectLater(
+      find.byKey(_painterKey),
+      matchesGoldenFile('dialog_theme.dialog_with_custom_border.png'),
+      skip: true,
+    );
+  }, skip: true); // TODO(flutter_web): reenable when goldens are supported.
 
   testWidgets('Custom Title Text Style - Constructor Param',
       (WidgetTester tester) async {

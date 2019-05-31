@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.570200.
 
 import 'dart:math' as math;
 
@@ -8,7 +9,6 @@ import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/gestures.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-import 'binding.dart';
 import 'debug.dart';
 import 'object.dart';
 import 'sliver.dart';
@@ -293,12 +293,19 @@ class RenderSliverPadding extends RenderSliver
   }
 
   @override
-  bool hitTestChildren(HitTestResult result,
+  bool hitTestChildren(SliverHitTestResult result,
       {@required double mainAxisPosition, @required double crossAxisPosition}) {
-    if (child != null && child.geometry.hitTestExtent > 0.0)
-      return child.hitTest(result,
-          mainAxisPosition: mainAxisPosition - childMainAxisPosition(child),
-          crossAxisPosition: crossAxisPosition - childCrossAxisPosition(child));
+    if (child != null && child.geometry.hitTestExtent > 0.0) {
+      final SliverPhysicalParentData childParentData = child.parentData;
+      result.addWithAxisOffset(
+        mainAxisPosition: mainAxisPosition,
+        crossAxisPosition: crossAxisPosition,
+        mainAxisOffset: childMainAxisPosition(child),
+        crossAxisOffset: childCrossAxisPosition(child),
+        paintOffset: childParentData.paintOffset,
+        hitTest: child.hitTest,
+      );
+    }
     return false;
   }
 

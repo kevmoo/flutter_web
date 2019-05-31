@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.125425.
 
 import 'package:flutter_web_ui/ui.dart' show VoidCallback;
 
@@ -124,14 +125,19 @@ mixin AnimationLocalListenersMixin {
         if (_listeners.contains(listener)) listener();
       } catch (exception, stack) {
         FlutterError.reportError(FlutterErrorDetails(
-            exception: exception,
-            stack: stack,
-            library: 'animation library',
-            context: 'while notifying listeners for $runtimeType',
-            informationCollector: (StringBuffer information) {
-              information.writeln('The $runtimeType notifying listeners was:');
-              information.write('  $this');
-            }));
+          exception: exception,
+          stack: stack,
+          library: 'animation library',
+          context:
+              ErrorDescription('while notifying listeners for $runtimeType'),
+          informationCollector: () sync* {
+            yield DiagnosticsProperty<AnimationLocalListenersMixin>(
+              'The $runtimeType notifying listeners was',
+              this,
+              style: DiagnosticsTreeStyle.errorProperty,
+            );
+          },
+        ));
       }
     }
   }
@@ -190,15 +196,19 @@ mixin AnimationLocalStatusListenersMixin {
         if (_statusListeners.contains(listener)) listener(status);
       } catch (exception, stack) {
         FlutterError.reportError(FlutterErrorDetails(
-            exception: exception,
-            stack: stack,
-            library: 'animation library',
-            context: 'while notifying status listeners for $runtimeType',
-            informationCollector: (StringBuffer information) {
-              information
-                  .writeln('The $runtimeType notifying status listeners was:');
-              information.write('  $this');
-            }));
+          exception: exception,
+          stack: stack,
+          library: 'animation library',
+          context: ErrorDescription(
+              'while notifying status listeners for $runtimeType'),
+          informationCollector: () sync* {
+            yield DiagnosticsProperty<AnimationLocalStatusListenersMixin>(
+              'The $runtimeType notifying status listeners was',
+              this,
+              style: DiagnosticsTreeStyle.errorProperty,
+            );
+          },
+        ));
       }
     }
   }

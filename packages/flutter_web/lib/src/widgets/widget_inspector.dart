@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:collection';
@@ -63,6 +64,9 @@ class _ProxyLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => _layer.find(regionOffset);
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 /// A [Canvas] that multicasts all method calls to a main canvas and a
@@ -2837,6 +2841,9 @@ class _InspectorOverlayLayer extends Layer {
 
   @override
   S find<S>(Offset regionOffset) => null;
+
+  @override
+  Iterable<S> findAll<S>(Offset regionOffset) => <S>[];
 }
 
 const double _kScreenEdgeMargin = 10.0;

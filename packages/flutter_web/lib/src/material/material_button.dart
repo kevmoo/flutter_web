@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.333115.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/rendering.dart';
@@ -23,7 +24,7 @@ import 'theme_data.dart';
 /// an enabled button, make sure to pass a non-null value for onPressed.
 ///
 /// Rather than using this class directly, consider using [FlatButton],
-/// OutlineButton, or [RaisedButton], which configure this class with
+/// [OutlineButton], or [RaisedButton], which configure this class with
 /// appropriate defaults that match the material design specification.
 ///
 /// To create a button directly, without inheriting theme defaults, use
@@ -50,15 +51,20 @@ class MaterialButton extends StatelessWidget {
     this.disabledTextColor,
     this.color,
     this.disabledColor,
+    this.focusColor,
+    this.hoverColor,
     this.highlightColor,
     this.splashColor,
     this.colorBrightness,
     this.elevation,
+    this.focusElevation,
+    this.hoverElevation,
     this.highlightElevation,
     this.disabledElevation,
     this.padding,
     this.shape,
     this.clipBehavior = Clip.none,
+    this.focusNode,
     this.materialTapTargetSize,
     this.animationDuration,
     this.minWidth,
@@ -145,6 +151,19 @@ class MaterialButton extends StatelessWidget {
   /// factory, [ThemeData.splashFactory].
   final Color splashColor;
 
+  /// The fill color of the button's [Material] when it has the input focus.
+  ///
+  /// The button changed focus color when the button has the input focus. It
+  /// appears behind the button's child.
+  final Color focusColor;
+
+  /// The fill color of the button's [Material] when a pointer is hovering over
+  /// it.
+  ///
+  /// The button changes fill color when a pointer is hovering over the button.
+  /// It appears behind the button's child.
+  final Color hoverColor;
+
   /// The highlight color of the button's [InkWell].
   ///
   /// The highlight indicates that the button is actively being pressed. It
@@ -166,9 +185,39 @@ class MaterialButton extends StatelessWidget {
   /// See also:
   ///
   ///  * [FlatButton], a button with no elevation or fill color.
+  ///  * [focusElevation], the elevation when the button is focused.
+  ///  * [hoverElevation], the elevation when a pointer is hovering over the
+  ///    button.
   ///  * [disabledElevation], the elevation when the button is disabled.
   ///  * [highlightElevation], the elevation when the button is pressed.
   final double elevation;
+
+  /// The elevation for the button's [Material] when the button
+  /// is [enabled] and a pointer is hovering over it.
+  ///
+  /// Defaults to 4.0. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  ///  * [focusElevation], the elevation when the button is focused.
+  ///  * [disabledElevation], the elevation when the button is disabled.
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  final double hoverElevation;
+
+  /// The elevation for the button's [Material] when the button
+  /// is [enabled] and has the input focus.
+  ///
+  /// Defaults to 4.0. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  ///  * [hoverElevation], the elevation when a pointer is hovering over the
+  ///    button.
+  ///  * [disabledElevation], the elevation when the button is disabled.
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  final double focusElevation;
 
   /// The elevation for the button's [Material] relative to its parent when the
   /// button is [enabled] and pressed.
@@ -182,6 +231,9 @@ class MaterialButton extends StatelessWidget {
   /// See also:
   ///
   ///  * [elevation], the default elevation.
+  ///  * [focusElevation], the elevation when the button is focused.
+  ///  * [hoverElevation], the elevation when a pointer is hovering over the
+  ///    button.
   ///  * [disabledElevation], the elevation when the button is disabled.
   final double highlightElevation;
 
@@ -223,10 +275,21 @@ class MaterialButton extends StatelessWidget {
   /// The button's highlight and splash are clipped to this shape. If the
   /// button has an elevation, then its drop shadow is defined by this
   /// shape as well.
+  ///
+  /// Defaults to the value from the current [ButtonTheme],
+  /// [ButtonThemeData.shape].
   final ShapeBorder shape;
 
   /// {@macro flutter.widgets.Clip}
   final Clip clipBehavior;
+
+  /// An optional focus node to use for requesting focus when pressed.
+  ///
+  /// If not supplied, the button will create and host its own [FocusNode].
+  ///
+  /// If supplied, the given focusNode will be _hosted_ by this widget. See
+  /// [FocusNode] for more information on what that implies.
+  final FocusNode focusNode;
 
   /// Defines the duration of animated changes for [shape] and [elevation].
   ///
@@ -260,20 +323,27 @@ class MaterialButton extends StatelessWidget {
     return RawMaterialButton(
       onPressed: onPressed,
       onHighlightChanged: onHighlightChanged,
-      fillColor: color,
+      fillColor: buttonTheme.getFillColor(this),
       textStyle: theme.textTheme.button
           .copyWith(color: buttonTheme.getTextColor(this)),
+      focusColor:
+          focusColor ?? buttonTheme.getFocusColor(this) ?? theme.focusColor,
+      hoverColor:
+          hoverColor ?? buttonTheme.getHoverColor(this) ?? theme.hoverColor,
       highlightColor: highlightColor ?? theme.highlightColor,
       splashColor: splashColor ?? theme.splashColor,
       elevation: buttonTheme.getElevation(this),
+      focusElevation: buttonTheme.getFocusElevation(this),
+      hoverElevation: buttonTheme.getHoverElevation(this),
       highlightElevation: buttonTheme.getHighlightElevation(this),
       padding: buttonTheme.getPadding(this),
       constraints: buttonTheme.getConstraints(this).copyWith(
             minWidth: minWidth,
             minHeight: height,
           ),
-      shape: buttonTheme.shape,
+      shape: buttonTheme.getShape(this),
       clipBehavior: clipBehavior ?? Clip.none,
+      focusNode: focusNode,
       animationDuration: buttonTheme.getAnimationDuration(this),
       child: child,
       materialTapTargetSize:
@@ -284,8 +354,39 @@ class MaterialButton extends StatelessWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
+    properties.add(ObjectFlagProperty<VoidCallback>('onPressed', onPressed,
+        ifNull: 'disabled'));
+    properties.add(DiagnosticsProperty<ButtonTextTheme>('textTheme', textTheme,
+        defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<Color>('textColor', textColor, defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>(
+        'disabledTextColor', disabledTextColor,
+        defaultValue: null));
     properties
-        .add(FlagProperty('enabled', value: enabled, ifFalse: 'disabled'));
+        .add(DiagnosticsProperty<Color>('color', color, defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('disabledColor', disabledColor,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('focusColor', focusColor,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('hoverColor', hoverColor,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('highlightColor', highlightColor,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('splashColor', splashColor,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Brightness>(
+        'colorBrightness', colorBrightness,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding,
+        defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<ShapeBorder>('shape', shape, defaultValue: null));
+    properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<MaterialTapTargetSize>(
+        'materialTapTargetSize', materialTapTargetSize,
+        defaultValue: null));
   }
 }
 

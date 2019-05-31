@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.274078.
 
 import 'package:flutter_web_ui/ui.dart' show lerpDouble;
 
@@ -92,12 +93,13 @@ class DialogTheme extends Diagnosticable {
   static DialogTheme lerp(DialogTheme a, DialogTheme b, double t) {
     assert(t != null);
     return DialogTheme(
-        backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
-        elevation: lerpDouble(a?.elevation, b?.elevation, t),
-        shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
-        titleTextStyle: TextStyle.lerp(a?.titleTextStyle, b?.titleTextStyle, t),
-        contentTextStyle:
-            TextStyle.lerp(a?.contentTextStyle, b?.contentTextStyle, t));
+      backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
+      elevation: lerpDouble(a?.elevation, b?.elevation, t),
+      shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
+      titleTextStyle: TextStyle.lerp(a?.titleTextStyle, b?.titleTextStyle, t),
+      contentTextStyle:
+          TextStyle.lerp(a?.contentTextStyle, b?.contentTextStyle, t),
+    );
   }
 
   @override

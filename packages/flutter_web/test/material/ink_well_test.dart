@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web/rendering.dart';
@@ -91,6 +92,84 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.longPress(find.byType(InkWell), pointer: 1);
     await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('ink well changes color on hover', (WidgetTester tester) async {
+    await tester.pumpWidget(Material(
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: Container(
+            width: 100,
+            height: 100,
+            child: InkWell(
+                hoverColor: const Color(0xff00ff00),
+                splashColor: const Color(0xffff0000),
+                focusColor: const Color(0xff0000ff),
+                highlightColor: const Color(0xf00fffff),
+                onTap: () {},
+                onLongPress: () {},
+                onHover: (bool hover) {}),
+          ),
+        ),
+      ),
+    ));
+    final TestGesture gesture =
+        await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer();
+    await gesture.moveTo(tester.getCenter(find.byType(Container)));
+    await tester.pumpAndSettle();
+    final RenderObject inkFeatures = tester.allRenderObjects.firstWhere(
+        (RenderObject object) =>
+            object.runtimeType.toString() == '_RenderInkFeatures');
+    expect(
+        inkFeatures,
+        paints
+          ..rect(
+              rect: const Rect.fromLTRB(350.0, 250.0, 450.0, 350.0),
+              color: const Color(0xff00ff00)));
+
+    await gesture.removePointer();
+  }, skip: true); // TODO(flutter_web): re-enable.
+
+  testWidgets('ink response changes color on focus',
+      (WidgetTester tester) async {
+    final FocusNode focusNode = FocusNode(debugLabel: 'Ink Focus');
+    await tester.pumpWidget(Material(
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: Focus(
+            focusNode: focusNode,
+            child: Container(
+              width: 100,
+              height: 100,
+              child: InkWell(
+                  hoverColor: const Color(0xff00ff00),
+                  splashColor: const Color(0xffff0000),
+                  focusColor: const Color(0xff0000ff),
+                  highlightColor: const Color(0xf00fffff),
+                  onTap: () {},
+                  onLongPress: () {},
+                  onHover: (bool hover) {}),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final RenderObject inkFeatures = tester.allRenderObjects.firstWhere(
+        (RenderObject object) =>
+            object.runtimeType.toString() == '_RenderInkFeatures');
+    expect(inkFeatures, paintsExactlyCountTimes(#rect, 0));
+    focusNode.requestFocus();
+    await tester.pumpAndSettle();
+    expect(
+        inkFeatures,
+        paints
+          ..rect(
+              rect: const Rect.fromLTRB(350.0, 250.0, 450.0, 350.0),
+              color: const Color(0xff0000ff)));
   });
 
   group('feedback', () {

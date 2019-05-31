@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:developer' as developer;
@@ -1584,7 +1585,7 @@ class NavigatorState extends State<Navigator> with TickerProviderStateMixin {
     for (Route<dynamic> route in doomed) route.dispose();
     _poppedRoutes.clear();
     _history.clear();
-    focusScopeNode.detach();
+    focusScopeNode.dispose();
     super.dispose();
     assert(() {
       _debugLocked = false;

@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.945462.
 
 import 'package:flutter_web/material.dart';
 import 'package:flutter_web_test/flutter_web_test.dart';
@@ -63,22 +64,6 @@ void main() {
     expect(
         lightTheme.accentTextTheme.title.color, typography.black.title.color);
     expect(darkTheme.accentTextTheme.title.color, typography.white.title.color);
-  });
-
-  test(
-      'Default slider indicator style gets a default body2 if accentTextTheme.body2 is null',
-      () {
-    const TextTheme noBody2TextTheme = TextTheme(body2: null);
-    final ThemeData lightTheme = ThemeData(
-        brightness: Brightness.light, accentTextTheme: noBody2TextTheme);
-    final ThemeData darkTheme = ThemeData(
-        brightness: Brightness.dark, accentTextTheme: noBody2TextTheme);
-    final Typography typography = Typography(platform: lightTheme.platform);
-
-    expect(lightTheme.sliderTheme.valueIndicatorTextStyle,
-        equals(typography.white.body2));
-    expect(darkTheme.sliderTheme.valueIndicatorTextStyle,
-        equals(typography.black.body2));
   });
 
   test(

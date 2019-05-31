@@ -1,6 +1,7 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.343250.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web_ui/ui.dart';
@@ -41,7 +42,7 @@ const Duration _kElevationDuration = Duration(milliseconds: 75);
 /// If you want an ink-splash effect for taps, but don't want to use a button,
 /// consider using [InkWell] directly.
 ///
-/// Outline buttons have a minimum size of 88.0 by 36.0 which can be overidden
+/// Outline buttons have a minimum size of 88.0 by 36.0 which can be overridden
 /// with [ButtonTheme].
 ///
 /// See also:
@@ -65,6 +66,8 @@ class OutlineButton extends MaterialButton {
     Color textColor,
     Color disabledTextColor,
     Color color,
+    Color focusColor,
+    Color hoverColor,
     Color highlightColor,
     Color splashColor,
     double highlightElevation,
@@ -73,7 +76,8 @@ class OutlineButton extends MaterialButton {
     this.highlightedBorderColor,
     EdgeInsetsGeometry padding,
     ShapeBorder shape,
-    Clip clipBehavior = Clip.none,
+    Clip clipBehavior,
+    FocusNode focusNode,
     Widget child,
   })  : assert(highlightElevation == null || highlightElevation >= 0.0),
         super(
@@ -83,12 +87,15 @@ class OutlineButton extends MaterialButton {
           textColor: textColor,
           disabledTextColor: disabledTextColor,
           color: color,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
           highlightColor: highlightColor,
           splashColor: splashColor,
           highlightElevation: highlightElevation,
           padding: padding,
           shape: shape,
           clipBehavior: clipBehavior,
+          focusNode: focusNode,
           child: child,
         );
 
@@ -107,6 +114,8 @@ class OutlineButton extends MaterialButton {
     Color textColor,
     Color disabledTextColor,
     Color color,
+    Color focusColor,
+    Color hoverColor,
     Color highlightColor,
     Color splashColor,
     double highlightElevation,
@@ -116,6 +125,7 @@ class OutlineButton extends MaterialButton {
     EdgeInsetsGeometry padding,
     ShapeBorder shape,
     Clip clipBehavior,
+    FocusNode focusNode,
     @required Widget icon,
     @required Widget label,
   }) = _OutlineButtonWithIcon;
@@ -152,6 +162,8 @@ class OutlineButton extends MaterialButton {
       textColor: buttonTheme.getTextColor(this),
       disabledTextColor: buttonTheme.getDisabledTextColor(this),
       color: color,
+      focusColor: buttonTheme.getFocusColor(this),
+      hoverColor: buttonTheme.getHoverColor(this),
       highlightColor: buttonTheme.getHighlightColor(this),
       splashColor: buttonTheme.getSplashColor(this),
       highlightElevation: buttonTheme.getHighlightElevation(this),
@@ -162,6 +174,7 @@ class OutlineButton extends MaterialButton {
       padding: buttonTheme.getPadding(this),
       shape: buttonTheme.getShape(this),
       clipBehavior: clipBehavior,
+      focusNode: focusNode,
       child: child,
     );
   }
@@ -169,24 +182,6 @@ class OutlineButton extends MaterialButton {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(ObjectFlagProperty<VoidCallback>('onPressed', onPressed,
-        ifNull: 'disabled'));
-    properties.add(DiagnosticsProperty<ButtonTextTheme>('textTheme', textTheme,
-        defaultValue: null));
-    properties.add(
-        DiagnosticsProperty<Color>('textColor', textColor, defaultValue: null));
-    properties.add(DiagnosticsProperty<Color>(
-        'disabledTextColor', disabledTextColor,
-        defaultValue: null));
-    properties
-        .add(DiagnosticsProperty<Color>('color', color, defaultValue: null));
-    properties.add(DiagnosticsProperty<Color>('highlightColor', highlightColor,
-        defaultValue: null));
-    properties.add(DiagnosticsProperty<Color>('splashColor', splashColor,
-        defaultValue: null));
-    properties.add(DiagnosticsProperty<double>(
-        'highlightElevation', highlightElevation,
-        defaultValue: null));
     properties.add(DiagnosticsProperty<BorderSide>('borderSide', borderSide,
         defaultValue: null));
     properties.add(DiagnosticsProperty<Color>(
@@ -195,10 +190,6 @@ class OutlineButton extends MaterialButton {
     properties.add(DiagnosticsProperty<Color>(
         'highlightedBorderColor', highlightedBorderColor,
         defaultValue: null));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding,
-        defaultValue: null));
-    properties.add(
-        DiagnosticsProperty<ShapeBorder>('shape', shape, defaultValue: null));
   }
 }
 
@@ -215,6 +206,8 @@ class _OutlineButtonWithIcon extends OutlineButton
     Color textColor,
     Color disabledTextColor,
     Color color,
+    Color focusColor,
+    Color hoverColor,
     Color highlightColor,
     Color splashColor,
     double highlightElevation,
@@ -224,6 +217,7 @@ class _OutlineButtonWithIcon extends OutlineButton
     EdgeInsetsGeometry padding,
     ShapeBorder shape,
     Clip clipBehavior,
+    FocusNode focusNode,
     @required Widget icon,
     @required Widget label,
   })  : assert(highlightElevation == null || highlightElevation >= 0.0),
@@ -236,6 +230,8 @@ class _OutlineButtonWithIcon extends OutlineButton
           textColor: textColor,
           disabledTextColor: disabledTextColor,
           color: color,
+          focusColor: focusColor,
+          hoverColor: hoverColor,
           highlightColor: highlightColor,
           splashColor: splashColor,
           highlightElevation: highlightElevation,
@@ -245,6 +241,7 @@ class _OutlineButtonWithIcon extends OutlineButton
           padding: padding,
           shape: shape,
           clipBehavior: clipBehavior,
+          focusNode: focusNode,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -265,6 +262,8 @@ class _OutlineButton extends StatefulWidget {
     this.textColor,
     this.disabledTextColor,
     this.color,
+    this.focusColor,
+    this.hoverColor,
     this.highlightColor,
     this.splashColor,
     @required this.highlightElevation,
@@ -274,6 +273,7 @@ class _OutlineButton extends StatefulWidget {
     this.padding,
     this.shape,
     this.clipBehavior,
+    this.focusNode,
     this.child,
   })  : assert(highlightElevation != null && highlightElevation >= 0.0),
         assert(highlightedBorderColor != null),
@@ -286,6 +286,8 @@ class _OutlineButton extends StatefulWidget {
   final Color disabledTextColor;
   final Color color;
   final Color splashColor;
+  final Color focusColor;
+  final Color hoverColor;
   final Color highlightColor;
   final double highlightElevation;
   final BorderSide borderSide;
@@ -294,6 +296,7 @@ class _OutlineButton extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final ShapeBorder shape;
   final Clip clipBehavior;
+  final FocusNode focusNode;
   final Widget child;
 
   bool get enabled => onPressed != null;
@@ -321,7 +324,10 @@ class _OutlineButtonState extends State<_OutlineButton>
     // button's fill is translucent, because the shadow fills the
     // interior of the button.
 
-    _controller = AnimationController(duration: _kPressDuration, vsync: this);
+    _controller = AnimationController(
+      duration: _kPressDuration,
+      vsync: this,
+    );
     _fillAnimation = CurvedAnimation(
       parent: _controller,
       curve: const Interval(
@@ -410,11 +416,15 @@ class _OutlineButtonState extends State<_OutlineButton>
           disabledTextColor: widget.disabledTextColor,
           color: _getFillColor(),
           splashColor: widget.splashColor,
+          focusColor: widget.focusColor,
+          hoverColor: widget.hoverColor,
           highlightColor: widget.highlightColor,
           disabledColor: Colors.transparent,
           onPressed: widget.onPressed,
           elevation: 0.0,
           disabledElevation: 0.0,
+          focusElevation: 0.0,
+          hoverElevation: 0.0,
           highlightElevation: _getHighlightElevation(),
           onHighlightChanged: _handleHighlightChanged,
           padding: widget.padding,
@@ -423,6 +433,7 @@ class _OutlineButtonState extends State<_OutlineButton>
             side: _getOutline(),
           ),
           clipBehavior: widget.clipBehavior,
+          focusNode: widget.focusNode,
           animationDuration: _kElevationDuration,
           child: widget.child,
         );

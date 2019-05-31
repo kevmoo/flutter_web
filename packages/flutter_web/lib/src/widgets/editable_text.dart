@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'package:flutter_web_ui/ui.dart' as ui;
@@ -699,6 +700,7 @@ class EditableTextState extends State<EditableText>
 
   final LayerLink _layerLink = LayerLink();
   bool _didAutoFocus = false;
+  FocusAttachment _focusAttachment;
 
   // This value is an eyeball estimation of the time it takes for the iOS cursor
   // to ease in and out.
@@ -722,6 +724,7 @@ class EditableTextState extends State<EditableText>
   void initState() {
     super.initState();
     widget.controller.addListener(_didChangeTextEditingValue);
+    _focusAttachment = widget.focusNode.attach(context);
     widget.focusNode.addListener(_handleFocusChanged);
     _scrollController.addListener(() {
       _selectionOverlay?.updateForScroll();
@@ -752,6 +755,8 @@ class EditableTextState extends State<EditableText>
     }
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode.removeListener(_handleFocusChanged);
+      _focusAttachment?.detach();
+      _focusAttachment = widget.focusNode.attach(context);
       widget.focusNode.addListener(_handleFocusChanged);
       updateKeepAlive();
     }
@@ -768,6 +773,7 @@ class EditableTextState extends State<EditableText>
     assert(_cursorTimer == null);
     _selectionOverlay?.dispose();
     _selectionOverlay = null;
+    _focusAttachment.detach();
     widget.focusNode.removeListener(_handleFocusChanged);
     super.dispose();
   }
@@ -1023,11 +1029,7 @@ class EditableTextState extends State<EditableText>
     if (_hasFocus) {
       _openInputConnection();
     } else {
-      final List<FocusScopeNode> ancestorScopes =
-          FocusScope.ancestorsOf(context);
-      for (int i = ancestorScopes.length - 1; i >= 1; i -= 1)
-        ancestorScopes[i].setFirstFocus(ancestorScopes[i - 1]);
-      FocusScope.of(context).requestFocus(widget.focusNode);
+      widget.focusNode.requestFocus();
     }
   }
 
@@ -1350,7 +1352,7 @@ class EditableTextState extends State<EditableText>
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
-    FocusScope.of(context).reparentIfNeeded(widget.focusNode);
+    _focusAttachment.reparent();
     super.build(context); // See AutomaticKeepAliveClientMixin.
 
     final TextSelectionControls controls = widget.selectionControls;

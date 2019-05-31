@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.435038.
 
 import 'package:flutter_web/foundation.dart';
 import 'package:flutter_web/gestures.dart';
@@ -26,7 +27,7 @@ import 'text_style.dart';
 /// span in a widget, use a [RichText]. For text with a single style, consider
 /// using the [Text] widget.
 ///
-/// ## Sample code
+/// {@tool sample}
 ///
 /// The text "Hello world!", in black:
 ///
@@ -36,6 +37,7 @@ import 'text_style.dart';
 ///   style: TextStyle(color: Colors.black),
 /// )
 /// ```
+/// {@end-tool}
 ///
 /// _There is some more detailed sample code in the documentation for the
 /// [recognizer] property._
@@ -56,6 +58,7 @@ class TextSpan extends DiagnosticableTree {
     this.text,
     this.children,
     this.recognizer,
+    this.semanticsLabel,
   });
 
   /// The style to apply to the [text] and the [children].
@@ -92,7 +95,7 @@ class TextSpan extends DiagnosticableTree {
   /// The code that owns the [GestureRecognizer] object must call
   /// [GestureRecognizer.dispose] when the [TextSpan] object is no longer used.
   ///
-  /// ## Sample code
+  /// {@tool sample}
   ///
   /// This example shows how to manage the lifetime of a gesture recognizer
   /// provided to a [TextSpan] object. It defines a `BuzzingText` widget which
@@ -151,7 +154,21 @@ class TextSpan extends DiagnosticableTree {
   ///   }
   /// }
   /// ```
+  /// {@end-tool}
   final GestureRecognizer recognizer;
+
+  /// An alternative semantics label for this text.
+  ///
+  /// If present, the semantics of this span will contain this value instead
+  /// of the actual text.
+  ///
+  /// This is useful for replacing abbreviations or shorthands with the full
+  /// text value:
+  ///
+  /// ```dart
+  /// TextSpan(text: r'$$', semanticsLabel: 'Double dollars')
+  /// ```
+  final String semanticsLabel;
 
   /// Apply the [style], [text], and [children] of this object to the
   /// given [ParagraphBuilder], from which a [Paragraph] can be obtained.
@@ -213,12 +230,18 @@ class TextSpan extends DiagnosticableTree {
 
   /// Flattens the [TextSpan] tree into a single string.
   ///
-  /// Styles are not honored in this process.
-  String toPlainText() {
+  /// Styles are not honored in this process. If `includeSemanticsLabels` is
+  /// true, then the text returned will include the [semanticsLabel]s instead of
+  /// the text contents when they are present.
+  String toPlainText({bool includeSemanticsLabels = true}) {
     assert(debugAssertIsValid());
     final StringBuffer buffer = StringBuffer();
     visitTextSpan((TextSpan span) {
-      buffer.write(span.text);
+      if (span.semanticsLabel != null && includeSemanticsLabels) {
+        buffer.write(span.semanticsLabel);
+      } else {
+        buffer.write(span.text);
+      }
       return true;
     });
     return buffer.toString();
@@ -260,13 +283,10 @@ class TextSpan extends DiagnosticableTree {
         }
         return true;
       })) {
-        throw FlutterError(
-          'TextSpan contains a null child.\n'
-          'A TextSpan object with a non-null child list should not have any '
-          'nulls in its child list.\n'
-          'The full text in question was:\n'
-          '${toStringDeep(prefixLineOne: '  ')}',
-        );
+        throw FlutterError('TextSpan contains a null child.\n'
+            'A TextSpan object with a non-null child list should not have any nulls in its child list.\n'
+            'The full text in question was:\n'
+            '${toStringDeep(prefixLineOne: '  ')}');
       }
       return true;
     }());
@@ -312,11 +332,13 @@ class TextSpan extends DiagnosticableTree {
     return typedOther.text == text &&
         typedOther.style == style &&
         typedOther.recognizer == recognizer &&
+        typedOther.semanticsLabel == semanticsLabel &&
         listEquals<TextSpan>(typedOther.children, children);
   }
 
   @override
-  int get hashCode => hashValues(style, text, recognizer, hashList(children));
+  int get hashCode =>
+      hashValues(style, text, recognizer, semanticsLabel, hashList(children));
 
   @override
   String toStringShort() => '$runtimeType';
@@ -335,6 +357,10 @@ class TextSpan extends DiagnosticableTree {
       description: recognizer?.runtimeType?.toString(),
       defaultValue: null,
     ));
+
+    if (semanticsLabel != null) {
+      properties.add(StringProperty('semanticsLabel', semanticsLabel));
+    }
 
     properties
         .add(StringProperty('text', text, showName: false, defaultValue: null));

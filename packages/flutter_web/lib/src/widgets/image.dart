@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -92,7 +93,7 @@ Future<Null> precacheImage(
       onError(exception, stackTrace);
     } else {
       FlutterError.reportError(FlutterErrorDetails(
-        context: 'image failed to precache',
+        context: ErrorDescription('image failed to precache'),
         library: 'image resource service',
         exception: exception,
         stack: stackTrace,

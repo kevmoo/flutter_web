@@ -1,15 +1,16 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'dart:collection';
 
 import 'package:flutter_web/cupertino.dart';
+import 'package:flutter_web/gestures.dart';
 import 'package:flutter_web/rendering.dart';
 import 'package:flutter_web/services.dart';
 import 'package:flutter_web/widgets.dart';
 import 'package:flutter_web/foundation.dart';
-import 'package:flutter_web/gestures.dart';
 
 import 'debug.dart';
 import 'feedback.dart';
@@ -476,6 +477,8 @@ class TextField extends StatefulWidget {
     properties.add(DiagnosticsProperty<bool>('autocorrect', autocorrect,
         defaultValue: true));
     properties.add(IntProperty('maxLines', maxLines, defaultValue: 1));
+    // TODO(flutter_web): properties.add(IntProperty('minLines', minLines, defaultValue: null));
+    // TODO(flutter_web): properties.add(DiagnosticsProperty<bool>('expands', expands, defaultValue: false));
     properties.add(IntProperty('maxLength', maxLength, defaultValue: null));
     properties.add(FlagProperty('maxLengthEnforced',
         value: maxLengthEnforced,
@@ -507,6 +510,9 @@ class TextField extends StatefulWidget {
         value: selectionEnabled,
         defaultValue: true,
         ifFalse: 'selection disabled'));
+    // TODO(flutter_web): implement scrollController, scrollPhysics.
+//    properties.add(DiagnosticsProperty<ScrollController>('scrollController', scrollController, defaultValue: null));
+//    properties.add(DiagnosticsProperty<ScrollPhysics>('scrollPhysics', scrollPhysics, defaultValue: null));
   }
 }
 

@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:57.015610.
 
 import 'package:flutter_web_test/flutter_web_test.dart';
 import 'package:flutter_web/material.dart';
@@ -45,7 +46,7 @@ void main() {
         callbackTracker,
         equals(<int>[
           0, 1, 2, 3, 4, 5, // visible
-          6, 7, 8 // in cached area
+          6, 7, 8, // in cached area
         ]));
 
     callbackTracker.clear();
@@ -118,7 +119,7 @@ void main() {
         equals(<int>[
           0, 1, 2,
           3, 4, 5, //visible
-          6, 7
+          6, 7,
         ]));
     callbackTracker.clear();
 
@@ -196,10 +197,11 @@ void main() {
     final IndexedWidgetBuilder itemBuilder = (BuildContext context, int index) {
       callbackTracker.add(index);
       return Container(
-          key: ValueKey<int>(index),
-          width: 500.0, // this should be ignored
-          height: 220.0,
-          child: Text('$index', textDirection: TextDirection.ltr));
+        key: ValueKey<int>(index),
+        width: 500.0, // this should be ignored
+        height: 220.0,
+        child: Text('$index', textDirection: TextDirection.ltr),
+      );
     };
 
     void collectText(Widget widget) {
@@ -341,6 +343,7 @@ void main() {
     expect(
       list.toStringDeep(minLevel: DiagnosticLevel.info),
       equalsIgnoringHashCodes('RenderSliverList#00000 relayoutBoundary=up1\n'
+          ' │ needs compositing\n'
           ' │ parentData: paintOffset=Offset(0.0, 0.0) (can use size)\n'
           ' │ constraints: SliverConstraints(AxisDirection.down,\n'
           ' │   GrowthDirection.forward, ScrollDirection.idle, scrollOffset:\n'
@@ -353,6 +356,7 @@ void main() {
           ' │ currently live children: 0 to 2\n'
           ' │\n'
           ' ├─child with index 0: RenderRepaintBoundary#00000 relayoutBoundary=up2\n'
+          ' │ │ needs compositing\n'
           ' │ │ parentData: index=0; layoutOffset=0.0 (can use size)\n'
           ' │ │ constraints: BoxConstraints(w=800.0, 0.0<=h<=Infinity)\n'
           ' │ │ layer: OffsetLayer#00000\n'
@@ -381,6 +385,7 @@ void main() {
           ' │         additionalConstraints: BoxConstraints(biggest)\n'
           ' │\n'
           ' ├─child with index 1: RenderRepaintBoundary#00000 relayoutBoundary=up2\n'
+          ' │ │ needs compositing\n'
           ' │ │ parentData: index=1; layoutOffset=100.0 (can use size)\n'
           ' │ │ constraints: BoxConstraints(w=800.0, 0.0<=h<=Infinity)\n'
           ' │ │ layer: OffsetLayer#00000\n'
@@ -409,6 +414,7 @@ void main() {
           ' │         additionalConstraints: BoxConstraints(biggest)\n'
           ' │\n'
           ' └─child with index 2: RenderRepaintBoundary#00000 relayoutBoundary=up2\n'
+          '   │ needs compositing\n'
           '   │ parentData: index=2; layoutOffset=200.0 (can use size)\n'
           '   │ constraints: BoxConstraints(w=800.0, 0.0<=h<=Infinity)\n'
           '   │ layer: OffsetLayer#00000\n'
@@ -448,23 +454,25 @@ void main() {
       (WidgetTester tester) async {
     const Text text = Text('test');
     await tester.pumpWidget(Directionality(
-        textDirection: TextDirection.ltr,
-        child: Center(
-          child: Container(
-              height: 200.0,
-              child: ListView(
-                cacheExtent: 500.0,
-                controller: ScrollController(initialScrollOffset: 300.0),
-                children: <Widget>[
-                  Container(height: 140.0, child: text),
-                  Container(height: 160.0, child: text),
-                  Container(height: 90.0, child: text),
-                  Container(height: 110.0, child: text),
-                  Container(height: 80.0, child: text),
-                  Container(height: 70.0, child: text),
-                ],
-              )),
-        )));
+      textDirection: TextDirection.ltr,
+      child: Center(
+        child: Container(
+          height: 200.0,
+          child: ListView(
+            cacheExtent: 500.0,
+            controller: ScrollController(initialScrollOffset: 300.0),
+            children: <Widget>[
+              Container(height: 140.0, child: text),
+              Container(height: 160.0, child: text),
+              Container(height: 90.0, child: text),
+              Container(height: 110.0, child: text),
+              Container(height: 80.0, child: text),
+              Container(height: 70.0, child: text),
+            ],
+          ),
+        ),
+      ),
+    ));
 
     final RenderSliverList list = tester.renderObject(find.byType(SliverList));
     expect(list, paintsExactlyCountTimes(#drawParagraph, 2));
@@ -472,25 +480,28 @@ void main() {
 
   testWidgets('ListView should paint with offset', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-            body: Container(
-                height: 500.0,
-                child: CustomScrollView(
-                  controller: ScrollController(initialScrollOffset: 120.0),
-                  slivers: <Widget>[
-                    const SliverAppBar(
-                      expandedHeight: 250.0,
-                    ),
-                    SliverList(
-                        delegate: ListView.builder(
-                            itemExtent: 100.0,
-                            itemCount: 100,
-                            itemBuilder: (_, __) => Container(
-                                  height: 40.0,
-                                  child: const Text('hey'),
-                                )).childrenDelegate),
-                  ],
-                )))));
+      home: Scaffold(
+        body: Container(
+          height: 500.0,
+          child: CustomScrollView(
+            controller: ScrollController(initialScrollOffset: 120.0),
+            slivers: <Widget>[
+              const SliverAppBar(
+                expandedHeight: 250.0,
+              ),
+              SliverList(
+                  delegate: ListView.builder(
+                      itemExtent: 100.0,
+                      itemCount: 100,
+                      itemBuilder: (_, __) => Container(
+                            height: 40.0,
+                            child: const Text('hey'),
+                          )).childrenDelegate),
+            ],
+          ),
+        ),
+      ),
+    ));
 
     final RenderObject renderObject =
         tester.renderObject(find.byType(Scrollable));

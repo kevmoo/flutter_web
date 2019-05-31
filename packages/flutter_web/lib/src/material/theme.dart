@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.400018.
 
 import 'package:flutter_web/cupertino.dart';
 import 'package:flutter_web/foundation.dart';
@@ -145,9 +146,7 @@ class Theme extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _InheritedTheme(
-      theme: this,
-      child: IconTheme(
-        data: data.iconTheme,
+        theme: this,
         child: CupertinoTheme(
           // We're using a MaterialBasedCupertinoThemeData here instead of a
           // CupertinoThemeData because it defers some properties to the Material
@@ -155,10 +154,11 @@ class Theme extends StatelessWidget {
           data: MaterialBasedCupertinoThemeData(
             materialTheme: data,
           ),
-          child: child,
-        ),
-      ),
-    );
+          child: IconTheme(
+            data: data.iconTheme,
+            child: child,
+          ),
+        ));
   }
 
   @override
@@ -170,8 +170,11 @@ class Theme extends StatelessWidget {
 }
 
 class _InheritedTheme extends InheritedWidget {
-  const _InheritedTheme({Key key, @required this.theme, @required Widget child})
-      : assert(theme != null),
+  const _InheritedTheme({
+    Key key,
+    @required this.theme,
+    @required Widget child,
+  })  : assert(theme != null),
         super(key: key, child: child);
 
   final Theme theme;
@@ -258,9 +261,10 @@ class _AnimatedThemeState extends AnimatedWidgetBaseState<AnimatedTheme> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        isMaterialAppTheme: widget.isMaterialAppTheme,
-        child: widget.child,
-        data: _data.evaluate(animation));
+      isMaterialAppTheme: widget.isMaterialAppTheme,
+      child: widget.child,
+      data: _data.evaluate(animation),
+    );
   }
 
   @override

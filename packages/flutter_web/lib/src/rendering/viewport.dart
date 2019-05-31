@@ -1,6 +1,7 @@
 // Copyright 2016 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-05-30T14:20:56.595319.
 
 import 'dart:math' as math;
 
@@ -10,7 +11,6 @@ import 'package:flutter_web/gestures.dart';
 import 'package:flutter_web/semantics.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-import 'binding.dart';
 import 'box.dart';
 import 'object.dart';
 import 'sliver.dart';
@@ -503,23 +503,20 @@ abstract class RenderViewportBase<
   @override
   Rect describeSemanticsClip(RenderSliver child) {
     assert(axis != null);
-    // TODO(flutter_web): upstream.
-    // Locally cache bounds since semanticBounds is a getter.
-    final bounds = semanticBounds;
     switch (axis) {
       case Axis.vertical:
         return Rect.fromLTRB(
-          bounds.left,
-          bounds.top - cacheExtent,
-          bounds.right,
-          bounds.bottom + cacheExtent,
+          semanticBounds.left,
+          semanticBounds.top - cacheExtent,
+          semanticBounds.right,
+          semanticBounds.bottom + cacheExtent,
         );
       case Axis.horizontal:
         return Rect.fromLTRB(
-          bounds.left - cacheExtent,
-          bounds.top,
-          bounds.right + cacheExtent,
-          bounds.bottom,
+          semanticBounds.left - cacheExtent,
+          semanticBounds.top,
+          semanticBounds.right + cacheExtent,
+          semanticBounds.bottom,
         );
     }
     return null;
@@ -575,7 +572,7 @@ abstract class RenderViewportBase<
   }
 
   @override
-  bool hitTestChildren(HitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     double mainAxisPosition, crossAxisPosition;
     switch (axis) {
       case Axis.vertical:
@@ -589,12 +586,26 @@ abstract class RenderViewportBase<
     }
     assert(mainAxisPosition != null);
     assert(crossAxisPosition != null);
+    final SliverHitTestResult sliverResult = SliverHitTestResult.wrap(result);
     for (RenderSliver child in childrenInHitTestOrder) {
-      if (child.geometry.visible &&
-          child.hitTest(result,
-              mainAxisPosition:
-                  computeChildMainAxisPosition(child, mainAxisPosition),
-              crossAxisPosition: crossAxisPosition)) {
+      if (!child.geometry.visible) {
+        continue;
+      }
+      final Matrix4 transform = Matrix4.identity();
+      applyPaintTransform(child, transform);
+      final bool isHit = result.addWithPaintTransform(
+        transform: transform,
+        position: null, // Manually adapting from box to sliver position below.
+        hitTest: (BoxHitTestResult result, Offset _) {
+          return child.hitTest(
+            sliverResult,
+            mainAxisPosition:
+                computeChildMainAxisPosition(child, mainAxisPosition),
+            crossAxisPosition: crossAxisPosition,
+          );
+        },
+      );
+      if (isHit) {
         return true;
       }
     }

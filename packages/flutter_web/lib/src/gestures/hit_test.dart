@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web_ui/ui.dart';
 import '../util.dart';
@@ -8,7 +9,6 @@ import 'events.dart';
 
 /// An object that can hit-test pointers.
 abstract class HitTestable {
-  // ignore: one_member_abstracts
   // This class is intended to be used as an interface with the implements
   // keyword, and should not be extended directly.
   factory HitTestable._() => null;
@@ -22,7 +22,6 @@ abstract class HitTestable {
 
 /// An object that can dispatch events.
 abstract class HitTestDispatcher {
-  // ignore: one_member_abstracts
   // This class is intended to be used as an interface with the implements
   // keyword, and should not be extended directly.
   factory HitTestDispatcher._() => null;
@@ -33,7 +32,6 @@ abstract class HitTestDispatcher {
 
 /// An object that can handle events.
 abstract class HitTestTarget {
-  // ignore: one_member_abstracts
   // This class is intended to be used as an interface with the implements
   // keyword, and should not be extended directly.
   factory HitTestTarget._() => null;
@@ -59,30 +57,35 @@ class HitTestEntry {
 
 /// The result of performing a hit test.
 class HitTestResult {
-  /// Creates a hit test result.
-  ///
-  /// If the [path] argument is null, the [path] field will be initialized with
-  /// and empty list.
-  HitTestResult({List<HitTestEntry> path}) : _path = path ?? <HitTestEntry>[];
+  /// Creates an empty hit test result.
+  HitTestResult() : _path = <HitTestEntry>[];
 
-  /// An unmodifiable list of [HitTestEntry] objects recorded during the hit
-  /// test.
+  /// Wraps `result` (usually a subtype of [HitTestResult]) to create a
+  /// generic [HitTestResult].
+  ///
+  /// The [HitTestEntry]s added to the returned [HitTestResult] are also
+  /// added to the wrapped `result` (both share the same underlying data
+  /// structure to store [HitTestEntry]s).
+  HitTestResult.wrap(HitTestResult result) : _path = result._path;
+
+  /// An unmodifiable list of [HitTestEntry] objects recorded during the hit test.
   ///
   /// The first entry in the path is the most specific, typically the one at
   /// the leaf of tree being hit tested. Event propagation starts with the most
   /// specific (i.e., first) entry and proceeds in order through the path.
-  List<HitTestEntry> get path => new List<HitTestEntry>.unmodifiable(_path);
+  Iterable<HitTestEntry> get path => _path;
   final List<HitTestEntry> _path;
 
   /// Add a [HitTestEntry] to the path.
   ///
   /// The new entry is added at the end of the path, which means entries should
-  /// be added in order from most specific to least specific, typically during
-  /// an upward walk of the tree being hit tested.
+  /// be added in order from most specific to least specific, typically during an
+  /// upward walk of the tree being hit tested.
   void add(HitTestEntry entry) {
     _path.add(entry);
   }
 
+  // TODO(flutter_web): upstream.
   @override
   String toString() {
     if (assertionsEnabled) {
