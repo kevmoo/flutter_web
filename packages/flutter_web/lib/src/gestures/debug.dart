@@ -1,6 +1,7 @@
 // Copyright 2017 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-06-03T11:09:26.946639.
 
 import 'package:flutter_web/foundation.dart';
 
@@ -54,8 +55,8 @@ bool debugPrintRecognizerCallbacksTrace = false;
 /// This function is used by the test framework to ensure that debug variables
 /// haven't been inadvertently changed.
 ///
-/// See [https://docs.flutter.io/flutter/gestures/gestures-library.html] for
-/// a complete list.
+/// See [the gestures library](gestures/gestures-library.html) for a complete
+/// list.
 bool debugAssertAllGesturesVarsUnset(String reason) {
   assert(() {
     if (debugPrintHitTestResults ||

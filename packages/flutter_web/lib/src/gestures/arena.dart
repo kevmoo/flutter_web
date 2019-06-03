@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced. * Contains Web DELTA *
 
 import 'package:flutter_web/foundation.dart';
 
@@ -44,8 +45,7 @@ class GestureArenaEntry {
   final int _pointer;
   final GestureArenaMember _member;
 
-  /// Call this member to claim victory (with accepted) or admit defeat
-  /// (with rejected).
+  /// Call this member to claim victory (with accepted) or admit defeat (with rejected).
   ///
   /// It's fine to attempt to resolve a gesture recognizer for an arena that is
   /// already resolved.
@@ -74,7 +74,7 @@ class _GestureArena {
   @override
   String toString() {
     if (assertionsEnabled) {
-      final StringBuffer buffer = new StringBuffer();
+      final StringBuffer buffer = StringBuffer();
       if (members.isEmpty) {
         buffer.write('<empty>');
       } else {
@@ -93,9 +93,9 @@ class _GestureArena {
   }
 }
 
-/// The first member to accept or the last member to not to reject wins.
+/// The first member to accept or the last member to not reject wins.
 ///
-/// See [https://flutter.io/gestures/#gesture-disambiguation] for more
+/// See <https://flutter.dev/gestures/#gesture-disambiguation> for more
 /// information about the role this class plays in the gesture system.
 ///
 /// To debug problems with gestures, consider using
@@ -107,17 +107,16 @@ class GestureArenaManager {
   GestureArenaEntry add(int pointer, GestureArenaMember member) {
     final _GestureArena state = _arenas.putIfAbsent(pointer, () {
       assert(_debugLogDiagnostic(pointer, '★ Opening new gesture arena.'));
-      return new _GestureArena();
+      return _GestureArena();
     });
     state.add(member);
     assert(_debugLogDiagnostic(pointer, 'Adding: $member'));
-    return new GestureArenaEntry._(this, pointer, member);
+    return GestureArenaEntry._(this, pointer, member);
   }
 
   /// Prevents new members from entering the arena.
   ///
-  /// Called after the framework has finished dispatching the pointer down
-  /// event.
+  /// Called after the framework has finished dispatching the pointer down event.
   void close(int pointer) {
     final _GestureArena state = _arenas[pointer];
     if (state == null)
@@ -202,19 +201,13 @@ class GestureArenaManager {
 
   /// Reject or accept a gesture recognizer.
   ///
-  /// This is called by calling [GestureArenaEntry.resolve] on the object
-  /// returned from [add].
+  /// This is called by calling [GestureArenaEntry.resolve] on the object returned from [add].
   void _resolve(
       int pointer, GestureArenaMember member, GestureDisposition disposition) {
     final _GestureArena state = _arenas[pointer];
     if (state == null) return; // This arena has already resolved.
-    assert(() {
-      var result = disposition == GestureDisposition.accepted
-          ? "Accepting"
-          : "Rejecting";
-      _debugLogDiagnostic(pointer, '${result}: $member');
-      return true;
-    }());
+    assert(_debugLogDiagnostic(pointer,
+        '${disposition == GestureDisposition.accepted ? "Accepting" : "Rejecting"}: $member'));
     assert(state.members.contains(member));
     if (disposition == GestureDisposition.rejected) {
       state.members.remove(member);
@@ -276,9 +269,8 @@ class GestureArenaManager {
       if (debugPrintGestureArenaDiagnostics) {
         final int count = state != null ? state.members.length : null;
         final String s = count != 1 ? 's' : '';
-        debugPrint('Gesture arena '
-            '${pointer.toString().padRight(4)} ❙ '
-            '$message${count != null ? " with $count member$s." : ""}');
+        debugPrint(
+            'Gesture arena ${pointer.toString().padRight(4)} ❙ $message${count != null ? " with $count member$s." : ""}');
       }
       return true;
     }());

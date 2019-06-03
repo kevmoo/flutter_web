@@ -1,7 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-// Synced 2019-05-30T14:20:56.192378.
+// Synced 2019-06-03T11:09:26.961037.
 
 import 'package:flutter_web_ui/ui.dart' show Offset, PointerDeviceKind;
 
@@ -244,7 +244,7 @@ abstract class PointerEvent extends Diagnosticable {
   final Offset position;
 
   /// Distance in logical pixels that the pointer moved since the last
-  /// [PointerMoveEvent].
+  /// [PointerMoveEvent] or [PointerHoverEvent].
   ///
   /// This value is always 0.0 for down, up, and cancel events.
   final Offset delta;
@@ -506,6 +506,7 @@ class PointerRemovedEvent extends PointerEvent {
     Duration timeStamp = Duration.zero,
     PointerDeviceKind kind = PointerDeviceKind.touch,
     int device = 0,
+    Offset position = Offset.zero,
     bool obscured = false,
     double pressureMin = 1.0,
     double pressureMax = 1.0,
@@ -516,7 +517,7 @@ class PointerRemovedEvent extends PointerEvent {
           timeStamp: timeStamp,
           kind: kind,
           device: device,
-          position: null,
+          position: position,
           obscured: obscured,
           pressure: 0.0,
           pressureMin: pressureMin,

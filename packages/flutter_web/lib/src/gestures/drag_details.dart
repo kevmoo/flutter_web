@@ -1,6 +1,7 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+// Synced 2019-06-03T11:09:26.952329.
 
 import 'package:meta/meta.dart';
 import 'package:flutter_web_ui/ui.dart';
@@ -37,7 +38,7 @@ class DragDownDetails {
 /// The `details` object provides the position of the touch.
 ///
 /// See [DragGestureRecognizer.onDown].
-typedef void GestureDragDownCallback(DragDownDetails details);
+typedef GestureDragDownCallback = void Function(DragDownDetails details);
 
 /// Details object for callbacks that use [GestureDragStartCallback].
 ///
@@ -79,7 +80,7 @@ class DragStartDetails {
 /// touched the surface.
 ///
 /// See [DragGestureRecognizer.onStart].
-typedef void GestureDragStartCallback(DragStartDetails details);
+typedef GestureDragStartCallback = void Function(DragStartDetails details);
 
 /// Details object for callbacks that use [GestureDragUpdateCallback].
 ///
@@ -98,12 +99,12 @@ class DragUpdateDetails {
   /// coordinates of [delta] and the other coordinate must be zero.
   ///
   /// The [globalPosition] argument must be provided and must not be null.
-  DragUpdateDetails(
-      {this.sourceTimeStamp,
-      this.delta = Offset.zero,
-      this.primaryDelta,
-      @required this.globalPosition})
-      : assert(delta != null),
+  DragUpdateDetails({
+    this.sourceTimeStamp,
+    this.delta = Offset.zero,
+    this.primaryDelta,
+    @required this.globalPosition,
+  })  : assert(delta != null),
         assert(primaryDelta == null ||
             (primaryDelta == delta.dx && delta.dy == 0.0) ||
             (primaryDelta == delta.dy && delta.dx == 0.0));
@@ -146,10 +147,10 @@ class DragUpdateDetails {
 /// has moved again.
 ///
 /// The `details` object provides the position of the touch and the distance it
-/// has travelled since the last update.
+/// has traveled since the last update.
 ///
 /// See [DragGestureRecognizer.onUpdate].
-typedef void GestureDragUpdateCallback(DragUpdateDetails details);
+typedef GestureDragUpdateCallback = void Function(DragUpdateDetails details);
 
 /// Details object for callbacks that use [GestureDragEndCallback].
 ///
