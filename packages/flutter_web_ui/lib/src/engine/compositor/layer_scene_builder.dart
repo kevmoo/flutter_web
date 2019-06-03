@@ -38,7 +38,7 @@ class LayerSceneBuilder implements ui.SceneBuilder {
       double height = 0.0,
       ui.SceneHost sceneHost,
       bool hitTestable = true}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   @override
@@ -59,8 +59,11 @@ class LayerSceneBuilder implements ui.SceneBuilder {
 
   @override
   void addRetained(ui.EngineLayer retainedLayer) {
-    if (currentLayer == null) return;
-    currentLayer.add((retainedLayer as EngineLayerImpl)._layer);
+    if (currentLayer == null) {
+      return;
+    }
+    final EngineLayerImpl engineLayer = retainedLayer;
+    currentLayer.add(engineLayer._layer);
   }
 
   @override
@@ -90,14 +93,16 @@ class LayerSceneBuilder implements ui.SceneBuilder {
 
   @override
   void pop() {
-    if (currentLayer == null) return;
+    if (currentLayer == null) {
+      return;
+    }
     currentLayer = currentLayer.parent;
   }
 
   @override
   ui.EngineLayer pushBackdropFilter(ui.ImageFilter filter,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   @override
@@ -124,13 +129,13 @@ class LayerSceneBuilder implements ui.SceneBuilder {
   @override
   ui.EngineLayer pushColorFilter(ui.Color color, ui.BlendMode blendMode,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   @override
   ui.EngineLayer pushOffset(double dx, double dy, {Object webOnlyPaintedBy}) {
-    final matrix = Matrix4.translationValues(dx, dy, 0.0);
-    final layer = TransformLayer(matrix);
+    final Matrix4 matrix = Matrix4.translationValues(dx, dy, 0.0);
+    final TransformLayer layer = TransformLayer(matrix);
     pushLayer(layer);
     return EngineLayerImpl(layer);
   }
@@ -151,7 +156,7 @@ class LayerSceneBuilder implements ui.SceneBuilder {
       ui.Color shadowColor,
       ui.Clip clipBehavior = ui.Clip.none,
       Object webOnlyPaintedBy}) {
-    final layer =
+    final PhysicalShapeLayer layer =
         PhysicalShapeLayer(elevation, color, shadowColor, path, clipBehavior);
     pushLayer(layer);
     return EngineLayerImpl(layer);
@@ -161,12 +166,12 @@ class LayerSceneBuilder implements ui.SceneBuilder {
   ui.EngineLayer pushShaderMask(
       ui.Shader shader, ui.Rect maskRect, ui.BlendMode blendMode,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   @override
   ui.EngineLayer pushTransform(Float64List matrix4, {Object webOnlyPaintedBy}) {
-    final matrix = Matrix4.fromList(matrix4);
+    final Matrix4 matrix = Matrix4.fromList(matrix4);
     pushLayer(TransformLayer(matrix));
     return null;
   }
@@ -192,7 +197,9 @@ class LayerSceneBuilder implements ui.SceneBuilder {
       return;
     }
 
-    if (currentLayer == null) return;
+    if (currentLayer == null) {
+      return;
+    }
 
     currentLayer.add(layer);
     currentLayer = layer;

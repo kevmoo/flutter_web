@@ -151,8 +151,8 @@ class PersistedClipRRect extends PersistedContainerSurface with _DomClip {
 class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
   PersistedPhysicalShape(Object paintedBy, this.path, this.elevation, int color,
       int shadowColor, this.clipBehavior)
-      : this.color = ui.Color(color),
-        this.shadowColor = ui.Color(shadowColor),
+      : color = ui.Color(color),
+        shadowColor = ui.Color(shadowColor),
         super(paintedBy);
 
   final ui.Path path;
@@ -173,7 +173,7 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
         transform: transform,
       ));
     } else {
-      ui.Rect rect = path.webOnlyPathAsRect;
+      final ui.Rect rect = path.webOnlyPathAsRect;
       if (rect != null) {
         _globalClip = parent._globalClip.intersect(localClipRectToGlobalClip(
           localClip: rect,
@@ -206,14 +206,17 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
   }
 
   void _applyShape() {
-    if (path == null) return;
+    if (path == null) {
+      return;
+    }
     // Handle special case of round rect physical shape mapping to
     // rounded div.
     final ui.RRect roundRect = path.webOnlyPathAsRoundedRect;
     if (roundRect != null) {
-      final borderRadius = '${roundRect.tlRadiusX}px ${roundRect.trRadiusX}px '
+      final String borderRadius =
+          '${roundRect.tlRadiusX}px ${roundRect.trRadiusX}px '
           '${roundRect.brRadiusX}px ${roundRect.blRadiusX}px';
-      var style = rootElement.style;
+      final html.CssStyleDeclaration style = rootElement.style;
       style
         ..transform = 'translate(${roundRect.left}px, ${roundRect.top}px)'
         ..width = '${roundRect.width}px'
@@ -226,9 +229,9 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
       }
       return;
     } else {
-      ui.Rect rect = path.webOnlyPathAsRect;
+      final ui.Rect rect = path.webOnlyPathAsRect;
       if (rect != null) {
-        final style = rootElement.style;
+        final html.CssStyleDeclaration style = rootElement.style;
         style
           ..transform = 'translate(${rect.left}px, ${rect.top}px)'
           ..width = '${rect.width}px'
@@ -241,12 +244,13 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
         }
         return;
       } else {
-        Ellipse ellipse = path.webOnlyPathAsCircle;
+        final Ellipse ellipse = path.webOnlyPathAsCircle;
         if (ellipse != null) {
           final double rx = ellipse.radiusX;
           final double ry = ellipse.radiusY;
-          final borderRadius = rx == ry ? '${rx}px ' : '${rx}px ${ry}px ';
-          var style = rootElement.style;
+          final String borderRadius =
+              rx == ry ? '${rx}px ' : '${rx}px ${ry}px ';
+          final html.CssStyleDeclaration style = rootElement.style;
           final double left = ellipse.x - rx;
           final double top = ellipse.y - ry;
           style
@@ -263,17 +267,17 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
       }
     }
 
-    ui.Rect bounds = path.getBounds();
-    String svgClipPath =
+    final ui.Rect bounds = path.getBounds();
+    final String svgClipPath =
         _pathToSvgClipPath(path, offsetX: -bounds.left, offsetY: -bounds.top);
     assert(_clipElement == null);
     _clipElement =
         html.Element.html(svgClipPath, treeSanitizer: _NullTreeSanitizer());
     domRenderer.append(rootElement, _clipElement);
     domRenderer.setElementStyle(
-        rootElement, 'clip-path', 'url(#svgClip${_clipIdCounter})');
+        rootElement, 'clip-path', 'url(#svgClip$_clipIdCounter)');
     domRenderer.setElementStyle(
-        rootElement, '-webkit-clip-path', 'url(#svgClip${_clipIdCounter})');
+        rootElement, '-webkit-clip-path', 'url(#svgClip$_clipIdCounter)');
     final html.CssStyleDeclaration rootElementStyle = rootElement.style;
     rootElementStyle
       ..overflow = ''
@@ -299,7 +303,7 @@ class PersistedPhysicalShape extends PersistedContainerSurface with _DomClip {
       oldSurface._clipElement?.remove();
       // Reset style on prior element since we may have switched between
       // rect/rrect and arbitrary path.
-      var style = rootElement.style;
+      final html.CssStyleDeclaration style = rootElement.style;
       style.transform = '';
       style.borderRadius = '';
       domRenderer.setElementStyle(rootElement, 'clip-path', '');
@@ -337,15 +341,15 @@ class PersistedClipPath extends PersistedContainerSurface {
       }
       return;
     }
-    String svgClipPath = _pathToSvgClipPath(clipPath);
+    final String svgClipPath = _pathToSvgClipPath(clipPath);
     _clipElement?.remove();
     _clipElement =
         html.Element.html(svgClipPath, treeSanitizer: _NullTreeSanitizer());
     domRenderer.append(childContainer, _clipElement);
     domRenderer.setElementStyle(
-        childContainer, 'clip-path', 'url(#svgClip${_clipIdCounter})');
+        childContainer, 'clip-path', 'url(#svgClip$_clipIdCounter)');
     domRenderer.setElementStyle(
-        childContainer, '-webkit-clip-path', 'url(#svgClip${_clipIdCounter})');
+        childContainer, '-webkit-clip-path', 'url(#svgClip$_clipIdCounter)');
   }
 
   @override

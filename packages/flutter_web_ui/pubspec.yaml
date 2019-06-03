@@ -12,6 +12,7 @@ dependencies:
   intl: any
 
 dev_dependencies:
+  path: any
   flutter_web_test: any
   test: ^1.3.0
 

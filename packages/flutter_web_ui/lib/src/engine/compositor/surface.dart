@@ -32,7 +32,7 @@ class Surface {
 
   /// Acquire a frame of the given [size] containing a drawable canvas.
   SurfaceFrame acquireFrame(ui.Size size) {
-    final canvas = canvasCache.acquireCanvas(size);
+    final BitmapCanvas canvas = canvasCache.acquireCanvas(size);
     return SurfaceFrame(submitFunction, canvas);
   }
 
@@ -44,7 +44,9 @@ class _CanvasCache {
 
   BitmapCanvas acquireCanvas(ui.Size size) {
     assert(size != null);
-    if (size == _canvas?.size) return _canvas;
+    if (size == _canvas?.size) {
+      return _canvas;
+    }
     _canvas = BitmapCanvas(ui.Offset.zero & size);
     return _canvas;
   }

@@ -30,13 +30,17 @@ class StringCodec implements MessageCodec<String> {
 
   @override
   String decodeMessage(ByteData message) {
-    if (message == null) return null;
+    if (message == null) {
+      return null;
+    }
     return utf8.decoder.convert(message.buffer.asUint8List());
   }
 
   @override
   ByteData encodeMessage(String message) {
-    if (message == null) return null;
+    if (message == null) {
+      return null;
+    }
     final Uint8List encoded = utf8.encoder.convert(message);
     return encoded.buffer.asByteData();
   }
@@ -70,13 +74,17 @@ class JSONMessageCodec implements MessageCodec<dynamic> {
 
   @override
   ByteData encodeMessage(dynamic message) {
-    if (message == null) return null;
+    if (message == null) {
+      return null;
+    }
     return const StringCodec().encodeMessage(json.encode(message));
   }
 
   @override
   dynamic decodeMessage(ByteData message) {
-    if (message == null) return message;
+    if (message == null) {
+      return message;
+    }
     return json.decode(const StringCodec().decodeMessage(message));
   }
 }
@@ -115,31 +123,35 @@ class JSONMethodCodec implements MethodCodec {
   MethodCall decodeMethodCall(ByteData methodCall) {
     final dynamic decoded = const JSONMessageCodec().decodeMessage(methodCall);
     if (decoded is! Map) {
-      throw new FormatException('Expected method call Map, got $decoded');
+      throw FormatException('Expected method call Map, got $decoded');
     }
     final dynamic method = decoded['method'];
     final dynamic arguments = decoded['args'];
-    if (method is String) return new MethodCall(method, arguments);
-    throw new FormatException('Invalid method call: $decoded');
+    if (method is String) {
+      return MethodCall(method, arguments);
+    }
+    throw FormatException('Invalid method call: $decoded');
   }
 
   @override
   dynamic decodeEnvelope(ByteData envelope) {
     final dynamic decoded = const JSONMessageCodec().decodeMessage(envelope);
     if (decoded is! List) {
-      throw new FormatException('Expected envelope List, got $decoded');
+      throw FormatException('Expected envelope List, got $decoded');
     }
-    if (decoded.length == 1) return decoded[0];
+    if (decoded.length == 1) {
+      return decoded[0];
+    }
     if (decoded.length == 3 &&
         decoded[0] is String &&
         (decoded[1] == null || decoded[1] is String)) {
-      throw new PlatformException(
+      throw PlatformException(
         code: decoded[0],
         message: decoded[1],
         details: decoded[2],
       );
     }
-    throw new FormatException('Invalid envelope: $decoded');
+    throw FormatException('Invalid envelope: $decoded');
   }
 
   @override

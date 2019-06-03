@@ -13,7 +13,7 @@ part of engine;
 //                canvas to draw a 10x10 picture. Let's revisit this after
 //                Harry's layer merging refactor.
 /// The maximum number canvases cached.
-const _kCanvasCacheSize = 30;
+const int _kCanvasCacheSize = 30;
 
 /// Canvases available for reuse, capped at [_kCanvasCacheSize].
 final List<BitmapCanvas> _recycledCanvases = <BitmapCanvas>[];
@@ -190,8 +190,9 @@ class PersistedStandardPicture extends PersistedPicture {
         paintCallback: () {
           _canvas = _findOrCreateCanvas(_localCullRect);
           if (_debugExplainSurfaceStats) {
+            final BitmapCanvas bitmapCanvas = _canvas;
             _surfaceStatsFor(this).paintPixelCount +=
-                (_canvas as BitmapCanvas).bitmapPixelCount;
+                bitmapCanvas.bitmapPixelCount;
           }
           domRenderer.clearDom(rootElement);
           rootElement.append(_canvas.rootElement);
@@ -214,18 +215,19 @@ class PersistedStandardPicture extends PersistedPicture {
   /// - Contains no more than twice the number of requested pixels. This makes
   ///   sure we do not use too much memory for small canvases.
   BitmapCanvas _findOrCreateCanvas(ui.Rect bounds) {
-    ui.Size canvasSize = bounds.size;
+    final ui.Size canvasSize = bounds.size;
     BitmapCanvas bestRecycledCanvas;
     double lastPixelCount = double.infinity;
 
     for (int i = 0; i < _recycledCanvases.length; i++) {
-      BitmapCanvas candidate = _recycledCanvases[i];
+      final BitmapCanvas candidate = _recycledCanvases[i];
       if (!candidate.isReusable()) {
         continue;
       }
 
-      ui.Size candidateSize = candidate.size;
-      double candidatePixelCount = candidateSize.width * candidateSize.height;
+      final ui.Size candidateSize = candidate.size;
+      final double candidatePixelCount =
+          candidateSize.width * candidateSize.height;
 
       final bool fits = _doesCanvasFitBounds(candidate, bounds);
       final bool isSmaller = candidatePixelCount < lastPixelCount;
@@ -403,7 +405,7 @@ abstract class PersistedPicture extends PersistedLeafSurface {
       final double bottomwardTrend = kPredictedGrowthFactor *
           math.max(tightLocalCullRect.bottom - _localCullRect.bottom, 0);
 
-      ui.Rect newLocalCullRect = ui.Rect.fromLTRB(
+      final ui.Rect newLocalCullRect = ui.Rect.fromLTRB(
         _localCullRect.left - leftwardTrend,
         _localCullRect.top - upwardTrend,
         _localCullRect.right + rightwardTrend,
@@ -498,9 +500,9 @@ abstract class PersistedPicture extends PersistedLeafSurface {
   void debugPrintChildren(StringBuffer buffer, int indent) {
     super.debugPrintChildren(buffer, indent);
     if (rootElement != null && rootElement.firstChild != null) {
-      final canvasTag =
-          (rootElement.firstChild as html.Element).tagName.toLowerCase();
-      final canvasHash = rootElement.firstChild.hashCode;
+      final html.Element firstChild = rootElement.firstChild;
+      final String canvasTag = firstChild.tagName.toLowerCase();
+      final int canvasHash = rootElement.firstChild.hashCode;
       buffer.writeln('${'  ' * (indent + 1)}<$canvasTag @$canvasHash />');
     } else if (rootElement != null) {
       buffer.writeln(

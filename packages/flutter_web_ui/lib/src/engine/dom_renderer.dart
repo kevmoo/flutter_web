@@ -27,7 +27,7 @@ class DomRenderer {
   static const int vibrateSelectionClick = 10;
 
   /// Listens to window resize events.
-  StreamSubscription _resizeSubscription;
+  StreamSubscription<html.Event> _resizeSubscription;
 
   /// Contains Flutter-specific CSS rules, such as default margins and
   /// paddings.
@@ -62,14 +62,14 @@ class DomRenderer {
     _staleHotRestartState =
         js_util.getProperty(html.window, _staleHotRestartStore);
     if (_staleHotRestartState == null) {
-      _staleHotRestartState = [];
+      _staleHotRestartState = <html.Element>[];
       js_util.setProperty(
           html.window, _staleHotRestartStore, _staleHotRestartState);
     }
 
     registerHotRestartListener(() {
       _resizeSubscription?.cancel();
-      _staleHotRestartState.addAll([
+      _staleHotRestartState.addAll(<html.Element>[
         _sceneHostElement,
         _glassPaneElement,
         _styleElement,
@@ -80,7 +80,7 @@ class DomRenderer {
 
   void _clearOnHotRestart() {
     if (_staleHotRestartState.isNotEmpty) {
-      for (var element in _staleHotRestartState) {
+      for (html.Element element in _staleHotRestartState) {
         element?.remove();
       }
       _staleHotRestartState.clear();
@@ -116,7 +116,7 @@ class DomRenderer {
   set debugIsInWidgetTest(bool value) {
     _debugIsInWidgetTest = value;
     if (_debugIsInWidgetTest) {
-      var logicalSize = ui.Size(800.0, 600.0);
+      const ui.Size logicalSize = ui.Size(800.0, 600.0);
       window.webOnlyDebugPhysicalSizeOverride =
           logicalSize * ui.window.devicePixelRatio;
     }
@@ -153,7 +153,7 @@ class DomRenderer {
   }
 
   html.Element createElement(String tagName, {html.Element parent}) {
-    html.Element element = html.document.createElement(tagName);
+    final html.Element element = html.document.createElement(tagName);
     parent?.append(element);
     return element;
   }
@@ -207,7 +207,7 @@ class DomRenderer {
   void setThemeColor(ui.Color color) {
     html.MetaElement theme = html.document.querySelector('#flutterweb-theme');
     if (theme == null) {
-      theme = new html.MetaElement()
+      theme = html.MetaElement()
         ..id = 'flutterweb-theme'
         ..name = 'theme-color';
       html.document.head.append(theme);
@@ -224,9 +224,9 @@ class DomRenderer {
 
   void reset() {
     _styleElement?.remove();
-    _styleElement = new html.StyleElement();
+    _styleElement = html.StyleElement();
     html.document.head.append(_styleElement);
-    html.CssStyleSheet sheet = _styleElement.sheet;
+    final html.CssStyleSheet sheet = _styleElement.sheet;
 
     // TODO(butterfly): use more efficient CSS selectors; descendant selectors
     //                  are slow. More info:
@@ -289,7 +289,7 @@ flt-glass-pane * {
 ''', sheet.cssRules.length);
     }
 
-    final bodyElement = html.document.body;
+    final html.BodyElement bodyElement = html.document.body;
     setElementStyle(bodyElement, 'position', 'fixed');
     setElementStyle(bodyElement, 'top', '0');
     setElementStyle(bodyElement, 'right', '0');
@@ -384,7 +384,7 @@ flt-glass-pane * {
       final int initialInnerWidth = html.window.innerWidth;
       // Counts how many times we checked screen size. We check up to 5 times.
       int checkCount = 0;
-      Timer.periodic(const Duration(milliseconds: 100), (t) {
+      Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
         checkCount += 1;
         if (initialInnerWidth != html.window.innerWidth) {
           // Window size changed. Notify.
@@ -420,19 +420,18 @@ flt-glass-pane * {
 
   /// The element corresponding to the only child of the root surface.
   html.Element get _rootApplicationElement {
-    return (rootElement.children.last as html.DivElement).children.singleWhere(
-        (html.Element element) {
+    final html.Element lastElement = rootElement.children.last;
+    return lastElement.children.singleWhere((html.Element element) {
       return element.tagName == 'FLT-SCENE';
     }, orElse: () => null);
   }
 
   /// Provides haptic feedback.
-  Future vibrate(int durationMs) {
-    var navigator = html.window.navigator;
+  void vibrate(int durationMs) {
+    final html.Navigator navigator = html.window.navigator;
     if (js_util.hasProperty(navigator, 'vibrate')) {
       js_util.callMethod(navigator, 'vibrate', <num>[durationMs]);
     }
-    return null;
   }
 
   String get currentHtml => _rootApplicationElement?.outerHtml ?? '';
@@ -443,7 +442,7 @@ flt-glass-pane * {
     if (!assertionsEnabled) {
       throw Exception('This code should not be reachable in production.');
     }
-    var current = _debugFrameStatistics;
+    final DebugDomRendererFrameStatistics current = _debugFrameStatistics;
     _debugFrameStatistics = DebugDomRendererFrameStatistics();
     return current;
   }
@@ -484,11 +483,11 @@ class DebugDomRendererFrameStatistics {
   String toString() {
     return '''
 Frame statistics:
-  Paragraph ruler cache hits: ${paragraphRulerCacheHits}
-  Paragraph ruler cache misses: ${paragraphRulerCacheMisses}
-  Paragraph ruler accesses: ${totalParagraphRulerAccesses}
-  Rich text layouts: ${richTextLayouts}
-  Plain text layouts: ${plainTextLayouts}
+  Paragraph ruler cache hits: $paragraphRulerCacheHits
+  Paragraph ruler cache misses: $paragraphRulerCacheMisses
+  Paragraph ruler accesses: $totalParagraphRulerAccesses
+  Rich text layouts: $richTextLayouts
+  Plain text layouts: $plainTextLayouts
 '''
         .trim();
   }

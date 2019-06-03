@@ -19,7 +19,7 @@ class LayerTree {
   /// to raster. If [ignoreRasterCache] is `true`, then there will be no
   /// attempt to register pictures to cache.
   void preroll(Frame frame, {bool ignoreRasterCache = false}) {
-    final context =
+    final PrerollContext context =
         PrerollContext(ignoreRasterCache ? null : frame.rasterCache);
     rootLayer.preroll(context, Matrix4.identity());
   }
@@ -29,7 +29,7 @@ class LayerTree {
   /// If [ignoreRasterCache] is `true`, then the raster cache will
   /// not be used.
   void paint(Frame frame, {bool ignoreRasterCache = false}) {
-    final context = PaintContext(
+    final PaintContext context = PaintContext(
         frame.canvas, ignoreRasterCache ? null : frame.rasterCache);
     if (rootLayer.needsPainting) {
       rootLayer.paint(context);

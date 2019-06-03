@@ -8,12 +8,12 @@ part of engine;
 /// it was composited.
 ///
 /// Also paints an on-screen overlay with the numbers visualized as a timeline.
-const _debugExplainSurfaceStats = false;
+const bool _debugExplainSurfaceStats = false;
 
 /// When `true` shows an overlay that contains stats about canvas reuse.
 ///
 /// The overlay also includes a button to reset the stats.
-const _debugShowCanvasReuseStats = false;
+const bool _debugShowCanvasReuseStats = false;
 
 /// When `true` renders the outlines of clip layers on the screen instead of
 /// clipping the contents.
@@ -27,7 +27,7 @@ bool debugShowClipLayers = false;
 /// As we improve canvas utilization we should decrease this number. It is
 /// unlikely that we will hit 1.0, but something around 3.0 should be
 /// reasonable.
-const _kScreenPixelRatioWarningThreshold = 6.0;
+const double _kScreenPixelRatioWarningThreshold = 6.0;
 
 int _debugFrameNumber = 0;
 
@@ -71,11 +71,11 @@ void commitScene(PersistedScene scene) {
     _debugRepaintSurfaceStatsOverlay(scene);
   }
   assert(() {
-    final validationErrors = <String>[];
+    final List<String> validationErrors = <String>[];
     scene.debugValidate(validationErrors);
     if (validationErrors.isNotEmpty) {
       print('ENGINE LAYER TREE INCONSISTENT:\n'
-          '${validationErrors.map((e) => '  - $e\n').join()}');
+          '${validationErrors.map((String e) => '  - $e\n').join()}');
     }
     return true;
   }());
@@ -119,7 +119,7 @@ List<Map<PersistedSurface, _DebugSurfaceStats>> _surfaceStatsTimeline =
 /// Returns debug statistics for the given [surface].
 _DebugSurfaceStats _surfaceStatsFor(PersistedSurface surface) {
   if (!_debugExplainSurfaceStats) {
-    throw new Exception(
+    throw Exception(
         '_surfaceStatsFor is only available when _debugExplainSurfaceStats is set to true.');
   }
   return _surfaceStats.putIfAbsent(surface, () => _DebugSurfaceStats(surface));
@@ -189,10 +189,10 @@ html.CanvasRenderingContext2D _debugSurfaceStatsOverlayCtx;
 
 void _debugRepaintSurfaceStatsOverlay(PersistedScene scene) {
   final int overlayWidth = html.window.innerWidth;
-  final rowHeight = 30;
-  final rowCount = 4;
-  final int overlayHeight = rowHeight * rowCount;
-  final int strokeWidth = 2;
+  const int rowHeight = 30;
+  const int rowCount = 4;
+  const int overlayHeight = rowHeight * rowCount;
+  const int strokeWidth = 2;
 
   _surfaceStatsTimeline.add(_surfaceStats);
 
@@ -231,17 +231,17 @@ void _debugRepaintSurfaceStatsOverlay(PersistedScene scene) {
   final int totalDomNodeCount = scene.rootElement.querySelectorAll('*').length;
 
   for (int i = 0; i < _surfaceStatsTimeline.length; i++) {
+    final Map<PersistedSurface, _DebugSurfaceStats> statsMap =
+        _surfaceStatsTimeline[i];
     final _DebugSurfaceStats totals = _DebugSurfaceStats(null);
     int pixelCount = 0;
-    _surfaceStatsTimeline[i]
-        .values
-        .forEach((_DebugSurfaceStats oneSurfaceStats) {
+    for (_DebugSurfaceStats oneSurfaceStats in statsMap.values) {
       totals.aggregate(oneSurfaceStats);
       if (oneSurfaceStats.surface is PersistedPicture) {
         final PersistedPicture picture = oneSurfaceStats.surface;
         pixelCount += picture.bitmapPixelCount;
       }
-    });
+    }
 
     final double repaintRate = totals.paintPixelCount / pixelCount;
     final double domAllocationRate =
@@ -327,7 +327,7 @@ void _debugPrintSurfaceStats(PersistedScene scene, int frameNumber) {
   int totalAllocatedDomNodeCount = 0;
 
   void countReusesRecursively(PersistedSurface surface) {
-    _DebugSurfaceStats stats = _surfaceStatsFor(surface);
+    final _DebugSurfaceStats stats = _surfaceStatsFor(surface);
     assert(stats != null);
 
     surfaceRetainCount += stats.retainSurfaceCount;
@@ -361,7 +361,7 @@ void _debugPrintSurfaceStats(PersistedScene scene, int frameNumber) {
   final StringBuffer buf = StringBuffer();
   buf
     ..writeln(
-        '---------------------- FRAME #${frameNumber} -------------------------')
+        '---------------------- FRAME #$frameNumber -------------------------')
     ..writeln('Surfaces retained: $surfaceRetainCount')
     ..writeln('Elements reused: $elementReuseCount')
     ..writeln('Elements allocated: $totalAllocatedDomNodeCount')
@@ -371,7 +371,7 @@ void _debugPrintSurfaceStats(PersistedScene scene, int frameNumber) {
     ..writeln('DOM canvases:')
     ..writeln('  Painted: $domPaintCount')
     ..writeln('  Skipped painting: ${domCanvasCount - domPaintCount}')
-    ..writeln('Bitmap canvases: ${bitmapCanvasCount}')
+    ..writeln('Bitmap canvases: $bitmapCanvasCount')
     ..writeln('  Painted: $bitmapPaintCount')
     ..writeln('  Skipped painting: ${bitmapCanvasCount - bitmapPaintCount}')
     ..writeln('  Reused: $bitmapReuseCount')
@@ -382,13 +382,14 @@ void _debugPrintSurfaceStats(PersistedScene scene, int frameNumber) {
   // A microtask will fire after the DOM is flushed, letting us probe into
   // actual <canvas> tags.
   scheduleMicrotask(() {
-    final canvasElements = html.document.querySelectorAll('canvas');
+    final html.ElementList<html.CanvasElement> canvasElements =
+        html.document.querySelectorAll('canvas');
     final StringBuffer canvasInfo = StringBuffer();
     final int pixelCount = canvasElements
         .cast<html.CanvasElement>()
         .map<int>((html.CanvasElement e) {
       final int pixels = e.width * e.height;
-      canvasInfo.writeln('    - ${e.width} x ${e.height} = ${pixels} pixels');
+      canvasInfo.writeln('    - ${e.width} x ${e.height} = $pixels pixels');
       return pixels;
     }).fold(0, (int total, int pixels) => total + pixels);
     final double physicalScreenWidth =
@@ -399,15 +400,15 @@ void _debugPrintSurfaceStats(PersistedScene scene, int frameNumber) {
         physicalScreenWidth * physicalScreenHeight;
     final double screenPixelRatio = pixelCount / physicsScreenPixelCount;
     final String screenDescription =
-        '1 screen is ${physicalScreenWidth} x ${physicalScreenHeight} = ${physicsScreenPixelCount} pixels';
+        '1 screen is $physicalScreenWidth x $physicalScreenHeight = $physicsScreenPixelCount pixels';
     final String canvasPixelDescription =
-        '${pixelCount} (${screenPixelRatio.toStringAsFixed(2)} x screens';
+        '$pixelCount (${screenPixelRatio.toStringAsFixed(2)} x screens';
     buf
       ..writeln('  Elements: ${canvasElements.length}')
       ..writeln(canvasInfo)
       ..writeln('  Pixels: $canvasPixelDescription; $screenDescription)')
       ..writeln('-----------------------------------------------------------');
-    bool screenPixelRatioTooHigh =
+    final bool screenPixelRatioTooHigh =
         screenPixelRatio > _kScreenPixelRatioWarningThreshold;
     if (screenPixelRatioTooHigh) {
       print(
@@ -637,13 +638,10 @@ abstract class PersistedSurface implements ui.EngineLayer {
   /// Creates a DOM element for this surface preconfigured with common
   /// attributes, such as absolute positioning and debug information.
   html.Element defaultCreateElement(String tagName) {
-    final element = html.Element.tag(tagName);
+    final html.Element element = html.Element.tag(tagName);
     element.style.position = 'absolute';
     if (assertionsEnabled) {
-      element.setAttribute(
-        'created-by',
-        '${this.paintedBy.runtimeType}',
-      );
+      element.setAttribute('created-by', '${paintedBy.runtimeType}');
     }
     return element;
   }
@@ -722,7 +720,7 @@ abstract class PersistedSurface implements ui.EngineLayer {
   @override
   String toString() {
     if (assertionsEnabled) {
-      final log = StringBuffer();
+      final StringBuffer log = StringBuffer();
       debugPrint(log, 0);
       return log.toString();
     } else {
@@ -771,7 +769,7 @@ abstract class PersistedContainerSurface extends PersistedSurface {
       while (container != null &&
           container.paintedBy != null &&
           identical(container.paintedBy, paintedBy)) {
-        container._descendants ??= Set<Object>();
+        container._descendants ??= <Object>{};
         container._descendants.add(child.paintedBy);
         container = container.parent;
       }
@@ -782,7 +780,7 @@ abstract class PersistedContainerSurface extends PersistedSurface {
   void build() {
     super.build();
     // Memoize length for efficiency.
-    final len = _children.length;
+    final int len = _children.length;
     // Memoize container element for efficiency. [childContainer] is polymorphic
     final html.Element containerElement = childContainer;
     for (int i = 0; i < len; i++) {
@@ -812,9 +810,9 @@ abstract class PersistedContainerSurface extends PersistedSurface {
   }
 
   @override
-  void update(PersistedContainerSurface oldContainer) {
-    assert(isTotalMatchFor(oldContainer) || isFuzzyMatchFor(oldContainer));
-    super.update(oldContainer);
+  void update(PersistedContainerSurface oldSurface) {
+    assert(isTotalMatchFor(oldSurface) || isFuzzyMatchFor(oldSurface));
+    super.update(oldSurface);
 
     // A simple algorithms that attempts to reuse DOM elements from the previous
     // frame:
@@ -829,7 +827,7 @@ abstract class PersistedContainerSurface extends PersistedSurface {
     // - If no reusable element is found, creates a new one.
 
     int bottomInNew = _children.length - 1;
-    int bottomInOld = oldContainer._children.length - 1;
+    int bottomInOld = oldSurface._children.length - 1;
 
     // Memoize container element for efficiency. [childContainer] is polymorphic
     final html.Element containerElement = childContainer;
@@ -864,9 +862,9 @@ abstract class PersistedContainerSurface extends PersistedSurface {
         insertDomNodeIfMoved(newChild);
         _retainSurface(newChild);
       } else {
-        final PersistedSurface oldChild = oldContainer._children[bottomInOld];
-        bool onlyChildren =
-            _children.length == 1 && oldContainer._children.length == 1;
+        final PersistedSurface oldChild = oldSurface._children[bottomInOld];
+        final bool onlyChildren =
+            _children.length == 1 && oldSurface._children.length == 1;
         if (onlyChildren && oldChild.isFuzzyMatchFor(newChild) ||
             oldChild.isTotalMatchFor(newChild)) {
           _updateChild(newChild, oldChild);
@@ -881,8 +879,9 @@ abstract class PersistedContainerSurface extends PersistedSurface {
           // and not perform any allocations than utilize fancier data structures
           // (e.g. maps).
           while (searchPointer >= 0) {
-            final candidate = oldContainer._children[searchPointer];
-            final isNotYetReused = candidate.rootElement != null;
+            final PersistedSurface candidate =
+                oldSurface._children[searchPointer];
+            final bool isNotYetReused = candidate.rootElement != null;
             if (isNotYetReused && candidate.isTotalMatchFor(newChild)) {
               match = candidate;
               break;
@@ -910,7 +909,7 @@ abstract class PersistedContainerSurface extends PersistedSurface {
       // but there are still elements in the new list that need to be updated.
       // Since there are no more old elements to reuse, we build new ones.
       assert(bottomInOld == -1);
-      final newChild = _children[bottomInNew];
+      final PersistedSurface newChild = _children[bottomInNew];
 
       if (newChild.reuseStrategy == PersistedSurfaceReuseStrategy.retain) {
         _retainSurface(newChild);
@@ -926,9 +925,9 @@ abstract class PersistedContainerSurface extends PersistedSurface {
     }
 
     // Remove elements that were not reused this frame.
-    final len = oldContainer._children.length;
+    final int len = oldSurface._children.length;
     for (int i = 0; i < len; i++) {
-      PersistedSurface oldChild = oldContainer._children[i];
+      final PersistedSurface oldChild = oldSurface._children[i];
 
       // Only recycle nodes that still have DOM nodes and they have not been
       // retained.
@@ -941,11 +940,11 @@ abstract class PersistedContainerSurface extends PersistedSurface {
     // At the end of this all children should have an element each, and it
     // should be attached to this container's element.
     assert(() {
-      for (int i = 0; i < oldContainer._children.length; i++) {
-        if (oldContainer._children[i].reuseStrategy !=
+      for (int i = 0; i < oldSurface._children.length; i++) {
+        if (oldSurface._children[i].reuseStrategy !=
             PersistedSurfaceReuseStrategy.retain) {
-          assert(oldContainer._children[i].rootElement == null);
-          assert(oldContainer._children[i].childContainer == null);
+          assert(oldSurface._children[i].rootElement == null);
+          assert(oldSurface._children[i].childContainer == null);
         }
       }
       for (int i = 0; i < _children.length; i++) {
@@ -976,6 +975,7 @@ abstract class PersistedContainerSurface extends PersistedSurface {
     super.recycle();
   }
 
+  @override
   @protected
   @mustCallSuper
   void debugValidate(List<String> validationErrors) {

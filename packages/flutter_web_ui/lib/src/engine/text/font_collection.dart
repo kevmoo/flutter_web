@@ -1,8 +1,9 @@
 part of engine;
 
-const _testFontFamily = 'Ahem';
-const _testFontUrl = 'packages/flutter_web/assets/Ahem.ttf';
-const _robotoFontUrl = 'packages/flutter_web_ui/assets/Roboto-Regular.ttf';
+const String _testFontFamily = 'Ahem';
+const String _testFontUrl = 'packages/flutter_web/assets/Ahem.ttf';
+const String _robotoFontUrl =
+    'packages/flutter_web_ui/assets/Roboto-Regular.ttf';
 
 /// This class is responsible for registering and loading fonts.
 ///
@@ -32,14 +33,14 @@ class FontCollection {
     }
 
     if (byteData == null) {
-      throw new AssertionError(
+      throw AssertionError(
           'There was a problem trying to load FontManifest.json');
     }
 
-    final List fontManifest =
+    final List<dynamic> fontManifest =
         json.decode(utf8.decode(byteData.buffer.asUint8List()));
     if (fontManifest == null) {
-      throw new AssertionError(
+      throw AssertionError(
           'There was a problem trying to load FontManifest.json');
     }
 
@@ -58,12 +59,12 @@ class FontCollection {
 
     for (Map<String, dynamic> fontFamily in fontManifest) {
       final String family = fontFamily['family'];
-      final List fontAssets = fontFamily['fonts'];
+      final List<Map<String, dynamic>> fontAssets = fontFamily['fonts'];
 
       for (Map<String, dynamic> fontAsset in fontAssets) {
         final String asset = fontAsset['asset'];
-        final descriptors = <String, String>{};
-        for (var descriptor in fontAsset.keys) {
+        final Map<String, String> descriptors = <String, String>{};
+        for (String descriptor in fontAsset.keys) {
           if (descriptor != 'asset') {
             descriptors[descriptor] = '${fontAsset[descriptor]}';
           }
@@ -100,7 +101,7 @@ class FontCollection {
 
 /// Manages a collection of fonts and ensures they are loaded.
 class _FontManager {
-  final _fontLoadingFutures = <Future<void>>[];
+  final List<Future<void>> _fontLoadingFutures = <Future<void>>[];
 
   factory _FontManager() {
     if (supportsFontLoadingApi) {
@@ -143,11 +144,10 @@ class _PolyfillFontManager extends _FontManager {
   _PolyfillFontManager() : super._();
 
   /// A String containing characters whose width varies greatly between fonts.
-  static const _testString = 'giItT1WQy@!-/#';
+  static const String _testString = 'giItT1WQy@!-/#';
 
-  static const Duration _fontLoadTimeout = const Duration(seconds: 2);
-  static const Duration _fontLoadRetryDuration =
-      const Duration(milliseconds: 50);
+  static const Duration _fontLoadTimeout = Duration(seconds: 2);
+  static const Duration _fontLoadRetryDuration = Duration(milliseconds: 50);
 
   @override
   void registerAsset(
@@ -155,7 +155,7 @@ class _PolyfillFontManager extends _FontManager {
     String asset,
     Map<String, String> descriptors,
   ) {
-    final paragraph = html.ParagraphElement();
+    final html.ParagraphElement paragraph = html.ParagraphElement();
     paragraph.style.position = 'absolute';
     paragraph.style.visibility = 'hidden';
     paragraph.style.fontSize = '72px';
@@ -169,11 +169,11 @@ class _PolyfillFontManager extends _FontManager {
     paragraph.text = _testString;
 
     html.document.body.append(paragraph);
-    final sansSerifWidth = paragraph.offsetWidth;
+    final int sansSerifWidth = paragraph.offsetWidth;
 
     paragraph.style.fontFamily = '$family, sans-serif';
 
-    Completer<void> completer = Completer<void>();
+    final Completer<void> completer = Completer<void>();
 
     DateTime _fontLoadStart;
 
@@ -191,7 +191,7 @@ class _PolyfillFontManager extends _FontManager {
       }
     }
 
-    final fontStyleMap = <String, String>{};
+    final Map<String, String> fontStyleMap = <String, String>{};
     fontStyleMap['font-family'] = "'$family'";
     fontStyleMap['src'] = asset;
     if (descriptors['style'] != null) {
@@ -200,10 +200,10 @@ class _PolyfillFontManager extends _FontManager {
     if (descriptors['weight'] != null) {
       fontStyleMap['font-weight'] = descriptors['weight'];
     }
-    final fontFaceDeclaration = fontStyleMap.keys
-        .map((name) => '$name: ${fontStyleMap[name]};')
+    final String fontFaceDeclaration = fontStyleMap.keys
+        .map((String name) => '$name: ${fontStyleMap[name]};')
         .join(' ');
-    final fontLoadStyle = html.StyleElement();
+    final html.StyleElement fontLoadStyle = html.StyleElement();
     fontLoadStyle.type = 'text/css';
     fontLoadStyle.innerHtml = '@font-face { $fontFaceDeclaration }';
     html.document.head.append(fontLoadStyle);

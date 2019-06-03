@@ -17,24 +17,24 @@ class HtmlCodec implements ui.Codec {
 
   @override
   Future<ui.FrameInfo> getNextFrame() async {
-    StreamSubscription subscription;
-    StreamSubscription errorSubscription;
-    final completer = Completer<ui.FrameInfo>();
+    StreamSubscription<html.Event> subscription;
+    StreamSubscription<html.Event> errorSubscription;
+    final Completer<ui.FrameInfo> completer = Completer<ui.FrameInfo>();
     final html.ImageElement imgElement = html.ImageElement();
     subscription = imgElement.onLoad.listen((_) {
       subscription.cancel();
       errorSubscription.cancel();
-      final image = HtmlImage(
+      final HtmlImage image = HtmlImage(
         imgElement,
         imgElement.naturalWidth,
         imgElement.naturalHeight,
       );
       completer.complete(SingleFrameInfo(image));
     });
-    errorSubscription = imgElement.onError.listen((e) {
+    errorSubscription = imgElement.onError.listen((html.Event event) {
       subscription.cancel();
       errorSubscription.cancel();
-      completer.completeError(e);
+      completer.completeError(event);
     });
     imgElement.src = src;
     return completer.future;

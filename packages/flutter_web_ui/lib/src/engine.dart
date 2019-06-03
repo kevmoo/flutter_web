@@ -4,12 +4,9 @@
 
 library engine;
 
-import '../ui.dart' as ui;
-
 import 'dart:async';
-import 'dart:developer' as developer;
-import 'dart:collection';
 import 'dart:convert' hide Codec;
+import 'dart:developer' as developer;
 import 'dart:html' as html;
 import 'dart:js' as js;
 import 'dart:js_util' as js_util;
@@ -17,6 +14,8 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+
+import '../ui.dart' as ui;
 
 part 'engine/alarm_clock.dart';
 part 'engine/assets.dart';
@@ -110,7 +109,8 @@ void webOnlyInitializeEngine() {
     for (ui.VoidCallback listener in _hotRestartListeners) {
       listener();
     }
-    return Future.value(developer.ServiceExtensionResponse.result('OK'));
+    return Future<developer.ServiceExtensionResponse>.value(
+        developer.ServiceExtensionResponse.result('OK'));
   });
 
   _engineInitialized = true;
@@ -134,11 +134,11 @@ void webOnlyInitializeEngine() {
         // milliseconds as a double value, with sub-millisecond information
         // hidden in the fraction. So we first multiply it by 1000 to uncover
         // microsecond precision, and only then convert to `int`.
-        final highResTimeMicroseconds = (1000 * highResTime).toInt();
+        final int highResTimeMicroseconds = (1000 * highResTime).toInt();
 
         if (ui.window.onBeginFrame != null) {
-          ui.window.onBeginFrame(
-              new Duration(microseconds: highResTimeMicroseconds));
+          ui.window
+              .onBeginFrame(Duration(microseconds: highResTimeMicroseconds));
         }
 
         if (ui.window.onDrawFrame != null) {
@@ -156,5 +156,6 @@ void webOnlyInitializeEngine() {
 }
 
 class _NullTreeSanitizer implements html.NodeTreeSanitizer {
+  @override
   void sanitizeTree(html.Node node) {}
 }
