@@ -14,7 +14,7 @@ import 'matchers.dart';
 void main() {
   group('SceneBuilder', () {
     test('pushOffset implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
         return sceneBuilder.pushOffset(10, 20, webOnlyPaintedBy: paintedBy);
       }, () {
         return '''<s><flt-offset></flt-offset></s>''';
@@ -22,7 +22,7 @@ void main() {
     });
 
     test('pushTransform implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
         return sceneBuilder.pushTransform(
             Matrix4.translationValues(10, 20, 0).storage,
             webOnlyPaintedBy: paintedBy);
@@ -32,8 +32,8 @@ void main() {
     });
 
     test('pushClipRect implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
-        return sceneBuilder.pushClipRect(Rect.fromLTRB(10, 20, 30, 40),
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
+        return sceneBuilder.pushClipRect(const Rect.fromLTRB(10, 20, 30, 40),
             webOnlyPaintedBy: paintedBy);
       }, () {
         return '''
@@ -45,9 +45,9 @@ void main() {
     });
 
     test('pushClipRRect implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
         return sceneBuilder.pushClipRRect(
-            RRect.fromLTRBR(10, 20, 30, 40, Radius.circular(3)),
+            RRect.fromLTRBR(10, 20, 30, 40, const Radius.circular(3)),
             webOnlyPaintedBy: paintedBy);
       }, () {
         return '''
@@ -59,8 +59,8 @@ void main() {
     });
 
     test('pushClipPath implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
-        final Path path = Path()..addRect(Rect.fromLTRB(10, 20, 30, 40));
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
+        final Path path = Path()..addRect(const Rect.fromLTRB(10, 20, 30, 40));
         return sceneBuilder.pushClipPath(path, webOnlyPaintedBy: paintedBy);
       }, () {
         return '''
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('pushOpacity implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
         return sceneBuilder.pushOpacity(10, webOnlyPaintedBy: paintedBy);
       }, () {
         return '''<s><o></o></s>''';
@@ -82,13 +82,13 @@ void main() {
     });
 
     test('pushPhysicalShape implements surface lifecycle', () {
-      testLayerLifeCycle((sceneBuilder, paintedBy) {
-        final Path path = Path()..addRect(Rect.fromLTRB(10, 20, 30, 40));
+      testLayerLifeCycle((SceneBuilder sceneBuilder, Object paintedBy) {
+        final Path path = Path()..addRect(const Rect.fromLTRB(10, 20, 30, 40));
         return sceneBuilder.pushPhysicalShape(
           path: path,
           elevation: 2,
-          color: Color.fromRGBO(0, 0, 0, 1),
-          shadowColor: Color.fromRGBO(0, 0, 0, 1),
+          color: const Color.fromRGBO(0, 0, 0, 1),
+          shadowColor: const Color.fromRGBO(0, 0, 0, 1),
           webOnlyPaintedBy: paintedBy,
         );
       }, () {
@@ -104,7 +104,7 @@ void main() {
       final Object paintedBy = Object();
       final PersistedScene scene1 = PersistedScene();
       final PersistedClipRect clip1 =
-          PersistedClipRect(paintedBy, Rect.fromLTRB(10, 10, 20, 20));
+          PersistedClipRect(paintedBy, const Rect.fromLTRB(10, 10, 20, 20));
       final PersistedOpacity opacity =
           PersistedOpacity(paintedBy, 100, Offset.zero);
       final MockPersistedPicture picture = MockPersistedPicture(paintedBy);
@@ -128,7 +128,7 @@ void main() {
       // because the clip didn't change no repaints should happen.
       final PersistedScene scene2 = PersistedScene();
       final PersistedClipRect clip2 =
-          PersistedClipRect(paintedBy, Rect.fromLTRB(10, 10, 20, 20));
+          PersistedClipRect(paintedBy, const Rect.fromLTRB(10, 10, 20, 20));
       scene2.appendChild(clip2);
       opacity.reuseStrategy = PersistedSurfaceReuseStrategy.retain;
       clip2.appendChild(opacity);
@@ -143,7 +143,7 @@ void main() {
       // This should cause the picture to repaint despite being retained.
       final PersistedScene scene3 = PersistedScene();
       final PersistedClipRect clip3 =
-          PersistedClipRect(paintedBy, Rect.fromLTRB(10, 10, 50, 50));
+          PersistedClipRect(paintedBy, const Rect.fromLTRB(10, 10, 50, 50));
       scene3.appendChild(clip3);
       opacity.reuseStrategy = PersistedSurfaceReuseStrategy.retain;
       clip3.appendChild(opacity);
@@ -180,7 +180,7 @@ void testLayerLifeCycle(
 
   PersistedSurface findSurface() {
     return enumerateSurfaces()
-        .where((s) => s.runtimeType == surfaceType)
+        .where((PersistedSurface s) => s.runtimeType == surfaceType)
         .single;
   }
 

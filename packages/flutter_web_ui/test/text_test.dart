@@ -19,7 +19,7 @@ void main() {
       ));
       builder.addText('Test');
       final Paragraph paragraph = builder.build();
-      paragraph.layout(ParagraphConstraints(width: 400.0));
+      paragraph.layout(const ParagraphConstraints(width: 400.0));
 
       expect(paragraph.height, fontSize);
       expect(paragraph.width, 400.0);
@@ -65,14 +65,14 @@ void main() {
   });
 
   test('lay out unattached paragraph', () {
-    var builder = ParagraphBuilder(ParagraphStyle(
+    final ParagraphBuilder builder = ParagraphBuilder(ParagraphStyle(
       fontFamily: 'sans-serif',
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
       fontSize: 14.0,
     ));
     builder.addText('How do you do this fine morning?');
-    var paragraph = builder.build();
+    final Paragraph paragraph = builder.build();
 
     expect(paragraph.webOnlyGetParagraphElement().parent, isNull);
     expect(paragraph.height, 0.0);
@@ -82,7 +82,7 @@ void main() {
     expect(paragraph.alphabeticBaseline, -1.0);
     expect(paragraph.ideographicBaseline, -1.0);
 
-    paragraph.layout(ParagraphConstraints(width: 60.0));
+    paragraph.layout(const ParagraphConstraints(width: 60.0));
 
     expect(paragraph.webOnlyGetParagraphElement().parent, isNull);
     expect(paragraph.height, greaterThan(0.0));
@@ -96,23 +96,23 @@ void main() {
 
   Paragraph measure(
       {String text = 'Hello', double fontSize = 14.0, double width = 50.0}) {
-    final builder = ParagraphBuilder(ParagraphStyle(
+    final ParagraphBuilder builder = ParagraphBuilder(ParagraphStyle(
       fontFamily: 'sans-serif',
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
       fontSize: fontSize,
     ));
     builder.addText(text);
-    var paragraph = builder.build();
+    final Paragraph paragraph = builder.build();
     paragraph.layout(ParagraphConstraints(width: width));
     return paragraph;
   }
 
   test('baseline increases with font size', () {
-    var previousParagraph = measure(fontSize: 10.0);
+    Paragraph previousParagraph = measure(fontSize: 10.0);
     for (int i = 0; i < 6; i++) {
-      double fontSize = 20.0 + 10.0 * i;
-      final paragraph = measure(fontSize: fontSize);
+      final double fontSize = 20.0 + 10.0 * i;
+      final Paragraph paragraph = measure(fontSize: fontSize);
       expect(paragraph.alphabeticBaseline,
           greaterThan(previousParagraph.alphabeticBaseline));
       expect(paragraph.ideographicBaseline,
@@ -122,23 +122,23 @@ void main() {
   });
 
   test('baseline does not depend on text', () {
-    var golden = measure(fontSize: 30.0);
+    final Paragraph golden = measure(fontSize: 30.0);
     for (int i = 1; i < 30; i++) {
-      final paragraph = measure(text: 'hello ' * i, fontSize: 30.0);
+      final Paragraph paragraph = measure(text: 'hello ' * i, fontSize: 30.0);
       expect(paragraph.alphabeticBaseline, golden.alphabeticBaseline);
       expect(paragraph.ideographicBaseline, golden.ideographicBaseline);
     }
   });
 
   test('$ParagraphBuilder detects plain text', () {
-    var builder = ParagraphBuilder(ParagraphStyle(
+    ParagraphBuilder builder = ParagraphBuilder(ParagraphStyle(
       fontFamily: 'sans-serif',
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
       fontSize: 15.0,
     ));
     builder.addText('hi');
-    var paragraph = builder.build();
+    Paragraph paragraph = builder.build();
     expect(paragraph.webOnlyGetPlainText(), isNotNull);
     expect(paragraph.webOnlyGetParagraphGeometricStyle().fontWeight,
         FontWeight.normal);
@@ -158,7 +158,7 @@ void main() {
   });
 
   test('$ParagraphBuilder detects rich text', () {
-    var builder = ParagraphBuilder(ParagraphStyle(
+    final ParagraphBuilder builder = ParagraphBuilder(ParagraphStyle(
       fontFamily: 'sans-serif',
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
@@ -167,21 +167,21 @@ void main() {
     builder.addText('h');
     builder.pushStyle(TextStyle(fontWeight: FontWeight.bold));
     builder.addText('i');
-    var paragraph = builder.build();
+    final Paragraph paragraph = builder.build();
     expect(paragraph.webOnlyGetPlainText(), isNull);
     expect(paragraph.webOnlyGetParagraphGeometricStyle().fontWeight,
         FontWeight.normal);
   });
 
   test('$ParagraphBuilder treats empty text as plain', () {
-    var builder = ParagraphBuilder(ParagraphStyle(
+    final ParagraphBuilder builder = ParagraphBuilder(ParagraphStyle(
       fontFamily: 'sans-serif',
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
       fontSize: 15.0,
     ));
     builder.pushStyle(TextStyle(fontWeight: FontWeight.bold));
-    var paragraph = builder.build();
+    final Paragraph paragraph = builder.build();
     expect(paragraph.webOnlyGetPlainText(), '');
     expect(paragraph.webOnlyGetParagraphGeometricStyle().fontWeight,
         FontWeight.bold);

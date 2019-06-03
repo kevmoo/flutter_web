@@ -9,7 +9,7 @@ import 'package:flutter_web_ui/ui.dart' as ui;
 import 'package:flutter_web_ui/src/engine.dart';
 import 'package:flutter_web_test/flutter_web_test.dart';
 
-final MethodCodec codec = JSONMethodCodec();
+const MethodCodec codec = JSONMethodCodec();
 
 TextEditingElement editingElement;
 EditingState lastEditingState;
@@ -310,7 +310,7 @@ void main() {
 
   group('$HybridTextEditing', () {
     HybridTextEditing textEditing;
-    PlatformMessagesSpy spy = PlatformMessagesSpy();
+    final PlatformMessagesSpy spy = PlatformMessagesSpy();
 
     setUp(() {
       textEditing = HybridTextEditing();
@@ -322,19 +322,20 @@ void main() {
     });
 
     test('setClient, show, setEditingState, hide', () {
-      MethodCall setClient =
-          MethodCall('TextInput.setClient', [123, flutterSinglelineConfig]);
+      final MethodCall setClient = MethodCall(
+          'TextInput.setClient', <dynamic>[123, flutterSinglelineConfig]);
       textEditing.handleTextInput(codec.encodeMethodCall(setClient));
 
       // Editing shouldn't have started yet.
       expect(document.activeElement, document.body);
 
-      MethodCall show = MethodCall('TextInput.show');
+      const MethodCall show = MethodCall('TextInput.show');
       textEditing.handleTextInput(codec.encodeMethodCall(show));
 
       checkInputEditingState(textEditing.editingElement.domElement, '', 0, 0);
 
-      MethodCall setEditingState = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'abcd',
         'selectionBase': 2,
         'selectionExtent': 3,
@@ -344,7 +345,7 @@ void main() {
       checkInputEditingState(
           textEditing.editingElement.domElement, 'abcd', 2, 3);
 
-      MethodCall hide = MethodCall('TextInput.hide');
+      const MethodCall hide = MethodCall('TextInput.hide');
       textEditing.handleTextInput(codec.encodeMethodCall(hide));
 
       // Text editing should've stopped.
@@ -355,11 +356,12 @@ void main() {
     });
 
     test('setClient, setEditingState, show, clearClient', () {
-      MethodCall setClient =
-          MethodCall('TextInput.setClient', [123, flutterSinglelineConfig]);
+      final MethodCall setClient = MethodCall(
+          'TextInput.setClient', <dynamic>[123, flutterSinglelineConfig]);
       textEditing.handleTextInput(codec.encodeMethodCall(setClient));
 
-      MethodCall setEditingState = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'abcd',
         'selectionBase': 2,
         'selectionExtent': 3,
@@ -369,13 +371,13 @@ void main() {
       // Editing shouldn't have started yet.
       expect(document.activeElement, document.body);
 
-      MethodCall show = MethodCall('TextInput.show');
+      const MethodCall show = MethodCall('TextInput.show');
       textEditing.handleTextInput(codec.encodeMethodCall(show));
 
       checkInputEditingState(
           textEditing.editingElement.domElement, 'abcd', 2, 3);
 
-      MethodCall clearClient = MethodCall('TextInput.clearClient');
+      const MethodCall clearClient = MethodCall('TextInput.clearClient');
       textEditing.handleTextInput(codec.encodeMethodCall(clearClient));
 
       expect(document.activeElement, document.body);
@@ -385,21 +387,23 @@ void main() {
     });
 
     test('setClient, setEditingState, show, setEditingState, clearClient', () {
-      MethodCall setClient =
-          MethodCall('TextInput.setClient', [123, flutterSinglelineConfig]);
+      final MethodCall setClient = MethodCall(
+          'TextInput.setClient', <dynamic>[123, flutterSinglelineConfig]);
       textEditing.handleTextInput(codec.encodeMethodCall(setClient));
 
-      MethodCall setEditingState1 = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState1 =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'abcd',
         'selectionBase': 2,
         'selectionExtent': 3,
       });
       textEditing.handleTextInput(codec.encodeMethodCall(setEditingState1));
 
-      MethodCall show = MethodCall('TextInput.show');
+      const MethodCall show = MethodCall('TextInput.show');
       textEditing.handleTextInput(codec.encodeMethodCall(show));
 
-      MethodCall setEditingState2 = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState2 =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'xyz',
         'selectionBase': 0,
         'selectionExtent': 2,
@@ -410,7 +414,7 @@ void main() {
       checkInputEditingState(
           textEditing.editingElement.domElement, 'xyz', 0, 2);
 
-      MethodCall clearClient = MethodCall('TextInput.clearClient');
+      const MethodCall clearClient = MethodCall('TextInput.clearClient');
       textEditing.handleTextInput(codec.encodeMethodCall(clearClient));
 
       // Confirm that [HybridTextEditing] didn't send any messages.
@@ -418,18 +422,19 @@ void main() {
     });
 
     test('Syncs the editing state back to Flutter', () {
-      MethodCall setClient =
-          MethodCall('TextInput.setClient', [123, flutterSinglelineConfig]);
+      final MethodCall setClient = MethodCall(
+          'TextInput.setClient', <dynamic>[123, flutterSinglelineConfig]);
       textEditing.handleTextInput(codec.encodeMethodCall(setClient));
 
-      MethodCall setEditingState = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'abcd',
         'selectionBase': 2,
         'selectionExtent': 3,
       });
       textEditing.handleTextInput(codec.encodeMethodCall(setEditingState));
 
-      MethodCall show = MethodCall('TextInput.show');
+      const MethodCall show = MethodCall('TextInput.show');
       textEditing.handleTextInput(codec.encodeMethodCall(show));
 
       final InputElement input = textEditing.editingElement.domElement;
@@ -443,9 +448,13 @@ void main() {
       expect(call.method, 'TextInputClient.updateEditingState');
       expect(
         call.arguments,
-        [
+        <dynamic>[
           123, // Client ID
-          {'text': 'something', 'selectionBase': 9, 'selectionExtent': 9}
+          <String, dynamic>{
+            'text': 'something',
+            'selectionBase': 9,
+            'selectionExtent': 9
+          }
         ],
       );
 
@@ -458,32 +467,37 @@ void main() {
       expect(call.method, 'TextInputClient.updateEditingState');
       expect(
         call.arguments,
-        [
+        <dynamic>[
           123, // Client ID
-          {'text': 'something', 'selectionBase': 2, 'selectionExtent': 5}
+          <String, dynamic>{
+            'text': 'something',
+            'selectionBase': 2,
+            'selectionExtent': 5
+          }
         ],
       );
 
-      MethodCall clearClient = MethodCall('TextInput.clearClient');
+      const MethodCall clearClient = MethodCall('TextInput.clearClient');
       textEditing.handleTextInput(codec.encodeMethodCall(clearClient));
     });
 
     test('Multi-line mode also works', () {
-      MethodCall setClient =
-          MethodCall('TextInput.setClient', [123, flutterMultilineConfig]);
+      final MethodCall setClient = MethodCall(
+          'TextInput.setClient', <dynamic>[123, flutterMultilineConfig]);
       textEditing.handleTextInput(codec.encodeMethodCall(setClient));
 
       // Editing shouldn't have started yet.
       expect(document.activeElement, document.body);
 
-      MethodCall show = MethodCall('TextInput.show');
+      const MethodCall show = MethodCall('TextInput.show');
       textEditing.handleTextInput(codec.encodeMethodCall(show));
 
       final TextAreaElement textarea = textEditing.editingElement.domElement;
       checkTextAreaEditingState(textarea, '', 0, 0);
 
       // Can set editing state and preserve new lines.
-      MethodCall setEditingState = MethodCall('TextInput.setEditingState', {
+      const MethodCall setEditingState =
+          MethodCall('TextInput.setEditingState', <String, dynamic>{
         'text': 'foo\nbar',
         'selectionBase': 2,
         'selectionExtent': 3,
@@ -500,18 +514,22 @@ void main() {
       // Two messages should've been sent. One for the 'input' event and one for
       // the 'selectionchange' event.
       expect(spy.messages, hasLength(2));
-      MethodCall call = spy.messages.last;
+      final MethodCall call = spy.messages.last;
       spy.messages.clear();
       expect(call.method, 'TextInputClient.updateEditingState');
       expect(
         call.arguments,
-        [
+        <dynamic>[
           123, // Client ID
-          {'text': 'something\nelse', 'selectionBase': 2, 'selectionExtent': 5}
+          <String, dynamic>{
+            'text': 'something\nelse',
+            'selectionBase': 2,
+            'selectionExtent': 5
+          }
         ],
       );
 
-      MethodCall hide = MethodCall('TextInput.hide');
+      const MethodCall hide = MethodCall('TextInput.hide');
       textEditing.handleTextInput(codec.encodeMethodCall(hide));
 
       // Text editing should've stopped.
@@ -547,7 +565,7 @@ class PlatformMessagesSpy {
   bool _isActive = false;
   ui.PlatformMessageCallback _backup;
 
-  final List<MethodCall> messages = [];
+  final List<MethodCall> messages = <MethodCall>[];
 
   void activate() {
     assert(!_isActive);

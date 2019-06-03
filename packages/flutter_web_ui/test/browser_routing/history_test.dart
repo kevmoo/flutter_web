@@ -83,7 +83,7 @@ void main() {
 
       await tester.pumpWidget(MyApp());
 
-      Matcher systemNavigatorPop =
+      final Matcher systemNavigatorPop =
           isMethodCall('SystemNavigator.pop', arguments: null);
       expect(log, isNot(contains(systemNavigatorPop)));
 
@@ -125,7 +125,7 @@ void main() {
       expectPage(page1, '/', exists: true);
       expectPage(page2, '/page2', exists: false);
 
-      Matcher systemNavigatorPop =
+      final Matcher systemNavigatorPop =
           isMethodCall('SystemNavigator.pop', arguments: null);
       expect(log, isNot(contains(systemNavigatorPop)));
 
@@ -191,12 +191,15 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorObservers: [WebOnlyNavigatorObserver()],
-      routes: {
-        '/': (_) => MyPage(key: page1, child: Text('Content of home page')),
-        '/page2': (_) => MyPage(key: page2, child: Text('Content of page 2')),
+      navigatorObservers: <NavigatorObserver>[WebOnlyNavigatorObserver()],
+      routes: <String, WidgetBuilder>{
+        '/': (_) =>
+            MyPage(key: page1, child: const Text('Content of home page')),
+        '/page2': (_) =>
+            MyPage(key: page2, child: const Text('Content of page 2')),
       },
     );
   }
@@ -207,25 +210,26 @@ class MyPage extends StatelessWidget {
 
   MyPage({Key key, this.child}) : super(key: key);
 
+  @override
   Widget build(BuildContext context) {
     return Material(
       child: Column(
         children: <Widget>[
           FlatButton(
             key: back,
-            child: Text('< back'),
+            child: const Text('< back'),
             onPressed: () => Navigator.pop(context),
           ),
           Row(
             children: <Widget>[
               RaisedButton(
                 key: tap1,
-                child: Text('Home'),
+                child: const Text('Home'),
                 onPressed: () => Navigator.pushNamed(context, '/'),
               ),
               RaisedButton(
                 key: tap2,
-                child: Text('Page 2'),
+                child: const Text('Page 2'),
                 onPressed: () => Navigator.pushNamed(context, '/page2'),
               ),
             ],
