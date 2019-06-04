@@ -59,9 +59,10 @@ class FontCollection {
 
     for (Map<String, dynamic> fontFamily in fontManifest) {
       final String family = fontFamily['family'];
-      final List<Map<String, dynamic>> fontAssets = fontFamily['fonts'];
+      final List<dynamic> fontAssets = fontFamily['fonts'];
 
-      for (Map<String, dynamic> fontAsset in fontAssets) {
+      for (dynamic fontAssetItem in fontAssets) {
+        Map<String, dynamic> fontAsset = fontAssetItem;
         final String asset = fontAsset['asset'];
         final Map<String, String> descriptors = <String, String>{};
         for (String descriptor in fontAsset.keys) {
