@@ -23,7 +23,7 @@ class Scene {
   /// This is a slow operation that is performed on a background thread.
   Future<Image> toImage(int width, int height) {
     if (width <= 0 || height <= 0) {
-      throw new Exception('Invalid image dimensions.');
+      throw Exception('Invalid image dimensions.');
     }
     throw UnsupportedError('toImage is not supported on the Web');
     // TODO(flutter_web): Implement [_toImage].
@@ -47,7 +47,7 @@ class Scene {
 /// [Picture] using a [PictureRecorder] and a [Canvas], and then add
 /// it to the scene using [addPicture].
 class SceneBuilder {
-  static const webOnlyUseLayerSceneBuilder = false;
+  static const bool webOnlyUseLayerSceneBuilder = false;
 
   /// Creates an empty [SceneBuilder] object.
   factory SceneBuilder() {
@@ -72,14 +72,16 @@ class SceneBuilder {
   engine.PersistedScene get _persistedScene {
     assert(() {
       if (_surfaceStack.length != 1) {
-        final surfacePrintout =
-            _surfaceStack.map((l) => l.runtimeType).toList().join(', ');
+        final String surfacePrintout = _surfaceStack
+            .map((engine.PersistedContainerSurface l) => l.runtimeType)
+            .toList()
+            .join(', ');
         throw Exception('Incorrect sequence of push/pop operations while '
             'building scene surfaces. After building the scene the persisted '
             'surface stack must contain a single element which corresponds '
             'to the scene itself (_PersistedScene). All other surfaces '
             'should have been popped off the stack. Found the following '
-            'surfaces in the stack:\n${surfacePrintout}');
+            'surfaces in the stack:\n$surfacePrintout');
       }
       return true;
     }());
@@ -119,10 +121,10 @@ class SceneBuilder {
   /// See [pop] for details about the operation stack.
   EngineLayer pushTransform(Float64List matrix4, {Object webOnlyPaintedBy}) {
     if (matrix4 == null) {
-      throw new ArgumentError('"matrix4" argument cannot be null');
+      throw ArgumentError('"matrix4" argument cannot be null');
     }
     if (matrix4.length != 16) {
-      throw new ArgumentError('"matrix4" must have 16 entries.');
+      throw ArgumentError('"matrix4" must have 16 entries.');
     }
     return _pushSurface(engine.PersistedTransform(webOnlyPaintedBy, matrix4));
   }
@@ -186,7 +188,7 @@ class SceneBuilder {
   /// See [pop] for details about the operation stack.
   EngineLayer pushColorFilter(Color color, BlendMode blendMode,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// Pushes a backdrop filter operation onto the operation stack.
@@ -197,7 +199,7 @@ class SceneBuilder {
   /// See [pop] for details about the operation stack.
   EngineLayer pushBackdropFilter(ImageFilter filter,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// Pushes a shader mask operation onto the operation stack.
@@ -208,7 +210,7 @@ class SceneBuilder {
   /// See [pop] for details about the operation stack.
   EngineLayer pushShaderMask(Shader shader, Rect maskRect, BlendMode blendMode,
       {Object webOnlyPaintedBy}) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// Pushes a physical layer operation for an arbitrary shape onto the
@@ -250,7 +252,7 @@ class SceneBuilder {
   /// the rendering layer of Flutter's framework, once this is called, there's
   /// no need to call [addToScene] for its children layers.
   void addRetained(EngineLayer retainedLayer) {
-    engine.PersistedContainerSurface retainedSurface = retainedLayer;
+    final engine.PersistedContainerSurface retainedSurface = retainedLayer;
 
     // Request that the layer is retained only if it hasn't been recycled yet.
     if (retainedSurface.rootElement != null) {
@@ -323,8 +325,12 @@ class SceneBuilder {
       bool willChangeHint = false,
       Object webOnlyPaintedBy}) {
     int hints = 0;
-    if (isComplexHint) hints |= 1;
-    if (willChangeHint) hints |= 2;
+    if (isComplexHint) {
+      hints |= 1;
+    }
+    if (willChangeHint) {
+      hints |= 2;
+    }
     _addPicture(offset.dx, offset.dy, picture, hints,
         webOnlyPaintedBy: webOnlyPaintedBy);
   }
@@ -352,7 +358,7 @@ class SceneBuilder {
 
   void _addTexture(double dx, double dy, double width, double height,
       int textureId, Object webOnlyPaintedBy) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// Adds a platform view (e.g an iOS UIView) to the scene.
@@ -379,7 +385,7 @@ class SceneBuilder {
 
   void _addPlatformView(
       double dx, double dy, double width, double height, int viewId) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// (Fuchsia-only) Adds a scene rendered by another application to the scene
@@ -395,7 +401,7 @@ class SceneBuilder {
 
   void _addChildScene(double dx, double dy, double width, double height,
       SceneHost sceneHost, bool hitTestable) {
-    throw new UnimplementedError();
+    throw UnimplementedError();
   }
 
   /// Sets a threshold after which additional debugging information should be
@@ -479,7 +485,7 @@ class SceneBuilder {
     }
     engine.commitScene(_persistedScene);
     _lastFrameScene = _persistedScene;
-    return new Scene._(_persistedScene.rootElement);
+    return Scene._(_persistedScene.rootElement);
   }
 
   /// Set properties on the linked scene.  These properties include its bounds,

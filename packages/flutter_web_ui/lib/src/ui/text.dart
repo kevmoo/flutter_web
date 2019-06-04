@@ -238,8 +238,12 @@ class FontFeature {
 
   @override
   bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
     final FontFeature typedOther = other;
     return feature == typedOther.feature && value == typedOther.value;
   }
