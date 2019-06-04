@@ -939,13 +939,9 @@ abstract class Window {
       (engine.BitmapCanvas canvas) =>
           engine.domRenderer.renderScene(canvas.rootElement)));
 
-  String get initialLifecycleState {
-    _initialLifecycleStateAccessed = true;
-    return _initialLifecycleState;
-  }
+  String get initialLifecycleState => _initialLifecycleState;
 
   String _initialLifecycleState;
-  bool _initialLifecycleStateAccessed = false;
 
   void setIsolateDebugName(String name) {}
 }

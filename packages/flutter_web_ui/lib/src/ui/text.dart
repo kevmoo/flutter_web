@@ -236,16 +236,6 @@ class FontFeature {
   /// values of either 0 (feature is disabled) or 1 (feature is enabled).
   final int value;
 
-  static const int _kEncodedSize = 8;
-
-  void _encode(ByteData byteData) {
-    assert(feature.codeUnits.every((int c) => c >= 0x20 && c <= 0x7F));
-    for (int i = 0; i < 4; i++) {
-      byteData.setUint8(i, feature.codeUnitAt(i));
-    }
-    byteData.setInt32(4, value, _kFakeHostEndian);
-  }
-
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
