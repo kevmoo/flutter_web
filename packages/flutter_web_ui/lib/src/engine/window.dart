@@ -130,6 +130,15 @@ class EngineWindow extends ui.Window {
       case 'flutter/textinput':
         textEditing.handleTextInput(data);
         break;
+
+      case 'flutter/accessibility':
+        // TODO(flutter_web): make this check before the switch case, after
+        // changing title_test.
+        // In widget tests we want to bypass processing of platform messages.
+        if (!domRenderer.debugIsInWidgetTest) {
+          accessibilityAnnouncements.handleMessage(data);
+        }
+        break;
     }
 
     // TODO(flutter_web): Some Flutter widgets send platform messages that we
