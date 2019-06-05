@@ -48,6 +48,7 @@ part 'engine/semantics/checkable.dart';
 part 'engine/semantics/image.dart';
 part 'engine/semantics/incrementable.dart';
 part 'engine/semantics/label_and_value.dart';
+part 'engine/semantics/live_region.dart';
 part 'engine/semantics/scrollable.dart';
 part 'engine/semantics/semantics.dart';
 part 'engine/semantics/tappable.dart';

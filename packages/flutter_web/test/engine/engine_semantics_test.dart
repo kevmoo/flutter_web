@@ -54,6 +54,9 @@ void main() {
   group('image', () {
     _testImage();
   });
+  group('live region', () {
+    _testLiveRegion();
+  });
 }
 
 void _testEngineSemanticsOwner() {
@@ -997,6 +1000,55 @@ void _testImage() {
     <sem></sem>
   </sem-c>
 </sem>''');
+
+    semantics().semanticsEnabled = false;
+  });
+}
+
+void _testLiveRegion() {
+  testWidgets('renders a live region if there is a label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      label: 'This is a snackbar',
+      flags: 0 | SemanticsFlag.isLiveRegion.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+    semantics().updateSemantics(builder.build());
+
+    expectSemanticsTree('''
+<sem aria-label="This is a snackbar" aria-live="polite" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"><sem-v>This is a snackbar</sem-v></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+
+  testWidgets('does not render a live region if there is no label',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0,
+      flags: 0 | SemanticsFlag.isLiveRegion.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+    semantics().updateSemantics(builder.build());
+
+    expectSemanticsTree('''
+<sem style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
 
     semantics().semanticsEnabled = false;
   });
