@@ -59,6 +59,7 @@ part 'engine/services/message_codec.dart';
 part 'engine/services/message_codecs.dart';
 part 'engine/services/serialization.dart';
 part 'engine/shadow.dart';
+part 'engine/surface/backdrop_filter.dart';
 part 'engine/surface/clip.dart';
 part 'engine/surface/debug_canvas_reuse_overlay.dart';
 part 'engine/surface/offset.dart';
