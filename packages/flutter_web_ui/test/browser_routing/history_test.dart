@@ -79,6 +79,7 @@ void main() {
       final List<MethodCall> log = <MethodCall>[];
       SystemChannels.platform.setMockMethodCallHandler((MethodCall methodCall) {
         log.add(methodCall);
+        return null;
       });
 
       await tester.pumpWidget(MyApp());
@@ -100,6 +101,7 @@ void main() {
       final List<MethodCall> log = <MethodCall>[];
       SystemChannels.platform.setMockMethodCallHandler((MethodCall methodCall) {
         log.add(methodCall);
+        return null;
       });
 
       // Start on page1.
