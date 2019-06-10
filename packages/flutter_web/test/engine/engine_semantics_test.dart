@@ -757,6 +757,7 @@ void _testCheckboxesAndRadioButtons() {
       id: 0,
       actions: 0 | SemanticsAction.tap.index,
       flags: 0 |
+          SemanticsFlag.isEnabled.index |
           SemanticsFlag.hasCheckedState.index |
           SemanticsFlag.isChecked.index,
       transform: Matrix4.identity().storage,
@@ -771,6 +772,31 @@ void _testCheckboxesAndRadioButtons() {
     semantics().semanticsEnabled = false;
   });
 
+  testWidgets('renders a checked disabled checkbox',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0 | SemanticsAction.tap.index,
+      flags: 0 |
+          SemanticsFlag.hasCheckedState.index |
+          SemanticsFlag.isChecked.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem role="checkbox" aria-disabled="true" aria-checked="true" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+
   testWidgets('renders an unchecked checkbox', (WidgetTester tester) async {
     semantics()
       ..debugOverrideTimestampFunction(() => _testTime)
@@ -780,7 +806,9 @@ void _testCheckboxesAndRadioButtons() {
     builder.updateNode(
       id: 0,
       actions: 0 | SemanticsAction.tap.index,
-      flags: 0 | SemanticsFlag.hasCheckedState.index,
+      flags: 0 |
+          SemanticsFlag.hasCheckedState.index |
+          SemanticsFlag.isEnabled.index,
       transform: Matrix4.identity().storage,
       rect: ui.Rect.fromLTRB(0, 0, 100, 50),
     );
@@ -803,6 +831,7 @@ void _testCheckboxesAndRadioButtons() {
       id: 0,
       actions: 0 | SemanticsAction.tap.index,
       flags: 0 |
+          SemanticsFlag.isEnabled.index |
           SemanticsFlag.hasCheckedState.index |
           SemanticsFlag.isInMutuallyExclusiveGroup.index |
           SemanticsFlag.isChecked.index,
@@ -818,6 +847,32 @@ void _testCheckboxesAndRadioButtons() {
     semantics().semanticsEnabled = false;
   });
 
+  testWidgets('renders a checked disabled radio button',
+      (WidgetTester tester) async {
+    semantics()
+      ..debugOverrideTimestampFunction(() => _testTime)
+      ..semanticsEnabled = true;
+
+    final ui.SemanticsUpdateBuilder builder = ui.SemanticsUpdateBuilder();
+    builder.updateNode(
+      id: 0,
+      actions: 0 | SemanticsAction.tap.index,
+      flags: 0 |
+          SemanticsFlag.hasCheckedState.index |
+          SemanticsFlag.isInMutuallyExclusiveGroup.index |
+          SemanticsFlag.isChecked.index,
+      transform: Matrix4.identity().storage,
+      rect: ui.Rect.fromLTRB(0, 0, 100, 50),
+    );
+
+    semantics().updateSemantics(builder.build());
+    expectSemanticsTree('''
+<sem role="radio" aria-disabled="true" aria-checked="true" style="filter: opacity(0%); color: rgba(0, 0, 0, 0)"></sem>
+''');
+
+    semantics().semanticsEnabled = false;
+  });
+
   testWidgets('renders an unchecked checkbox', (WidgetTester tester) async {
     semantics()
       ..debugOverrideTimestampFunction(() => _testTime)
@@ -828,6 +883,7 @@ void _testCheckboxesAndRadioButtons() {
       id: 0,
       actions: 0 | SemanticsAction.tap.index,
       flags: 0 |
+          SemanticsFlag.isEnabled.index |
           SemanticsFlag.hasCheckedState.index |
           SemanticsFlag.isInMutuallyExclusiveGroup.index,
       transform: Matrix4.identity().storage,
