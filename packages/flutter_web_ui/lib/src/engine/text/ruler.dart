@@ -43,7 +43,7 @@ class ParagraphGeometricStyle {
     if (assertionsEnabled) {
       // In widget tests we use a predictable-size font "Ahem". This makes
       // widget tests predictable and less flaky.
-      if (domRenderer.debugIsInWidgetTest) {
+      if (ui.debugEmulateFlutterTesterEnvironment) {
         return 'Ahem';
       }
     }

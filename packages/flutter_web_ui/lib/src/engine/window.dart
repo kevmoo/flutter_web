@@ -135,7 +135,7 @@ class EngineWindow extends ui.Window {
         // TODO(flutter_web): make this check before the switch case, after
         // changing title_test.
         // In widget tests we want to bypass processing of platform messages.
-        if (!domRenderer.debugIsInWidgetTest) {
+        if (!ui.debugEmulateFlutterTesterEnvironment) {
           accessibilityAnnouncements.handleMessage(data);
         }
         break;
