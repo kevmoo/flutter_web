@@ -3436,6 +3436,31 @@ abstract class Element extends DiagnosticableTree implements BuildContext {
       return inheritFromElement(ancestor, aspect: aspect);
     }
     _hadUnsatisfiedDependencies = true;
+
+    if (_inheritedWidgets == null) {
+      print("null thing!! for $targetType");
+    } else {
+      final match = _inheritedWidgets.entries.singleWhere(
+          (e) => e.key.toString() == targetType.toString(),
+          orElse: () => null);
+      if (match != null) {
+        print([
+          'found!',
+          targetType,
+          targetType.hashCode,
+          match.key,
+          match.key.hashCode
+        ]);
+
+        print(_parent?._inheritedWidgets);
+
+        debugger();
+      } else if (targetType.toString().toLowerCase().contains('frog')) {
+        print(
+            "##no match for $targetType\n${_inheritedWidgets.keys.join('\n')}");
+      }
+    }
+
     return null;
   }
 
@@ -4294,6 +4319,8 @@ class InheritedElement extends ProxyElement {
       _inheritedWidgets = HashMap<Type, InheritedElement>.from(incomingWidgets);
     else
       _inheritedWidgets = HashMap<Type, InheritedElement>();
+
+    //print('Hello! ${this.runtimeType} - ${widget.runtimeType}');
     _inheritedWidgets[widget.runtimeType] = this;
   }
 
